@@ -4,6 +4,8 @@ import {
   type DataElement, type InsertDataElement, type ProgramRelationship,
   type InsertProgramRelationship, type UploadSession, type InsertUploadSession
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, ilike, or, count } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -45,172 +47,165 @@ export interface IStorage {
   }>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private programs: Map<number, Program>;
-  private dataElements: Map<number, DataElement>;
-  private programRelationships: Map<number, ProgramRelationship>;
-  private uploadSessions: Map<number, UploadSession>;
-  private currentUserId: number;
-  private currentProgramId: number;
-  private currentDataElementId: number;
-  private currentRelationshipId: number;
-  private currentUploadSessionId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.programs = new Map();
-    this.dataElements = new Map();
-    this.programRelationships = new Map();
-    this.uploadSessions = new Map();
-    this.currentUserId = 1;
-    this.currentProgramId = 1;
-    this.currentDataElementId = 1;
-    this.currentRelationshipId = 1;
-    this.currentUploadSessionId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getProgram(id: number): Promise<Program | undefined> {
-    return this.programs.get(id);
+    const [program] = await db.select().from(programs).where(eq(programs.id, id));
+    return program || undefined;
   }
 
   async getAllPrograms(): Promise<Program[]> {
-    return Array.from(this.programs.values()).sort((a, b) => 
-      new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
-    );
+    return await db.select().from(programs);
   }
 
   async getProgramByName(name: string): Promise<Program | undefined> {
-    return Array.from(this.programs.values()).find(program => program.name === name);
+    const [program] = await db.select().from(programs).where(eq(programs.name, name));
+    return program || undefined;
   }
 
   async createProgram(insertProgram: InsertProgram): Promise<Program> {
-    const id = this.currentProgramId++;
-    const program: Program = {
-      ...insertProgram,
-      id,
-      uploadedAt: new Date(),
-    };
-    this.programs.set(id, program);
+    const [program] = await db
+      .insert(programs)
+      .values(insertProgram)
+      .returning();
     return program;
   }
 
   async updateProgram(id: number, updates: Partial<Program>): Promise<Program> {
-    const existingProgram = this.programs.get(id);
-    if (!existingProgram) {
+    const [program] = await db
+      .update(programs)
+      .set(updates)
+      .where(eq(programs.id, id))
+      .returning();
+    
+    if (!program) {
       throw new Error(`Program with id ${id} not found`);
     }
-    const updatedProgram = { ...existingProgram, ...updates };
-    this.programs.set(id, updatedProgram);
-    return updatedProgram;
+    
+    return program;
   }
 
   async deleteProgram(id: number): Promise<void> {
-    this.programs.delete(id);
-    // Also delete related data elements and relationships
-    for (const [elementId, element] of this.dataElements.entries()) {
-      if (element.programId === id) {
-        this.dataElements.delete(elementId);
-      }
-    }
-    for (const [relId, rel] of this.programRelationships.entries()) {
-      if (rel.fromProgramId === id || rel.toProgramId === id) {
-        this.programRelationships.delete(relId);
-      }
-    }
+    await db.delete(programs).where(eq(programs.id, id));
+    await db.delete(dataElements).where(eq(dataElements.programId, id));
+    await db.delete(programRelationships).where(
+      or(
+        eq(programRelationships.fromProgramId, id),
+        eq(programRelationships.toProgramId, id)
+      )
+    );
   }
 
   async searchPrograms(query: string): Promise<Program[]> {
-    const lowerQuery = query.toLowerCase();
-    return Array.from(this.programs.values()).filter(program => 
-      program.name.toLowerCase().includes(lowerQuery) ||
-      program.filename.toLowerCase().includes(lowerQuery) ||
-      (program.aiSummary && program.aiSummary.toLowerCase().includes(lowerQuery))
-    );
+    return await db
+      .select()
+      .from(programs)
+      .where(
+        or(
+          ilike(programs.name, `%${query}%`),
+          ilike(programs.filename, `%${query}%`),
+          ilike(programs.aiSummary, `%${query}%`)
+        )
+      );
   }
 
   async getDataElementsByProgramId(programId: number): Promise<DataElement[]> {
-    return Array.from(this.dataElements.values()).filter(element => 
-      element.programId === programId
-    );
+    return await db
+      .select()
+      .from(dataElements)
+      .where(eq(dataElements.programId, programId));
   }
 
   async getAllDataElements(): Promise<DataElement[]> {
-    return Array.from(this.dataElements.values());
+    return await db.select().from(dataElements);
   }
 
   async createDataElement(insertDataElement: InsertDataElement): Promise<DataElement> {
-    const id = this.currentDataElementId++;
-    const dataElement: DataElement = { ...insertDataElement, id };
-    this.dataElements.set(id, dataElement);
+    const [dataElement] = await db
+      .insert(dataElements)
+      .values(insertDataElement)
+      .returning();
     return dataElement;
   }
 
   async searchDataElements(query: string): Promise<DataElement[]> {
-    const lowerQuery = query.toLowerCase();
-    return Array.from(this.dataElements.values()).filter(element =>
-      element.name.toLowerCase().includes(lowerQuery) ||
-      (element.description && element.description.toLowerCase().includes(lowerQuery))
-    );
+    return await db
+      .select()
+      .from(dataElements)
+      .where(
+        or(
+          ilike(dataElements.name, `%${query}%`),
+          ilike(dataElements.description, `%${query}%`)
+        )
+      );
   }
 
   async getProgramRelationships(programId: number): Promise<ProgramRelationship[]> {
-    return Array.from(this.programRelationships.values()).filter(rel =>
-      rel.fromProgramId === programId || rel.toProgramId === programId
-    );
+    return await db
+      .select()
+      .from(programRelationships)
+      .where(
+        or(
+          eq(programRelationships.fromProgramId, programId),
+          eq(programRelationships.toProgramId, programId)
+        )
+      );
   }
 
   async createProgramRelationship(insertRelationship: InsertProgramRelationship): Promise<ProgramRelationship> {
-    const id = this.currentRelationshipId++;
-    const relationship: ProgramRelationship = { ...insertRelationship, id };
-    this.programRelationships.set(id, relationship);
+    const [relationship] = await db
+      .insert(programRelationships)
+      .values(insertRelationship)
+      .returning();
     return relationship;
   }
 
   async getUploadSession(id: number): Promise<UploadSession | undefined> {
-    return this.uploadSessions.get(id);
+    const [session] = await db.select().from(uploadSessions).where(eq(uploadSessions.id, id));
+    return session || undefined;
   }
 
   async getAllUploadSessions(): Promise<UploadSession[]> {
-    return Array.from(this.uploadSessions.values()).sort((a, b) =>
-      new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
-    );
+    return await db.select().from(uploadSessions);
   }
 
   async createUploadSession(insertSession: InsertUploadSession): Promise<UploadSession> {
-    const id = this.currentUploadSessionId++;
-    const session: UploadSession = {
-      ...insertSession,
-      id,
-      uploadedAt: new Date(),
-    };
-    this.uploadSessions.set(id, session);
+    const [session] = await db
+      .insert(uploadSessions)
+      .values(insertSession)
+      .returning();
     return session;
   }
 
   async updateUploadSession(id: number, updates: Partial<UploadSession>): Promise<UploadSession> {
-    const existingSession = this.uploadSessions.get(id);
-    if (!existingSession) {
+    const [session] = await db
+      .update(uploadSessions)
+      .set(updates)
+      .where(eq(uploadSessions.id, id))
+      .returning();
+    
+    if (!session) {
       throw new Error(`Upload session with id ${id} not found`);
     }
-    const updatedSession = { ...existingSession, ...updates };
-    this.uploadSessions.set(id, updatedSession);
-    return updatedSession;
+    
+    return session;
   }
 
   async getStatistics(): Promise<{
@@ -219,19 +214,31 @@ export class MemStorage implements IStorage {
     dataElements: number;
     issuesFound: number;
   }> {
-    const allPrograms = Array.from(this.programs.values());
-    const totalPrograms = allPrograms.length;
-    const documentedPrograms = allPrograms.filter(p => p.status === "completed").length;
-    const dataElements = this.dataElements.size;
-    const issuesFound = allPrograms.filter(p => p.status === "failed").length;
+    const [totalPrograms] = await db
+      .select({ count: count() })
+      .from(programs);
 
+    const [documentedPrograms] = await db
+      .select({ count: count() })
+      .from(programs)
+      .where(eq(programs.status, 'completed'));
+
+    const [dataElementsCount] = await db
+      .select({ count: count() })
+      .from(dataElements);
+
+    const [issuesFound] = await db
+      .select({ count: count() })
+      .from(programs)
+      .where(eq(programs.status, 'failed'));
+    
     return {
-      totalPrograms,
-      documentedPrograms,
-      dataElements,
-      issuesFound,
+      totalPrograms: totalPrograms.count,
+      documentedPrograms: documentedPrograms.count,
+      dataElements: dataElementsCount.count,
+      issuesFound: issuesFound.count,
     };
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
