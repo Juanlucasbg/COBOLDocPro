@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { CobolParser } from "./cobol-parser";
-import { generateProgramSummary, extractBusinessRules, generateDataElementDescriptions } from "./openai";
+import { generateProgramSummary, extractBusinessRules, generateDataElementDescriptions, generateSystemExplanation, generateMermaidDiagram } from "./openai";
 import { insertProgramSchema, insertUploadSessionSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -158,11 +158,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Extract business rules
               const businessRules = await extractBusinessRules(parsedProgram.name, sourceCode);
               
+              // Generate system explanation in plain English
+              const systemExplanation = await generateSystemExplanation(parsedProgram.name, sourceCode, businessRules);
+              
+              // Generate Mermaid diagram
+              const mermaidDiagram = await generateMermaidDiagram(parsedProgram.name, sourceCode, parsedProgram.relationships);
+              
               // Update program with AI analysis
               await storage.updateProgram(program.id, {
                 aiSummary: summary.summary,
                 complexity: summary.complexity,
                 businessRules,
+                systemExplanation,
+                mermaidDiagram,
                 status: "completed",
               });
 

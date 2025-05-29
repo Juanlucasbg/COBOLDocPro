@@ -16,6 +16,7 @@ import {
   Database,
   GitBranch
 } from "lucide-react";
+import SystemExplanation from "@/components/system-explanation";
 import { Link } from "wouter";
 import { useState } from "react";
 
@@ -208,6 +209,9 @@ export default function ProgramDetail() {
               </div>
             </CardContent>
           </Card>
+
+          {/* System Explanation & Diagrams */}
+          <SystemExplanation program={program} />
 
           {/* Business Rules */}
           {program.businessRules && program.businessRules.length > 0 && (

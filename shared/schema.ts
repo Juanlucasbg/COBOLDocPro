@@ -34,6 +34,19 @@ export const programs = pgTable("programs", {
       }>;
     }>;
   }>(),
+  systemExplanation: jsonb("system_explanation").$type<{
+    plainEnglishSummary: string;
+    keyBusinessProcesses: string[];
+    dataFlow: string;
+    userImpact: string;
+    technicalComplexity: string;
+  }>(),
+  mermaidDiagram: jsonb("mermaid_diagram").$type<{
+    type: "flowchart" | "sequenceDiagram" | "classDiagram" | "erDiagram";
+    title: string;
+    description: string;
+    mermaidCode: string;
+  }>(),
 });
 
 export const dataElements = pgTable("data_elements", {
