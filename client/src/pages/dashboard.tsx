@@ -106,9 +106,12 @@ export default function Dashboard() {
       <Card>
         <Tabs defaultValue="analysis" className="w-full">
           <div className="border-b border-gray-200 dark:border-gray-700">
-            <TabsList className="grid w-full grid-cols-3 bg-transparent">
+            <TabsList className="grid w-full grid-cols-4 bg-transparent">
               <TabsTrigger value="analysis" className="border-b-2 border-transparent data-[state=active]:border-primary">
                 Program Analysis
+              </TabsTrigger>
+              <TabsTrigger value="explanation" className="border-b-2 border-transparent data-[state=active]:border-primary">
+                System Explanations
               </TabsTrigger>
               <TabsTrigger value="upload" className="border-b-2 border-transparent data-[state=active]:border-primary">
                 Upload & Parse
@@ -122,6 +125,94 @@ export default function Dashboard() {
           <TabsContent value="analysis" className="mt-0">
             <div className="p-6">
               <ProgramList programs={programs || []} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="explanation" className="mt-0">
+            <div className="p-6">
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    System Explanations & Diagrams
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Plain English explanations and visual diagrams of your COBOL systems
+                  </p>
+                </div>
+                
+                {programs && programs.length > 0 ? (
+                  <div className="grid gap-6">
+                    {programs
+                      .filter((program: any) => program.systemExplanation || program.mermaidDiagram)
+                      .slice(0, 3)
+                      .map((program: any) => (
+                        <Card key={program.id} className="border-l-4 border-l-primary">
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-lg">{program.name}</CardTitle>
+                              <Badge variant="outline">{program.status}</Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            {program.systemExplanation && (
+                              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+                                  What This System Does
+                                </h4>
+                                <p className="text-blue-800 dark:text-blue-200 text-sm">
+                                  {program.systemExplanation.plainEnglishSummary}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {program.mermaidDiagram && (
+                              <div className="mb-4">
+                                <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                                  {program.mermaidDiagram.title}
+                                </h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  {program.mermaidDiagram.description}
+                                </p>
+                              </div>
+                            )}
+                            
+                            <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                                <span>{program.linesOfCode} lines</span>
+                                {program.businessRules && (
+                                  <span>{program.businessRules.length} business rules</span>
+                                )}
+                              </div>
+                              <Link href={`/program/${program.id}`}>
+                                <Button size="sm">View Details</Button>
+                              </Link>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    
+                    {programs.filter((program: any) => program.systemExplanation || program.mermaidDiagram).length === 0 && (
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center text-gray-500 dark:text-gray-400">
+                            <p>No system explanations available yet.</p>
+                            <p className="text-sm mt-2">Upload COBOL programs to generate explanations and diagrams.</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-center text-gray-500 dark:text-gray-400">
+                        <p>No programs uploaded yet.</p>
+                        <p className="text-sm mt-2">Upload COBOL files to see system explanations and diagrams.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </div>
           </TabsContent>
 
