@@ -124,7 +124,7 @@ export async function retryOperation<T>(
   maxRetries = 3,
   delay = 1000
 ): Promise<T> {
-  let lastError: Error;
+  let lastError: Error = new Error('No attempts made');
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -141,7 +141,7 @@ export async function retryOperation<T>(
 
   throw new COBOLProcessingError(
     'RETRY_EXHAUSTED',
-    `Operation failed after ${maxRetries} attempts: ${lastError!.message}`,
+    `Operation failed after ${maxRetries} attempts: ${lastError.message}`,
     false,
     lastError
   );

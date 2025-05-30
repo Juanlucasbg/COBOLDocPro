@@ -2,7 +2,7 @@
 // Inspired by the Flask application's agent system for intelligent analysis
 
 import { observabilityTracker, agentMonitor } from './observability';
-import { generateProgramSummary, generateSystemExplanation, generateMermaidDiagram } from './gemini';
+import { generateEnhancedProgramSummary, generateEnhancedSystemExplanation, generateEnhancedMermaidDiagram } from './enhanced-gemini';
 import { CobolParser, type ParsedProgram } from './cobol-parser';
 
 interface AgentMemoryItem {
@@ -210,13 +210,13 @@ export class COBOLDocumentationAgent {
 
     try {
       // Generate program summary
-      const summaryResult = await generateProgramSummary(
+      const summaryResult = await generateEnhancedProgramSummary(
         parsedStructure.name,
         parsedStructure.divisions.map(d => d.name).join(', ')
       );
 
       // Generate system explanation
-      const systemExplanation = await generateSystemExplanation(
+      const systemExplanation = await generateEnhancedSystemExplanation(
         parsedStructure.name,
         summaryResult.summary
       );
