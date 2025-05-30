@@ -178,6 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log('Mermaid diagram generated');
               
               // Update program with AI analysis
+              console.log('Updating program in database...');
               await storage.updateProgram(program.id, {
                 aiSummary: summary.summary,
                 complexity: summary.complexity,
@@ -186,6 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 mermaidDiagram,
                 status: "completed",
               });
+              console.log('Program updated successfully in database');
 
               // Create data elements
               for (const element of parsedProgram.dataElements) {
