@@ -1,14 +1,19 @@
 // Using Google Gemini API
 const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
+// Set the API key directly if environment variable is not available
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyCDsDUK9ie_9xUmeY30-V0aEVGAQ34v_50";
+
 // Validate API key is available
-if (!process.env.GEMINI_API_KEY) {
+if (!GEMINI_API_KEY) {
   console.error("GEMINI_API_KEY environment variable is missing");
+} else {
+  console.log("Gemini API key configured successfully");
 }
 
 async function callGeminiAPI(prompt: string, options: any = {}): Promise<string> {
   try {
-    const response = await fetch(`${GEMINI_ENDPOINT}?key=${process.env.GEMINI_API_KEY}`, {
+    const response = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
