@@ -16,9 +16,16 @@ async function callAnthropicAPI(prompt: string, options: any = {}): Promise<stri
 
   const message = await anthropic.messages.create({
     max_tokens: options.max_tokens || 2000,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      {
+        role: 'user', 
+        content: `${prompt}
+
+CRITICAL: Your response must be ONLY valid JSON. No explanations, no markdown, no code blocks. Start with { and end with }.`
+      }
+    ],
     model: MODEL,
-    temperature: options.temperature || 0.3,
+    temperature: options.temperature || 0.1, // Lower temperature for more consistent JSON
   });
 
   return message.content[0].type === 'text' ? message.content[0].text : '';

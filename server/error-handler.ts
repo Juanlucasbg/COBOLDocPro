@@ -32,10 +32,12 @@ export function safeParseJSON(jsonString: string, fallbackValue: any = {}): any 
     return fallbackValue;
   }
 
-  // Strategy 1: Clean markdown code blocks
+  // Strategy 1: Clean markdown code blocks and extra text
   let cleaned = jsonString
     .replace(/```json\s*/g, '')
     .replace(/```\s*/g, '')
+    .replace(/^[^{]*\{/, '{')  // Remove text before first {
+    .replace(/\}[^}]*$/, '}')  // Remove text after last }
     .trim();
 
   try {
@@ -44,8 +46,8 @@ export function safeParseJSON(jsonString: string, fallbackValue: any = {}): any 
     console.log('JSON parse attempt 1 failed, trying strategy 2...');
   }
 
-  // Strategy 2: Extract JSON from mixed content
-  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  // Strategy 2: Extract JSON object more aggressively
+  const jsonMatch = cleaned.match(/\{(?:[^{}]|{[^{}]*})*\}/);
   if (jsonMatch) {
     try {
       return JSON.parse(jsonMatch[0]);
@@ -54,16 +56,50 @@ export function safeParseJSON(jsonString: string, fallbackValue: any = {}): any 
     }
   }
 
-  // Strategy 3: Fix common JSON formatting issues
+  // Strategy 3: Extract from multiline content
+  const lines = cleaned.split('\n');
+  let jsonStart = -1;
+  let jsonEnd = -1;
+  let braceCount = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('{') && jsonStart === -1) {
+      jsonStart = i;
+    }
+    if (jsonStart !== -1) {
+      for (const char of line) {
+        if (char === '{') braceCount++;
+        if (char === '}') braceCount--;
+        if (braceCount === 0 && jsonStart !== -1) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      if (jsonEnd !== -1) break;
+    }
+  }
+
+  if (jsonStart !== -1 && jsonEnd !== -1) {
+    try {
+      const jsonText = lines.slice(jsonStart, jsonEnd + 1).join('\n');
+      return JSON.parse(jsonText);
+    } catch (error) {
+      console.log('JSON parse attempt 3 failed, trying strategy 4...');
+    }
+  }
+
+  // Strategy 4: Fix common JSON formatting issues
   try {
     cleaned = cleaned
       .replace(/'/g, '"')  // Single quotes to double quotes
       .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas
-      .replace(/([{,]\s*)(\w+):/g, '$1"$2":');  // Quote unquoted keys
+      .replace(/([{,]\s*)(\w+):/g, '$1"$2":')  // Quote unquoted keys
+      .replace(/:\s*([^",\{\[\]}\s][^",\}\]]*?)(\s*[,\}])/g, ': "$1"$2'); // Quote unquoted values
     
     return JSON.parse(cleaned);
   } catch (error) {
-    console.log('JSON parse attempt 3 failed, using fallback value');
+    console.log('JSON parse attempt 4 failed, using fallback value');
   }
 
   return fallbackValue;
