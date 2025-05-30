@@ -143,9 +143,9 @@ export default function Dashboard() {
                   </p>
                 </div>
                 
-                {programs && programs.length > 0 ? (
+                {programs && (programs as any).length > 0 ? (
                   <div className="grid gap-6">
-                    {programs
+                    {(programs as any)
                       .slice(0, 3)
                       .map((program: any) => (
                         <Card key={program.id} className="border-l-4 border-l-primary">
@@ -215,7 +215,7 @@ export default function Dashboard() {
                         </Card>
                       ))}
                     
-                    {programs.filter((program: any) => program.systemExplanation || program.mermaidDiagram).length === 0 && (
+                    {(programs as any).filter((program: any) => program.systemExplanation || program.mermaidDiagram).length === 0 && (
                       <Card>
                         <CardContent className="pt-6">
                           <div className="text-center text-gray-500 dark:text-gray-400">
@@ -242,7 +242,7 @@ export default function Dashboard() {
 
           <TabsContent value="upload" className="mt-0">
             <div className="p-6">
-              <Upload uploadSessions={uploadSessions || []} />
+              <Upload uploadSessions={uploadSessions as any} />
             </div>
           </TabsContent>
 

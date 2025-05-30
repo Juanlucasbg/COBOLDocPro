@@ -3,11 +3,12 @@ const FRIENDLI_ENDPOINT = "https://api.friendli.ai/dedicated";
 const FRIENDLI_ENDPOINT_ID = "depgjed5ck584n1";
 
 async function callFriendliAI(prompt: string, options: any = {}): Promise<string> {
-  const response = await fetch(`${FRIENDLI_ENDPOINT}/${FRIENDLI_ENDPOINT_ID}/v1/chat/completions`, {
+  const response = await fetch(`${FRIENDLI_ENDPOINT}/v1/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${process.env.FRIENDLI_API_KEY}`,
+      'X-Endpoint-ID': FRIENDLI_ENDPOINT_ID,
     },
     body: JSON.stringify({
       messages: [{ role: "user", content: prompt }],
