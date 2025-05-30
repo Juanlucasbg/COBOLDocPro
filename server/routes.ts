@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { CobolParser } from "./cobol-parser";
-import { generateEnhancedProgramSummary, generateEnhancedBusinessRules, generateEnhancedSystemExplanation, generateEnhancedMermaidDiagram, generateEnhancedDataElementDescriptions } from "./enhanced-gemini";
+import { generateClaudeProgramSummary, generateClaudeBusinessRules, generateClaudeSystemExplanation, generateClaudeMermaidDiagram, generateClaudeDataElementDescriptions } from "./anthropic-claude";
 import { errorHandler } from "./error-handler";
 import { COBOLDocumentationAgent } from "./autonomous-agent";
 import { observabilityTracker } from "./observability";
@@ -155,17 +155,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Process in background with enhanced error handling
           setImmediate(async () => {
             try {
-              // Generate AI summary with robust error handling
-              const summary = await generateEnhancedProgramSummary(parsedProgram.name, parsedProgram.divisions.map(d => d.name).join(', '), sourceCode);
+              // Generate AI summary using Anthropic Claude
+              const summary = await generateClaudeProgramSummary(parsedProgram.name, parsedProgram.divisions.map(d => d.name).join(', '), sourceCode);
               
-              // Extract business rules with enhanced parsing
-              const businessRules = await generateEnhancedBusinessRules(parsedProgram.name, sourceCode);
+              // Extract business rules using Claude
+              const businessRules = await generateClaudeBusinessRules(parsedProgram.name, sourceCode);
               
-              // Generate system explanation in plain English
-              const systemExplanation = await generateEnhancedSystemExplanation(parsedProgram.name, summary.summary);
+              // Generate system explanation in plain English using Claude
+              const systemExplanation = await generateClaudeSystemExplanation(parsedProgram.name, summary.summary);
               
-              // Generate Mermaid diagram with enhanced error handling
-              const mermaidDiagram = await generateEnhancedMermaidDiagram(parsedProgram.name, systemExplanation.plainEnglishSummary);
+              // Generate Mermaid diagram using Claude
+              const mermaidDiagram = await generateClaudeMermaidDiagram(parsedProgram.name, systemExplanation.plainEnglishSummary);
               
               // Update program with AI analysis
               await storage.updateProgram(program.id, {
@@ -192,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               // Generate data element descriptions using AI
               if (parsedProgram.dataElements.length > 0) {
-                const descriptions = await generateEnhancedDataElementDescriptions(
+                const descriptions = await generateClaudeDataElementDescriptions(
                   parsedProgram.name,
                   parsedProgram.dataElements.map(de => de.name)
                 );

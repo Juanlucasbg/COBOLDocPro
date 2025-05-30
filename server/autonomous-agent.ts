@@ -2,7 +2,7 @@
 // Inspired by the Flask application's agent system for intelligent analysis
 
 import { observabilityTracker, agentMonitor } from './observability';
-import { generateEnhancedProgramSummary, generateEnhancedSystemExplanation, generateEnhancedMermaidDiagram } from './enhanced-gemini';
+import { generateClaudeProgramSummary, generateClaudeSystemExplanation, generateClaudeMermaidDiagram } from './anthropic-claude';
 import { CobolParser, type ParsedProgram } from './cobol-parser';
 
 interface AgentMemoryItem {
@@ -209,21 +209,21 @@ export class COBOLDocumentationAgent {
     );
 
     try {
-      // Generate program summary
-      const summaryResult = await generateEnhancedProgramSummary(
+      // Generate program summary using Anthropic Claude
+      const summaryResult = await generateClaudeProgramSummary(
         parsedStructure.name,
         parsedStructure.divisions.map(d => d.name).join(', ')
       );
 
-      // Generate system explanation
-      const systemExplanation = await generateEnhancedSystemExplanation(
+      // Generate system explanation using Claude
+      const systemExplanation = await generateClaudeSystemExplanation(
         parsedStructure.name,
         summaryResult.summary
       );
 
-      // Generate Mermaid diagram based on user preference
+      // Generate Mermaid diagram based on user preference using Claude
       const diagramType = this.userPreferences.diagramType === 'sequence' ? 'sequenceDiagram' : 'flowchart';
-      const mermaidDiagram = await generateEnhancedMermaidDiagram(
+      const mermaidDiagram = await generateClaudeMermaidDiagram(
         parsedStructure.name,
         systemExplanation.plainEnglishSummary,
         diagramType
