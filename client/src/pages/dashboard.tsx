@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { FileCode, CheckCircle, Database, AlertTriangle } from "lucide-react";
 import ProgramList from "@/components/program-list";
 import DataDictionary from "@/components/data-dictionary";
 import ProgramVisualization from "@/components/program-visualization";
 import Upload from "./upload";
+import { Link } from "wouter";
 
 export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -143,7 +146,6 @@ export default function Dashboard() {
                 {programs && programs.length > 0 ? (
                   <div className="grid gap-6">
                     {programs
-                      .filter((program: any) => program.systemExplanation || program.mermaidDiagram)
                       .slice(0, 3)
                       .map((program: any) => (
                         <Card key={program.id} className="border-l-4 border-l-primary">
@@ -161,6 +163,28 @@ export default function Dashboard() {
                                 </h4>
                                 <p className="text-blue-800 dark:text-blue-200 text-sm">
                                   {program.systemExplanation.plainEnglishSummary}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {!program.systemExplanation && program.status === 'failed' && (
+                              <div className="bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4">
+                                <h4 className="font-medium text-orange-900 dark:text-orange-100 mb-2">
+                                  Analysis Status
+                                </h4>
+                                <p className="text-orange-800 dark:text-orange-200 text-sm">
+                                  COBOL program uploaded successfully. AI analysis is pending due to endpoint configuration.
+                                </p>
+                              </div>
+                            )}
+                            
+                            {!program.systemExplanation && program.status === 'processing' && (
+                              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+                                  Analysis in Progress
+                                </h4>
+                                <p className="text-blue-800 dark:text-blue-200 text-sm">
+                                  AI is analyzing this COBOL program to generate documentation and diagrams.
                                 </p>
                               </div>
                             )}

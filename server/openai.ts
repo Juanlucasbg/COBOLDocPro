@@ -7,23 +7,25 @@ async function callFriendliAI(prompt: string, options: any = {}): Promise<string
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.FRIENDLI_API_KEY || process.env.OPENAI_API_KEY}`,
+      'Authorization': `Bearer ${process.env.FRIENDLI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: options.model || "meta-llama/Meta-Llama-3.1-8B-Instruct",
       messages: [{ role: "user", content: prompt }],
       max_tokens: options.max_tokens || 2000,
       temperature: options.temperature || 0.7,
+      stream: false,
       ...options
     }),
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Friendli AI API error:', response.status, errorText);
     throw new Error(`Friendli AI API error: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  return data.choices[0].message.content || "";
 }
 
 export interface ProgramSummary {
