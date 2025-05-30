@@ -1,31 +1,31 @@
-// Using AIML API endpoint
-const AIML_ENDPOINT = "https://api.aimlapi.com/v1";
+import OpenAI from "openai";
+
+// Configure OpenAI client to use AIML API
+const openai = new OpenAI({
+  apiKey: process.env.AIML_API_KEY || "dummy-key",
+  baseURL: "https://api.aimlapi.com/v1"
+});
+
+// Validate API key is available
+if (!process.env.AIML_API_KEY) {
+  console.error("AIML_API_KEY environment variable is missing");
+}
 
 async function callAIMLAPI(prompt: string, options: any = {}): Promise<string> {
-  const response = await fetch(`${AIML_ENDPOINT}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.AIML_API_KEY}`,
-    },
-    body: JSON.stringify({
+  try {
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini", // Using a cost-effective model for COBOL analysis
       messages: [{ role: "user", content: prompt }],
       max_tokens: options.max_tokens || 2000,
       temperature: options.temperature || 0.7,
-      stream: false,
       ...options
-    }),
-  });
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('AIML API error:', response.status, errorText);
-    throw new Error(`AIML API error: ${response.status} ${response.statusText}`);
+    return completion.choices[0].message.content || "";
+  } catch (error) {
+    console.error('AIML API error:', error);
+    throw new Error(`AIML API error: ${(error as Error).message}`);
   }
-
-  const data = await response.json();
-  return data.choices[0].message.content || "";
 }
 
 export interface ProgramSummary {
