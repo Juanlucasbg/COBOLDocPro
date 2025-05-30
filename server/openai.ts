@@ -1,16 +1,15 @@
-// Using Friendli AI endpoint instead of OpenAI
-const FRIENDLI_ENDPOINT = "https://api.friendli.ai/dedicated";
-const FRIENDLI_ENDPOINT_ID = "depgjed5ck584n1";
+// Using AIML API endpoint
+const AIML_ENDPOINT = "https://api.aimlapi.com/v1";
 
-async function callFriendliAI(prompt: string, options: any = {}): Promise<string> {
-  const response = await fetch(`${FRIENDLI_ENDPOINT}/v1/chat/completions`, {
+async function callAIMLAPI(prompt: string, options: any = {}): Promise<string> {
+  const response = await fetch(`${AIML_ENDPOINT}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.FRIENDLI_API_KEY}`,
-      'X-Endpoint-ID': FRIENDLI_ENDPOINT_ID,
+      'Authorization': `Bearer ${process.env.AIML_API_KEY}`,
     },
     body: JSON.stringify({
+      model: "gpt-4o-mini", // Using a cost-effective model for COBOL analysis
       messages: [{ role: "user", content: prompt }],
       max_tokens: options.max_tokens || 2000,
       temperature: options.temperature || 0.7,
@@ -21,8 +20,8 @@ async function callFriendliAI(prompt: string, options: any = {}): Promise<string
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Friendli AI API error:', response.status, errorText);
-    throw new Error(`Friendli AI API error: ${response.status} ${response.statusText}`);
+    console.error('AIML API error:', response.status, errorText);
+    throw new Error(`AIML API error: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
@@ -86,7 +85,7 @@ COBOL Program: ${programName}
 Source Code:
 ${sourceCode.substring(0, 8000)}`;
 
-    const responseContent = await callFriendliAI(`You are a COBOL expert that analyzes legacy code and generates clear, business-friendly documentation.
+    const responseContent = await callAIMLAPI(`You are a COBOL expert that analyzes legacy code and generates clear, business-friendly documentation.
 
 ${prompt}`, {
       max_tokens: 1500,
@@ -132,7 +131,7 @@ COBOL Program: ${programName}
 Source Code:
 ${sourceCode.substring(0, 8000)}`;
 
-    const responseContent = await callFriendliAI(`You are a business analyst expert at identifying business rules embedded in COBOL code.
+    const responseContent = await callAIMLAPI(`You are a business analyst expert at identifying business rules embedded in COBOL code.
 
 ${prompt}`, {
       max_tokens: 1500,
@@ -167,7 +166,7 @@ export async function generateDataElementDescriptions(
 Data Elements:
 ${dataElements.map(el => `${el.name} (Level: ${el.level}, Picture: ${el.picture})`).join('\n')}`;
 
-    const responseContent = await callFriendliAI(`You are a data analyst expert at interpreting COBOL data structures and their business meanings.
+    const responseContent = await callAIMLAPI(`You are a data analyst expert at interpreting COBOL data structures and their business meanings.
 
 ${prompt}`, {
       max_tokens: 1500,
@@ -207,7 +206,7 @@ ${sourceCode.substring(0, 4000)}
 Business Rules Found:
 ${businessRules.map(rule => `- ${rule.rule}: ${rule.condition} → ${rule.action}`).join('\n')}`;
 
-    const responseContent = await callFriendliAI(`You are a business analyst expert at translating technical COBOL systems into clear business language that non-technical stakeholders can understand.
+    const responseContent = await callAIMLAPI(`You are a business analyst expert at translating technical COBOL systems into clear business language that non-technical stakeholders can understand.
 
 ${prompt}`, {
       max_tokens: 2000,
@@ -263,7 +262,7 @@ Use proper Mermaid flowchart syntax with:
 Source Code Sample:
 ${sourceCode.substring(0, 3000)}`;
 
-    const responseContent = await callFriendliAI(`You are an expert at creating Mermaid diagrams from COBOL code. Generate valid Mermaid syntax that clearly shows program flow and relationships.
+    const responseContent = await callAIMLAPI(`You are an expert at creating Mermaid diagrams from COBOL code. Generate valid Mermaid syntax that clearly shows program flow and relationships.
 
 ${prompt}`, {
       max_tokens: 1500,
