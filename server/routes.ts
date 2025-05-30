@@ -224,6 +224,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             } catch (error) {
               console.error("Background processing failed:", error);
+              console.error("Error details:", {
+                programId: program.id,
+                programName: parsedProgram.name,
+                errorMessage: (error as Error).message,
+                errorStack: (error as Error).stack
+              });
               await storage.updateProgram(program.id, {
                 status: "failed",
               });

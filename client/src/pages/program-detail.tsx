@@ -187,8 +187,8 @@ export default function ProgramDetail() {
                               </div>
                               {section.paragraphs && section.paragraphs.length > 0 && (
                                 <div className="ml-4 space-y-1">
-                                  {section.paragraphs.slice(0, 5).map((paragraph) => (
-                                    <div key={paragraph} className="text-sm text-gray-600 dark:text-gray-400">
+                                  {section.paragraphs.slice(0, 5).map((paragraph, pIndex) => (
+                                    <div key={`${section.name}-paragraph-${pIndex}-${paragraph.slice(0, 10)}`} className="text-sm text-gray-600 dark:text-gray-400">
                                       • {paragraph}
                                     </div>
                                   ))}
