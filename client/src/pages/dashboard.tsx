@@ -242,7 +242,7 @@ export default function Dashboard() {
 
           <TabsContent value="upload" className="mt-0">
             <div className="p-6">
-              <Upload uploadSessions={uploadSessions as any} />
+              <Upload />
             </div>
           </TabsContent>
 
