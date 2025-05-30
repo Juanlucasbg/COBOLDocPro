@@ -1,9 +1,30 @@
-import OpenAI from "openai";
+// Using Friendli AI endpoint instead of OpenAI
+const FRIENDLI_ENDPOINT = "https://api.friendli.ai/dedicated";
+const FRIENDLI_ENDPOINT_ID = "depgjed5ck584n1";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
-});
+async function callFriendliAI(prompt: string, options: any = {}): Promise<string> {
+  const response = await fetch(`${FRIENDLI_ENDPOINT}/${FRIENDLI_ENDPOINT_ID}/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.FRIENDLI_API_KEY || process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: options.model || "meta-llama/Meta-Llama-3.1-8B-Instruct",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: options.max_tokens || 2000,
+      temperature: options.temperature || 0.7,
+      ...options
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Friendli AI API error: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
 
 export interface ProgramSummary {
   summary: string;
@@ -62,22 +83,14 @@ COBOL Program: ${programName}
 Source Code:
 ${sourceCode.substring(0, 8000)}`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a COBOL expert that analyzes legacy code and generates clear, business-friendly documentation."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
+    const responseContent = await callFriendliAI(`You are a COBOL expert that analyzes legacy code and generates clear, business-friendly documentation.
+
+${prompt}`, {
+      max_tokens: 1500,
+      temperature: 0.3,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(responseContent || "{}");
     
     return {
       summary: result.summary || "No summary available",
@@ -116,22 +129,14 @@ COBOL Program: ${programName}
 Source Code:
 ${sourceCode.substring(0, 8000)}`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a business analyst expert at identifying business rules embedded in COBOL code."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
+    const responseContent = await callFriendliAI(`You are a business analyst expert at identifying business rules embedded in COBOL code.
+
+${prompt}`, {
+      max_tokens: 1500,
+      temperature: 0.3,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(responseContent || "{}");
     
     return Array.isArray(result.businessRules) ? result.businessRules : [];
   } catch (error) {
@@ -159,22 +164,14 @@ export async function generateDataElementDescriptions(
 Data Elements:
 ${dataElements.map(el => `${el.name} (Level: ${el.level}, Picture: ${el.picture})`).join('\n')}`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a data analyst expert at interpreting COBOL data structures and their business meanings."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
+    const responseContent = await callFriendliAI(`You are a data analyst expert at interpreting COBOL data structures and their business meanings.
+
+${prompt}`, {
+      max_tokens: 1500,
+      temperature: 0.3,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(responseContent || "{}");
     
     return Array.isArray(result.descriptions) ? result.descriptions : [];
   } catch (error) {
