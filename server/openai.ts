@@ -204,22 +204,14 @@ ${sourceCode.substring(0, 4000)}
 Business Rules Found:
 ${businessRules.map(rule => `- ${rule.rule}: ${rule.condition} → ${rule.action}`).join('\n')}`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a business analyst expert at translating technical COBOL systems into clear business language that non-technical stakeholders can understand."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
+    const responseContent = await callFriendliAI(`You are a business analyst expert at translating technical COBOL systems into clear business language that non-technical stakeholders can understand.
+
+${prompt}`, {
+      max_tokens: 2000,
+      temperature: 0.3,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(responseContent || "{}");
     
     return {
       plainEnglishSummary: result.plainEnglishSummary || "System analysis not available",
@@ -268,22 +260,14 @@ Use proper Mermaid flowchart syntax with:
 Source Code Sample:
 ${sourceCode.substring(0, 3000)}`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert at creating Mermaid diagrams from COBOL code. Generate valid Mermaid syntax that clearly shows program flow and relationships."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
+    const responseContent = await callFriendliAI(`You are an expert at creating Mermaid diagrams from COBOL code. Generate valid Mermaid syntax that clearly shows program flow and relationships.
+
+${prompt}`, {
+      max_tokens: 1500,
+      temperature: 0.3,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(responseContent || "{}");
     
     return {
       type: diagramType,
