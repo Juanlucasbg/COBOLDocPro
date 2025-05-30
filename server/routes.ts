@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { CobolParser } from "./cobol-parser";
-import { generateProgramSummary, extractBusinessRules, generateDataElementDescriptions, generateSystemExplanation, generateMermaidDiagram } from "./openai";
+import { generateProgramSummary, extractBusinessRules, generateDataElementDescriptions, generateSystemExplanation, generateMermaidDiagram } from "./gemini";
 import { COBOLDocumentationAgent } from "./autonomous-agent";
 import { observabilityTracker } from "./observability";
 import { insertProgramSchema, insertUploadSessionSchema } from "@shared/schema";

@@ -2,7 +2,7 @@
 // Inspired by the Flask application's agent system for intelligent analysis
 
 import { observabilityTracker, agentMonitor } from './observability';
-import { generateProgramSummary, generateSystemExplanation, generateMermaidDiagram } from './openai';
+import { generateProgramSummary, generateSystemExplanation, generateMermaidDiagram } from './gemini';
 import { CobolParser, type ParsedProgram } from './cobol-parser';
 
 interface AgentMemoryItem {
