@@ -11,6 +11,14 @@ if (!GEMINI_API_KEY) {
   console.log("Gemini API key configured successfully");
 }
 
+// Helper function to clean JSON responses from Gemini
+function cleanGeminiJSON(responseText: string): string {
+  return responseText
+    .replace(/```json\s*/g, '')
+    .replace(/```\s*/g, '')
+    .trim();
+}
+
 async function callGeminiAPI(prompt: string, options: any = {}): Promise<string> {
   try {
     const response = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
@@ -113,7 +121,8 @@ ${prompt}`, {
       temperature: 0.3,
     });
 
-    const result = JSON.parse(responseContent || "{}");
+    const cleanedResponse = cleanGeminiJSON(responseContent || "{}");
+    const result = JSON.parse(cleanedResponse);
     
     return {
       summary: result.summary || "No summary available",
@@ -159,7 +168,8 @@ ${prompt}`, {
       temperature: 0.3,
     });
 
-    const result = JSON.parse(responseContent || "{}");
+    const cleanedResponse = cleanGeminiJSON(responseContent || "{}");
+    const result = JSON.parse(cleanedResponse);
     
     return Array.isArray(result.businessRules) ? result.businessRules : [];
   } catch (error) {
@@ -194,7 +204,8 @@ ${prompt}`, {
       temperature: 0.3,
     });
 
-    const result = JSON.parse(responseContent || "{}");
+    const cleanedResponse = cleanGeminiJSON(responseContent || "{}");
+    const result = JSON.parse(cleanedResponse);
     
     return Array.isArray(result.descriptions) ? result.descriptions : [];
   } catch (error) {
