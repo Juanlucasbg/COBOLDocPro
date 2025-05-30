@@ -155,17 +155,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Process in background with enhanced error handling
           setImmediate(async () => {
             try {
+              console.log(`Starting AI analysis for program: ${parsedProgram.name}`);
+              
               // Generate AI summary using Anthropic Claude
+              console.log('Generating program summary...');
               const summary = await generateClaudeProgramSummary(parsedProgram.name, parsedProgram.divisions.map(d => d.name).join(', '), sourceCode);
+              console.log('Summary generated:', summary.summary.substring(0, 100) + '...');
               
               // Extract business rules using Claude
+              console.log('Extracting business rules...');
               const businessRules = await generateClaudeBusinessRules(parsedProgram.name, sourceCode);
+              console.log('Business rules extracted:', businessRules.length);
               
               // Generate system explanation in plain English using Claude
+              console.log('Generating system explanation...');
               const systemExplanation = await generateClaudeSystemExplanation(parsedProgram.name, summary.summary);
+              console.log('System explanation generated');
               
               // Generate Mermaid diagram using Claude
+              console.log('Generating Mermaid diagram...');
               const mermaidDiagram = await generateClaudeMermaidDiagram(parsedProgram.name, systemExplanation.plainEnglishSummary);
+              console.log('Mermaid diagram generated');
               
               // Update program with AI analysis
               await storage.updateProgram(program.id, {
