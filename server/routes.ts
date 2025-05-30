@@ -268,6 +268,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Enhanced program analysis using autonomous agent
+  app.post("/api/programs/:id/enhanced-analysis", async (req, res) => {
+    try {
+      const programId = parseInt(req.params.id);
+      const program = await storage.getProgram(programId);
+      
+      if (!program) {
+        return res.status(404).json({ error: "Program not found" });
+      }
+
+      // Initialize autonomous agent with session tracking
+      const sessionId = `analysis_${Date.now()}_${programId}`;
+      const agent = new COBOLDocumentationAgent(sessionId, req.ip);
+
+      // Set user preferences if provided
+      const { detailLevel, audience, diagramType } = req.body;
+      if (detailLevel) agent.setUserPreference('detailLevel', detailLevel);
+      if (audience) agent.setUserPreference('audience', audience);
+      if (diagramType) agent.setUserPreference('diagramType', diagramType);
+
+      // Start observability tracking
+      const analysisSpan = observabilityTracker.startSpan(
+        "enhanced_program_analysis",
+        { 
+          program_id: programId,
+          program_name: program.name,
+          session_id: sessionId
+        }
+      );
+
+      try {
+        // Perform enhanced analysis with the autonomous agent
+        const enhancedResults = await agent.analyzeCobolStructure(program.sourceCode, programId);
+        
+        // Evaluate documentation quality
+        const qualityEvaluation = await agent.evaluateDocumentationQuality(enhancedResults, programId);
+
+        // Update program with enhanced analysis results
+        await storage.updateProgram(programId, {
+          aiSummary: enhancedResults.programSummary.summary,
+          complexity: enhancedResults.programSummary.complexity,
+          systemExplanation: enhancedResults.systemExplanation,
+          mermaidDiagram: enhancedResults.mermaidDiagram,
+          status: "completed"
+        });
+
+        // Get session metrics for monitoring
+        const sessionMetrics = agent.getSessionMetrics();
+
+        observabilityTracker.endSpan(analysisSpan, {
+          success: true,
+          quality_score: qualityEvaluation.score,
+          completeness: qualityEvaluation.completeness
+        });
+
+        agent.cleanup();
+
+        res.json({
+          success: true,
+          results: enhancedResults,
+          qualityEvaluation,
+          sessionMetrics,
+          message: "Enhanced analysis completed successfully"
+        });
+
+      } catch (error) {
+        observabilityTracker.endSpan(analysisSpan, null, (error as Error).message);
+        agent.cleanup();
+        throw error;
+      }
+
+    } catch (error) {
+      console.error("Enhanced analysis failed:", error);
+      res.status(500).json({ 
+        error: "Enhanced analysis failed",
+        message: (error as Error).message
+      });
+    }
+  });
+
   // Global search endpoint
   app.get("/api/search/:query", async (req, res) => {
     try {

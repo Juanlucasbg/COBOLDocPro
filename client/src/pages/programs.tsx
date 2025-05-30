@@ -6,13 +6,49 @@ import { Input } from "@/components/ui/input";
 import { Search, FileCode, Calendar, Activity } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { Program } from "@shared/schema";
 
 export default function Programs() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: programs = [], isLoading } = useQuery({
     queryKey: ["/api/programs"],
+  });
+
+  const enhancedAnalysisMutation = useMutation({
+    mutationFn: async ({ programId, preferences }: { programId: number; preferences?: any }) => {
+      const response = await fetch(`/api/programs/${programId}/enhanced-analysis`, {
+        method: "POST",
+        body: JSON.stringify(preferences || {}),
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Analysis failed: ${response.statusText}`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data, variables) => {
+      toast({
+        title: "Enhanced Analysis Complete",
+        description: `AI analysis has been enhanced for the selected program with quality score: ${data.qualityEvaluation?.score || 'N/A'}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/programs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/programs", variables.programId] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Enhanced Analysis Failed",
+        description: error.message || "Failed to perform enhanced analysis",
+        variant: "destructive",
+      });
+    },
   });
 
   const getStatusColor = (status: string) => {
@@ -185,6 +221,21 @@ export default function Programs() {
 
                   {/* Actions */}
                   <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => enhancedAnalysisMutation.mutate({ 
+                        programId: program.id,
+                        preferences: {
+                          detailLevel: 'high',
+                          audience: 'technical',
+                          diagramType: 'flowchart'
+                        }
+                      })}
+                      disabled={enhancedAnalysisMutation.isPending}
+                    >
+                      {enhancedAnalysisMutation.isPending ? 'Enhancing...' : 'Enhance Analysis'}
+                    </Button>
                     <Link href={`/program/${program.id}`}>
                       <Button variant="outline">View Details</Button>
                     </Link>
