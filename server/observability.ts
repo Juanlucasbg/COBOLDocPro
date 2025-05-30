@@ -1,4 +1,5 @@
-// Observability and monitoring system inspired by the Flask application
+// Enhanced Observability and monitoring system inspired by the Flask application
+// Provides comprehensive tracking of AI operations, decision making, and performance metrics
 interface ObservabilitySpan {
   id: string;
   operation: string;

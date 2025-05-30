@@ -4,6 +4,8 @@ import multer from "multer";
 import { storage } from "./storage";
 import { CobolParser } from "./cobol-parser";
 import { generateProgramSummary, extractBusinessRules, generateDataElementDescriptions, generateSystemExplanation, generateMermaidDiagram } from "./openai";
+import { COBOLDocumentationAgent } from "./autonomous-agent";
+import { observabilityTracker } from "./observability";
 import { insertProgramSchema, insertUploadSessionSchema } from "@shared/schema";
 import { z } from "zod";
 

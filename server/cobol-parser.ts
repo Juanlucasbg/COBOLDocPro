@@ -34,6 +34,8 @@ export interface ParsedRelationship {
 export class CobolParser {
   private sourceLines: string[] = [];
   private currentLineIndex = 0;
+  private memoryItems: Array<{type: string, content: any, timestamp: string}> = [];
+  private userPreferences: Record<string, any> = {};
 
   parse(sourceCode: string): ParsedProgram {
     this.sourceLines = sourceCode.split('\n').map(line => line.trim());
