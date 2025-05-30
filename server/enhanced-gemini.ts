@@ -194,3 +194,34 @@ Description: ${description}`;
     };
   }, 2);
 }
+
+// Enhanced data element descriptions
+export async function generateEnhancedDataElementDescriptions(
+  programName: string,
+  dataElements: string[]
+): Promise<any[]> {
+  return retryOperation(async () => {
+    const prompt = `Analyze data elements from this COBOL program as JSON:
+{
+  "descriptions": [
+    {
+      "name": "element name",
+      "inferredPurpose": "what it's used for",
+      "businessContext": "business meaning",
+      "commonValues": ["value1", "value2"]
+    }
+  ]
+}
+
+Program: ${programName}
+Elements: ${dataElements.join(', ')}`;
+
+    const responseContent = await callGeminiAPIEnhanced(prompt, {
+      max_tokens: 1000,
+      temperature: 0.2,
+    });
+
+    const result = safeParseJSON(responseContent, { descriptions: [] });
+    return Array.isArray(result.descriptions) ? result.descriptions : [];
+  }, 2);
+}

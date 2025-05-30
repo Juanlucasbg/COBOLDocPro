@@ -223,10 +223,9 @@ export class COBOLDocumentationAgent {
 
       // Generate Mermaid diagram based on user preference
       const diagramType = this.userPreferences.diagramType === 'sequence' ? 'sequenceDiagram' : 'flowchart';
-      const mermaidDiagram = await generateMermaidDiagram(
+      const mermaidDiagram = await generateEnhancedMermaidDiagram(
         parsedStructure.name,
         systemExplanation.plainEnglishSummary,
-        parsedStructure.relationships,
         diagramType
       );
 

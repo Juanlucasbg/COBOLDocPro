@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { CobolParser } from "./cobol-parser";
-import { generateProgramSummary, extractBusinessRules, generateDataElementDescriptions, generateSystemExplanation, generateMermaidDiagram } from "./gemini";
+import { generateEnhancedProgramSummary, generateEnhancedBusinessRules, generateEnhancedSystemExplanation, generateEnhancedMermaidDiagram } from "./enhanced-gemini";
+import { errorHandler } from "./error-handler";
 import { COBOLDocumentationAgent } from "./autonomous-agent";
 import { observabilityTracker } from "./observability";
 import { insertProgramSchema, insertUploadSessionSchema } from "@shared/schema";
@@ -151,20 +152,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
           });
 
-          // Process in background (simplified for demo)
+          // Process in background with enhanced error handling
           setImmediate(async () => {
             try {
-              // Generate AI summary
-              const summary = await generateProgramSummary(parsedProgram.name, sourceCode);
+              // Generate AI summary with robust error handling
+              const summary = await generateEnhancedProgramSummary(parsedProgram.name, parsedProgram.divisions.map(d => d.name).join(', '), sourceCode);
               
-              // Extract business rules
-              const businessRules = await extractBusinessRules(parsedProgram.name, sourceCode);
+              // Extract business rules with enhanced parsing
+              const businessRules = await generateEnhancedBusinessRules(parsedProgram.name, sourceCode);
               
               // Generate system explanation in plain English
-              const systemExplanation = await generateSystemExplanation(parsedProgram.name, sourceCode, businessRules);
+              const systemExplanation = await generateEnhancedSystemExplanation(parsedProgram.name, summary.summary);
               
-              // Generate Mermaid diagram
-              const mermaidDiagram = await generateMermaidDiagram(parsedProgram.name, sourceCode, parsedProgram.relationships);
+              // Generate Mermaid diagram with enhanced error handling
+              const mermaidDiagram = await generateEnhancedMermaidDiagram(parsedProgram.name, systemExplanation.plainEnglishSummary);
               
               // Update program with AI analysis
               await storage.updateProgram(program.id, {
@@ -191,7 +192,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               // Generate data element descriptions using AI
               if (parsedProgram.dataElements.length > 0) {
-                const descriptions = await generateDataElementDescriptions(parsedProgram.dataElements);
+                const descriptions = await generateEnhancedDataElementDescriptions(
+                  parsedProgram.name,
+                  parsedProgram.dataElements.map(de => de.name)
+                );
                 const dataElements = await storage.getDataElementsByProgramId(program.id);
                 
                 for (const description of descriptions) {
