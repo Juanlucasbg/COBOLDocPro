@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Upload from "@/pages/upload";
+import Programs from "@/pages/programs";
+import BusinessRules from "@/pages/business-rules";
 import ProgramDetail from "@/pages/program-detail";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
@@ -14,6 +16,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/programs" component={Programs} />
+      <Route path="/business-rules" component={BusinessRules} />
       <Route path="/upload" component={Upload} />
       <Route path="/program/:id" component={ProgramDetail} />
       <Route component={NotFound} />

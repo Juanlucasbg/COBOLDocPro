@@ -9,13 +9,10 @@ import FileUpload from "@/components/ui/file-upload";
 import { Upload as UploadIcon, GitBranch } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { UploadSession } from "@shared/schema";
+import { useUploadSessions } from "@/hooks/use-upload";
 
-interface UploadProps {
-  uploadSessions?: UploadSession[];
-}
-
-export default function Upload({ uploadSessions = [] }: UploadProps) {
+export default function Upload() {
+  const { data: uploadSessions = [] } = useUploadSessions();
   const [repositoryUrl, setRepositoryUrl] = useState("");
   const [branch, setBranch] = useState("main");
   const [analysisOptions, setAnalysisOptions] = useState({
