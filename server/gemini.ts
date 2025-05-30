@@ -11,6 +11,8 @@ if (!GEMINI_API_KEY) {
   console.log("Gemini API key configured successfully");
 }
 
+import { safeParseJSON, retryOperation, COBOLProcessingError } from './error-handler';
+
 // Helper function to clean JSON responses from Gemini
 function cleanGeminiJSON(responseText: string): string {
   return responseText
@@ -245,7 +247,8 @@ ${prompt}`, {
       temperature: 0.3,
     });
 
-    const result = JSON.parse(responseContent || "{}");
+    const cleanedResponse = cleanGeminiJSON(responseContent || "{}");
+    const result = JSON.parse(cleanedResponse);
     
     return {
       plainEnglishSummary: result.plainEnglishSummary || "System analysis not available",
@@ -301,7 +304,8 @@ ${prompt}`, {
       temperature: 0.3,
     });
 
-    const result = JSON.parse(responseContent || "{}");
+    const cleanedResponse = cleanGeminiJSON(responseContent || "{}");
+    const result = JSON.parse(cleanedResponse);
     
     return {
       type: diagramType,

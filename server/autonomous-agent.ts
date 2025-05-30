@@ -212,15 +212,13 @@ export class COBOLDocumentationAgent {
       // Generate program summary
       const summaryResult = await generateProgramSummary(
         parsedStructure.name,
-        parsedStructure.divisions.map(d => d.name).join(', '),
-        parsedStructure.linesOfCode
+        parsedStructure.divisions.map(d => d.name).join(', ')
       );
 
       // Generate system explanation
       const systemExplanation = await generateSystemExplanation(
         parsedStructure.name,
-        summaryResult.summary,
-        parsedStructure.divisions
+        summaryResult.summary
       );
 
       // Generate Mermaid diagram based on user preference
