@@ -1,30 +1,46 @@
-import OpenAI from "openai";
-
-// Configure OpenAI client to use AIML API
-const openai = new OpenAI({
-  apiKey: process.env.AIML_API_KEY || "dummy-key",
-  baseURL: "https://api.aimlapi.com/v1"
-});
+// Using Google Gemini API
+const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 // Validate API key is available
-if (!process.env.AIML_API_KEY) {
-  console.error("AIML_API_KEY environment variable is missing");
+if (!process.env.GEMINI_API_KEY) {
+  console.error("GEMINI_API_KEY environment variable is missing");
 }
 
-async function callAIMLAPI(prompt: string, options: any = {}): Promise<string> {
+async function callGeminiAPI(prompt: string, options: any = {}): Promise<string> {
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using a cost-effective model for COBOL analysis
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: options.max_tokens || 2000,
-      temperature: options.temperature || 0.7,
-      ...options
+    const response = await fetch(`${GEMINI_ENDPOINT}?key=${process.env.GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          maxOutputTokens: options.max_tokens || 2000,
+          temperature: options.temperature || 0.7,
+        }
+      }),
     });
 
-    return completion.choices[0].message.content || "";
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Gemini API error:', response.status, errorText);
+      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
   } catch (error) {
-    console.error('AIML API error:', error);
-    throw new Error(`AIML API error: ${(error as Error).message}`);
+    console.error('Gemini API error:', error);
+    throw new Error(`Gemini API error: ${(error as Error).message}`);
   }
 }
 
@@ -85,7 +101,7 @@ COBOL Program: ${programName}
 Source Code:
 ${sourceCode.substring(0, 8000)}`;
 
-    const responseContent = await callAIMLAPI(`You are a COBOL expert that analyzes legacy code and generates clear, business-friendly documentation.
+    const responseContent = await callGeminiAPI(`You are a COBOL expert that analyzes legacy code and generates clear, business-friendly documentation.
 
 ${prompt}`, {
       max_tokens: 1500,
@@ -131,7 +147,7 @@ COBOL Program: ${programName}
 Source Code:
 ${sourceCode.substring(0, 8000)}`;
 
-    const responseContent = await callAIMLAPI(`You are a business analyst expert at identifying business rules embedded in COBOL code.
+    const responseContent = await callGeminiAPI(`You are a business analyst expert at identifying business rules embedded in COBOL code.
 
 ${prompt}`, {
       max_tokens: 1500,
@@ -166,7 +182,7 @@ export async function generateDataElementDescriptions(
 Data Elements:
 ${dataElements.map(el => `${el.name} (Level: ${el.level}, Picture: ${el.picture})`).join('\n')}`;
 
-    const responseContent = await callAIMLAPI(`You are a data analyst expert at interpreting COBOL data structures and their business meanings.
+    const responseContent = await callGeminiAPI(`You are a data analyst expert at interpreting COBOL data structures and their business meanings.
 
 ${prompt}`, {
       max_tokens: 1500,
@@ -206,7 +222,7 @@ ${sourceCode.substring(0, 4000)}
 Business Rules Found:
 ${businessRules.map(rule => `- ${rule.rule}: ${rule.condition} → ${rule.action}`).join('\n')}`;
 
-    const responseContent = await callAIMLAPI(`You are a business analyst expert at translating technical COBOL systems into clear business language that non-technical stakeholders can understand.
+    const responseContent = await callGeminiAPI(`You are a business analyst expert at translating technical COBOL systems into clear business language that non-technical stakeholders can understand.
 
 ${prompt}`, {
       max_tokens: 2000,
@@ -262,7 +278,7 @@ Use proper Mermaid flowchart syntax with:
 Source Code Sample:
 ${sourceCode.substring(0, 3000)}`;
 
-    const responseContent = await callAIMLAPI(`You are an expert at creating Mermaid diagrams from COBOL code. Generate valid Mermaid syntax that clearly shows program flow and relationships.
+    const responseContent = await callGeminiAPI(`You are an expert at creating Mermaid diagrams from COBOL code. Generate valid Mermaid syntax that clearly shows program flow and relationships.
 
 ${prompt}`, {
       max_tokens: 1500,
