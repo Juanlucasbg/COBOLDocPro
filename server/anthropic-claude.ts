@@ -28,7 +28,15 @@ CRITICAL: Your response must be ONLY valid JSON. No explanations, no markdown, n
     temperature: options.temperature || 0.1, // Lower temperature for more consistent JSON
   });
 
-  return message.content[0].type === 'text' ? message.content[0].text : '';
+  // Extract only text content, handling potential thinking sections
+  let responseText = '';
+  for (const content of message.content) {
+    if (content.type === 'text') {
+      responseText += content.text;
+    }
+  }
+  
+  return responseText;
 }
 
 // Program summary generation using Claude

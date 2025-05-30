@@ -1,0 +1,22 @@
+{
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "thinking",
+      "thinking": "The user wants me to analyze COBOL code and provide clear, non-technical documentation. However, they haven't actually provided any COBOL code yet - they've just shown a placeholder \"[Insert COBOL code here]\".\n\nI should respond by acknowledging this and asking them to provide the actual COBOL code they want me to analyze.",
+      "signature": "Eu0DCkYIBBgCKkBfZGR7hMvl+WV3H8PQuAvA1HahSrDev1S8/ESC/p7NYOFCu7mNf7qyElItyLRuKEPC3qYTKd8wWFHFYBGDAEGWEgwLUmUUIOIkZT0pdYIaDOyS6GE5v1BKEjaqWiIwKhcbG1kRva0M4vAiWRaH51uUIuczTmYUu6aq9s15mWsPfB8ILqvjXyaIsDTpeLw7KtQCE+gQSOLHkt+SbeIW9oC2PzfItaY7RQ+JHYbL8lvetFPCaTd0cF4tHS4c83DF77gAznyAoo4am08WstdaT6vpe4BRETie3dq2WPH2eeSnqkUxyqR5r0dqvU8qm139Ll2inQlprAOaRy9knvrcTTaGn/njKt4NZ4eI8vFpTgASZOQqiTM5DevJ9kUm37BKq4WsEYU0k/ghMUetxL0Qq8bE2tbSvMcil/9BBDYRts7MSGbsd7oRGb6+c4hC+hTJmiYXHqxOVF6kDijx0OaRyNQ9JS6CEz2m6oJEHEl+bn8PosSqws5f/c+YMAJlXKIFhtAwD8bPvPa5LlPwfT4iEQtz9w9l55sLKnizTYHxMX6hq7luGrJlhfmhHqINetjoo//McHYKqH6fa4uNyLKWYdGyYwQdgbjCYM0jpz1xkZQliwX6ksGIcuUVg8FJ+aHmJjeUxZAMQRgB"
+    },
+    {
+      "type": "text",
+      "text": "I'd be happy to analyze your COBOL code and provide clear, non-technical documentation. However, I notice you haven't included the actual COBOL code in your message - you've included a placeholder that says \"[Insert COBOL code here]\".\n\nPlease paste the COBOL code you'd like me to analyze, and I'll provide:\n\n• **Program Overview** - What the program does in simple terms\n• **Business Purpose** - Why this program exists and what business need it serves  \n• **Data Flow Summary** - How information moves through the program\n• **Key Business Rules** - Important logic and decision-making processes\n• **Program Structure** - Major sections explained in plain language\n• **Input and Output** - What goes in and what comes out\n• **Historical Context** - Any relevant background about why things work the way they do\n\nOnce you provide the code, I'll break it down into easy-to-understand sections that a business analyst or operations manager can follow without needing technical knowledge."
+    }
+  ],
+  "stop_reason": null,
+  "stop_sequence": null,
+  "usage": {
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "output_tokens": null
+  }
+}

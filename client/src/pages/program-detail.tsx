@@ -222,7 +222,7 @@ export default function ProgramDetail() {
               <CardContent>
                 <div className="space-y-4">
                   {program.businessRules.map((rule, index) => (
-                    <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div key={`rule-${index}-${rule.rule?.slice(0, 20) || index}`} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                       <h4 className="font-medium text-gray-900 dark:text-white mb-2">
                         {rule.rule}
                       </h4>
