@@ -11,43 +11,43 @@ import Upload from "./upload";
 import { Link } from "wouter";
 
 export default function Dashboard() {
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats = {}, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/statistics"],
   });
 
-  const { data: programs, isLoading: programsLoading } = useQuery({
+  const { data: programs = [], isLoading: programsLoading } = useQuery({
     queryKey: ["/api/programs"],
   });
 
-  const { data: uploadSessions } = useQuery({
+  const { data: uploadSessions = [] } = useQuery({
     queryKey: ["/api/upload-sessions"],
   });
 
   const statsCards = [
     {
       title: "Total Programs",
-      value: stats?.totalPrograms || 0,
+      value: (stats as any)?.totalPrograms || 0,
       icon: FileCode,
       color: "text-primary",
       bgColor: "bg-blue-100 dark:bg-blue-900",
     },
     {
       title: "Documented",
-      value: stats?.documentedPrograms || 0,
+      value: (stats as any)?.documentedPrograms || 0,
       icon: CheckCircle,
       color: "text-green-600",
       bgColor: "bg-green-100 dark:bg-green-900",
     },
     {
       title: "Data Elements",
-      value: stats?.dataElements || 0,
+      value: (stats as any)?.dataElements || 0,
       icon: Database,
       color: "text-orange-600",
       bgColor: "bg-orange-100 dark:bg-orange-900",
     },
     {
       title: "Issues Found",
-      value: stats?.issuesFound || 0,
+      value: (stats as any)?.issuesFound || 0,
       icon: AlertTriangle,
       color: "text-yellow-600",
       bgColor: "bg-yellow-100 dark:bg-yellow-900",
@@ -127,7 +127,7 @@ export default function Dashboard() {
 
           <TabsContent value="analysis" className="mt-0">
             <div className="p-6">
-              <ProgramList programs={programs || []} />
+              <ProgramList programs={programs as any} />
             </div>
           </TabsContent>
 
