@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { CobolParser } from "./cobol-parser";
-import { generateEnhancedProgramSummary, generateEnhancedBusinessRules, generateEnhancedSystemExplanation, generateEnhancedMermaidDiagram } from "./enhanced-gemini";
+import { generateEnhancedProgramSummary, generateEnhancedBusinessRules, generateEnhancedSystemExplanation, generateEnhancedMermaidDiagram, generateEnhancedDataElementDescriptions } from "./enhanced-gemini";
 import { errorHandler } from "./error-handler";
 import { COBOLDocumentationAgent } from "./autonomous-agent";
 import { observabilityTracker } from "./observability";
@@ -370,6 +370,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Search failed" });
     }
   });
+
+  // Add error handling middleware
+  app.use(errorHandler);
 
   const httpServer = createServer(app);
   return httpServer;
