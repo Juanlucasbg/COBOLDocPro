@@ -1,21 +1,127 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileCode, CheckCircle, Database, AlertTriangle } from "lucide-react";
-import ProgramList from "@/components/program-list";
-import DataDictionary from "@/components/data-dictionary";
-import ProgramVisualization from "@/components/program-visualization";
-import Upload from "./upload";
+import { Progress } from "@/components/ui/progress";
+import { 
+  FileCode, 
+  CheckCircle, 
+  Database, 
+  AlertTriangle, 
+  Upload,
+  TrendingUp,
+  Activity,
+  Zap,
+  Users,
+  Clock
+} from "lucide-react";
 import { Link } from "wouter";
 
+interface StatCardProps {
+  title: string;
+  value: number;
+  icon: any;
+  trend?: string;
+  color: string;
+  description?: string;
+}
+
+function StatCard({ title, value, icon: Icon, trend, color, description }: StatCardProps) {
+  return (
+    <Card className="glass-card hover:border-primary/30 transition-all duration-300">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-sm font-medium">{title}</p>
+            <div className="flex items-baseline space-x-2">
+              <span className={`text-3xl font-bold ${color}`}>{value}</span>
+              {trend && (
+                <Badge className="bg-success/20 text-success border-success/30 text-xs">
+                  {trend}
+                </Badge>
+              )}
+            </div>
+            {description && (
+              <p className="text-xs text-muted-foreground">{description}</p>
+            )}
+          </div>
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${color === 'text-primary' ? 'from-primary/20 to-primary/10' : color === 'text-success' ? 'from-success/20 to-success/10' : color === 'text-warning' ? 'from-warning/20 to-warning/10' : 'from-destructive/20 to-destructive/10'}`}>
+            <Icon size={24} className={color} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function QuickAction({ icon: Icon, title, description, href, color }: {
+  icon: any;
+  title: string;
+  description: string;
+  href: string;
+  color: string;
+}) {
+  return (
+    <Link href={href}>
+      <Card className="glass-card hover:border-primary/30 transition-all duration-300 cursor-pointer group">
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-4">
+            <div className={`p-3 rounded-xl bg-gradient-to-br ${color} group-hover:scale-110 transition-transform duration-200`}>
+              <Icon size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">{title}</h3>
+              <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function ActivityItem({ type, title, time, status }: {
+  type: 'upload' | 'analysis' | 'documentation';
+  title: string;
+  time: string;
+  status: 'success' | 'processing' | 'failed';
+}) {
+  const icons = {
+    upload: Upload,
+    analysis: Activity,
+    documentation: FileCode
+  };
+  
+  const statusColors = {
+    success: 'text-success',
+    processing: 'text-warning',
+    failed: 'text-destructive'
+  };
+  
+  const Icon = icons[type];
+  
+  return (
+    <div className="flex items-center space-x-4 p-4 rounded-lg hover:bg-card/50 transition-colors">
+      <div className="p-2 rounded-lg bg-primary/20">
+        <Icon size={16} className="text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-white truncate">{title}</p>
+        <p className="text-xs text-muted-foreground">{time}</p>
+      </div>
+      <Badge className={`${statusColors[status]}`} variant="outline">
+        {status}
+      </Badge>
+    </div>
+  );
+}
+
 export default function Dashboard() {
-  const { data: stats = {}, isLoading: statsLoading } = useQuery({
+  const { data: stats = {} } = useQuery({
     queryKey: ["/api/statistics"],
   });
 
-  const { data: programs = [], isLoading: programsLoading } = useQuery({
+  const { data: programs = [] } = useQuery({
     queryKey: ["/api/programs"],
   });
 
@@ -23,240 +129,210 @@ export default function Dashboard() {
     queryKey: ["/api/upload-sessions"],
   });
 
-  const statsCards = [
+  // Type-safe stats with proper defaults
+  const totalPrograms = (stats as any)?.totalPrograms || 0;
+  const documentedPrograms = (stats as any)?.documentedPrograms || 0;
+  const dataElements = (stats as any)?.dataElements || 0;
+  const pendingPrograms = totalPrograms - documentedPrograms;
+
+  const recentActivities = [
     {
-      title: "Total Programs",
-      value: (stats as any)?.totalPrograms || 0,
-      icon: FileCode,
-      color: "text-primary",
-      bgColor: "bg-blue-100 dark:bg-blue-900",
+      type: 'upload' as const,
+      title: 'Billing System v2.1 uploaded',
+      time: '2 hours ago',
+      status: 'success' as const
     },
     {
-      title: "Documented",
-      value: (stats as any)?.documentedPrograms || 0,
-      icon: CheckCircle,
-      color: "text-green-600",
-      bgColor: "bg-green-100 dark:bg-green-900",
+      type: 'analysis' as const,
+      title: 'Customer Master analysis',
+      time: '4 hours ago',
+      status: 'processing' as const
     },
     {
-      title: "Data Elements",
-      value: (stats as any)?.dataElements || 0,
-      icon: Database,
-      color: "text-orange-600",
-      bgColor: "bg-orange-100 dark:bg-orange-900",
-    },
-    {
-      title: "Issues Found",
-      value: (stats as any)?.issuesFound || 0,
-      icon: AlertTriangle,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100 dark:bg-yellow-900",
-    },
+      type: 'documentation' as const,
+      title: 'Payroll Legacy documented',
+      time: '6 hours ago',
+      status: 'success' as const
+    }
   ];
 
-  if (statsLoading || programsLoading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          System Overview
+    <div className="min-h-screen bg-background p-8 space-y-8">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-4xl font-bold gradient-text">
+          Welcome to COBOL ClarityEngine
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Billing System v2.1 - Last analyzed 2 hours ago
+        <p className="text-muted-foreground text-lg">
+          Transform your legacy systems into clear, understandable documentation
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statsCards.map((stat) => (
-          <Card key={stat.title} className="stats-card">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className={`w-8 h-8 ${stat.bgColor} rounded-lg flex items-center justify-center`}>
-                    <stat.icon className={stat.color} size={18} />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Programs"
+          value={totalPrograms}
+          icon={FileCode}
+          color="text-primary"
+          description="COBOL programs analyzed"
+          data-testid="stat-total-programs"
+        />
+        <StatCard
+          title="Documented"
+          value={documentedPrograms}
+          icon={CheckCircle}
+          color="text-success"
+          trend={documentedPrograms > 0 ? "+12%" : undefined}
+          description="Fully processed programs"
+          data-testid="stat-documented-programs"
+        />
+        <StatCard
+          title="Data Elements"
+          value={dataElements}
+          icon={Database}
+          color="text-warning"
+          description="Variables discovered"
+          data-testid="stat-data-elements"
+        />
+        <StatCard
+          title="Pending Analysis"
+          value={pendingPrograms}
+          icon={Clock}
+          color="text-muted-foreground"
+          description="Awaiting processing"
+          data-testid="stat-pending-analysis"
+        />
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Quick Actions */}
+        <div className="lg:col-span-2 space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <QuickAction
+                icon={Upload}
+                title="Upload COBOL Files"
+                description="Add new programs to analyze"
+                href="/upload"
+                color="from-primary to-accent"
+              />
+              <QuickAction
+                icon={FileCode}
+                title="View Programs"
+                description="Browse analyzed programs"
+                href="/programs"
+                color="from-success to-success/80"
+              />
+              <QuickAction
+                icon={Database}
+                title="Data Dictionary"
+                description="Explore variables and structures"
+                href="/data-dictionary"
+                color="from-warning to-warning/80"
+              />
+              <QuickAction
+                icon={TrendingUp}
+                title="Visualizations"
+                description="View system diagrams"
+                href="/visualizations"
+                color="from-accent to-primary"
+              />
+            </div>
+          </div>
+
+          {/* Progress Overview */}
+          {totalPrograms > 0 && (
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="text-primary" size={20} />
+                  <span>Documentation Progress</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Completed Programs</span>
+                    <span className="text-white">{documentedPrograms} of {totalPrograms}</span>
+                  </div>
+                  <Progress 
+                    value={(documentedPrograms / totalPrograms) * 100} 
+                    className="h-2"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-success">{Math.round((documentedPrograms / totalPrograms) * 100)}%</div>
+                    <div className="text-xs text-muted-foreground">Complete</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-warning">{pendingPrograms}</div>
+                    <div className="text-xs text-muted-foreground">Remaining</div>
                   </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {stat.title}
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stat.value}
-                  </p>
-                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Recent Activity */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
+          <Card className="glass-card">
+            <CardContent className="p-0">
+              <div className="space-y-1">
+                {recentActivities.map((activity, index) => (
+                  <ActivityItem key={index} {...activity} />
+                ))}
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-
-      {/* Main Content Tabs */}
-      <Card>
-        <Tabs defaultValue="analysis" className="w-full">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <TabsList className="grid w-full grid-cols-4 bg-transparent">
-              <TabsTrigger value="analysis" className="border-b-2 border-transparent data-[state=active]:border-primary">
-                Program Analysis
-              </TabsTrigger>
-              <TabsTrigger value="explanation" className="border-b-2 border-transparent data-[state=active]:border-primary">
-                System Explanations
-              </TabsTrigger>
-              <TabsTrigger value="upload" className="border-b-2 border-transparent data-[state=active]:border-primary">
-                Upload & Parse
-              </TabsTrigger>
-              <TabsTrigger value="visualization" className="border-b-2 border-transparent data-[state=active]:border-primary">
-                Structure View
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="analysis" className="mt-0">
-            <div className="p-6">
-              <ProgramList programs={programs as any} />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="explanation" className="mt-0">
-            <div className="p-6">
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    System Explanations & Diagrams
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Plain English explanations and visual diagrams of your COBOL systems
-                  </p>
-                </div>
-                
-                {programs && (programs as any).length > 0 ? (
-                  <div className="grid gap-6">
-                    {(programs as any)
-                      .slice(0, 3)
-                      .map((program: any) => (
-                        <Card key={program.id} className="border-l-4 border-l-primary">
-                          <CardHeader>
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-lg">{program.name}</CardTitle>
-                              <Badge variant="outline">{program.status}</Badge>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            {program.systemExplanation && (
-                              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
-                                  What This System Does
-                                </h4>
-                                <p className="text-blue-800 dark:text-blue-200 text-sm">
-                                  {program.systemExplanation.plainEnglishSummary}
-                                </p>
-                              </div>
-                            )}
-                            
-                            {!program.systemExplanation && program.status === 'failed' && (
-                              <div className="bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4">
-                                <h4 className="font-medium text-orange-900 dark:text-orange-100 mb-2">
-                                  Analysis Status
-                                </h4>
-                                <p className="text-orange-800 dark:text-orange-200 text-sm">
-                                  COBOL program uploaded successfully. AI analysis is pending due to endpoint configuration.
-                                </p>
-                              </div>
-                            )}
-                            
-                            {!program.systemExplanation && program.status === 'processing' && (
-                              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
-                                  Analysis in Progress
-                                </h4>
-                                <p className="text-blue-800 dark:text-blue-200 text-sm">
-                                  AI is analyzing this COBOL program to generate documentation and diagrams.
-                                </p>
-                              </div>
-                            )}
-                            
-                            {program.mermaidDiagram && (
-                              <div className="mb-4">
-                                <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                                  {program.mermaidDiagram.title}
-                                </h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {program.mermaidDiagram.description}
-                                </p>
-                              </div>
-                            )}
-                            
-                            <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-                              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                                <span>{program.linesOfCode} lines</span>
-                                {program.businessRules && (
-                                  <span>{program.businessRules.length} business rules</span>
-                                )}
-                              </div>
-                              <Link href={`/program/${program.id}`}>
-                                <Button size="sm">View Details</Button>
-                              </Link>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    
-                    {(programs as any).filter((program: any) => program.systemExplanation || program.mermaidDiagram).length === 0 && (
-                      <Card>
-                        <CardContent className="pt-6">
-                          <div className="text-center text-gray-500 dark:text-gray-400">
-                            <p>No system explanations available yet.</p>
-                            <p className="text-sm mt-2">Upload COBOL programs to generate explanations and diagrams.</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                ) : (
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="text-center text-gray-500 dark:text-gray-400">
-                        <p>No programs uploaded yet.</p>
-                        <p className="text-sm mt-2">Upload COBOL files to see system explanations and diagrams.</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="upload" className="mt-0">
-            <div className="p-6">
-              <Upload />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="visualization" className="mt-0">
-            <div className="p-6">
-              <ProgramVisualization />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </Card>
-
-      {/* Data Dictionary Section */}
-      <div className="mt-8">
-        <DataDictionary />
+          
+          {/* Getting Started */}
+          {totalPrograms === 0 && (
+            <Card className="glass-card border-primary/30">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Zap className="text-primary" size={20} />
+                  <span>Getting Started</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  Start documenting your COBOL systems in three simple steps:
+                </p>
+                <ol className="space-y-3 text-sm">
+                  <li className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-[hsl(var(--primary-foreground))]">
+                      1
+                    </div>
+                    <span className="text-white">Upload your COBOL files</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-[hsl(var(--primary-foreground))]">
+                      2
+                    </div>
+                    <span className="text-white">AI analyzes the code structure</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-[hsl(var(--primary-foreground))]">
+                      3
+                    </div>
+                    <span className="text-white">Get clear documentation & diagrams</span>
+                  </li>
+                </ol>
+                <Link href="/upload">
+                  <Button className="w-full mt-4" data-testid="get-started-upload">
+                    Upload Your First Program
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );

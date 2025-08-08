@@ -33,13 +33,15 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-          <Header />
-          <div className="flex h-[calc(100vh-4rem)]">
+        <div className="min-h-screen bg-background text-foreground dark">
+          <div className="flex h-screen">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto">
-              <Router />
-            </main>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <Header />
+              <main className="flex-1 overflow-y-auto">
+                <Router />
+              </main>
+            </div>
           </div>
           <Toaster />
         </div>
