@@ -111,3 +111,11 @@ export type ProgramRelationship = typeof programRelationships.$inferSelect;
 export type InsertProgramRelationship = z.infer<typeof insertProgramRelationshipSchema>;
 export type UploadSession = typeof uploadSessions.$inferSelect;
 export type InsertUploadSession = z.infer<typeof insertUploadSessionSchema>;
+
+// Statistics type
+export type Statistics = {
+  totalPrograms: number;
+  documentedPrograms: number;
+  dataElements: number;
+  issuesFound: number;
+};

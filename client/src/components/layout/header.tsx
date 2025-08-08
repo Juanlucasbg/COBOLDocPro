@@ -5,11 +5,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import type { Statistics } from "@shared/schema";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<Statistics>({
     queryKey: ["/api/statistics"],
     refetchInterval: 30000,
   });

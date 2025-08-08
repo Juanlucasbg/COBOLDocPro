@@ -2,7 +2,8 @@ import {
   users, programs, dataElements, programRelationships, uploadSessions,
   type User, type InsertUser, type Program, type InsertProgram,
   type DataElement, type InsertDataElement, type ProgramRelationship,
-  type InsertProgramRelationship, type UploadSession, type InsertUploadSession
+  type InsertProgramRelationship, type UploadSession, type InsertUploadSession,
+  type Statistics
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, count } from "drizzle-orm";
@@ -39,12 +40,7 @@ export interface IStorage {
   updateUploadSession(id: number, updates: Partial<UploadSession>): Promise<UploadSession>;
 
   // Statistics
-  getStatistics(): Promise<{
-    totalPrograms: number;
-    documentedPrograms: number;
-    dataElements: number;
-    issuesFound: number;
-  }>;
+  getStatistics(): Promise<Statistics>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -83,7 +79,7 @@ export class DatabaseStorage implements IStorage {
   async createProgram(insertProgram: InsertProgram): Promise<Program> {
     const [program] = await db
       .insert(programs)
-      .values(insertProgram)
+      .values([insertProgram])
       .returning();
     return program;
   }
@@ -208,12 +204,7 @@ export class DatabaseStorage implements IStorage {
     return session;
   }
 
-  async getStatistics(): Promise<{
-    totalPrograms: number;
-    documentedPrograms: number;
-    dataElements: number;
-    issuesFound: number;
-  }> {
+  async getStatistics(): Promise<Statistics> {
     const [totalPrograms] = await db
       .select({ count: count() })
       .from(programs);

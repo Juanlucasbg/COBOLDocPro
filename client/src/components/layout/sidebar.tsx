@@ -12,11 +12,12 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import type { Statistics } from "@shared/schema";
 
 export default function Sidebar() {
   const [location] = useLocation();
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<Statistics>({
     queryKey: ["/api/statistics"],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -102,7 +103,7 @@ export default function Sidebar() {
               >
                 <item.icon size={20} />
                 <span className="font-medium">{item.label}</span>
-                {item.badge > 0 && (
+                {item.badge && item.badge > 0 && (
                   <Badge 
                     variant="secondary" 
                     className="ml-auto bg-primary/20 text-primary border-primary/30"
