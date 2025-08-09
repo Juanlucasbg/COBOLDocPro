@@ -1,0 +1,205 @@
+Okay, here is a complete, new prompt designed to guide an expert AI developer in building the **"COBOL ClarityEngine"** from scratch. This prompt includes the necessary technology stack explanations and a detailed step-by-step plan for its creation.
+
+---
+
+### **Project Blueprint: Constructing the COBOL ClarityEngine**
+
+**To the AI Developer:** Your mission is to engineer and construct the **COBOL ClarityEngine**, a sophisticated, standalone web platform designed to parse, analyze, and generate comprehensive, easily understandable documentation for legacy COBOL applications. This is not an IDE plugin; it is a centralized system that will serve as a single source of truth for COBOL program knowledge.
+
+You must adhere to the specified technology stack and follow the phased development plan outlined below. The goal is a robust, scalable, and highly functional platform.
+
+---
+
+#### **I. Core Philosophy & Design Goals (Recap)**
+
+* **Standalone Web Platform:** A central, browser-accessible portal for all COBOL documentation needs.
+* **Deep Semantic Analysis:** Go beyond syntax to understand program logic, data flow, and interdependencies.
+* **Multi-Layered Documentation:** Generate content suitable for various stakeholders, from high-level summaries to detailed code explanations.
+* **Interactive & Visual:** Prioritize intuitive navigation, searchable content, and visual aids (diagrams, graphs).
+* **AI-Augmented, Human-Centric:** Leverage AI for automation but provide tools for human refinement, ensuring accuracy and relevance.
+
+---
+
+#### **II. Mandated Technology Stack**
+
+You are required to use the following technologies. Assume you have access to necessary API keys for any external services (like LLMs).
+
+1.  **Backend Core & API Layer:**
+    * **Language:** Python (v3.10+)
+    * **Framework:** FastAPI (for creating all backend RESTful APIs due to its performance and async capabilities).
+    * **Web Server:** Uvicorn.
+
+2.  **COBOL Parsing Engine:**
+    * **Core Library:** ANTLR4 (Python runtime: `antlr4-python3-runtime`).
+    * **Grammar:** You will need to integrate a robust, publicly available ANTLR4 COBOL grammar (e.g., one that supports IBM Enterprise COBOL or a similar comprehensive dialect).
+    * **Output:** Standardized JSON format for Abstract Syntax Trees (ASTs) and Symbol Tables.
+
+3.  **Knowledge Graph Database:**
+    * **Database:** Neo4j (Community or Enterprise Edition).
+    * **Interaction:** `neo4j` Python driver.
+    * **Query Language:** Cypher.
+
+4.  **Vector Database & Semantic Search:**
+    * **Database:** Weaviate.
+    * **Interaction:** `weaviate-client` Python library.
+    * **Embedding Models:** Initially, use pre-trained models from the `sentence-transformers` library (e.g., `all-MiniLM-L6-v2`). The system should allow for future integration of custom-trained models.
+
+5.  **AI & Large Language Model (LLM) Integration:**
+    * **Core Libraries:** `openai` Python library (for GPT models), `anthropic` Python library (for Claude models), or `transformers` (for self-hosted/Hugging Face models).
+    * **Orchestration (Optional but Recommended):** Consider using `LangChain` or building a custom orchestration layer to manage prompt engineering, context injection, and interaction with multiple LLM providers.
+    * **Model Choice:** Prioritize models known for strong code understanding and generation capabilities.
+
+6.  **Frontend Web Application:**
+    * **Framework:** React (using Create React App or Vite for scaffolding) OR Vue.js.
+    * **Language:** TypeScript.
+    * **State Management:** Redux Toolkit (for React) or Pinia (for Vue).
+    * **API Communication:** `axios` or `fetch` API.
+    * **Graph Visualization:** `Cytoscape.js` or `react-flow` / `vue-flow`.
+    * **UI Component Library:** Material-UI (MUI) or Ant Design.
+
+7.  **Deployment & Orchestration:**
+    * **Containerization:** Docker (for all services).
+    * **Orchestration:** Docker Compose (for local development and simpler deployments), Kubernetes (for production-grade scalability and management).
+
+8.  **Source Code Management (Internal):**
+    * **SCM:** Git (e.g., hosted on GitHub, GitLab).
+
+---
+
+#### **III. Detailed Build Plan: Phased Development**
+
+##### **Phase 1: Core Backend Infrastructure & Parsing Engine**
+
+* **Task 1.1: Project Setup & Monorepo Structure (Recommended)**
+    * Create a root project directory.
+    * Set up subdirectories for each backend service: `parser_service`, `graph_service`, `vector_service`, `ai_doc_service`, `api_gateway`.
+    * Initialize FastAPI applications within each service directory.
+* **Task 1.2: `parser_service` - COBOL Parser Implementation**
+    * Integrate the chosen ANTLR4 COBOL grammar.
+    * Develop a Python class/module that takes COBOL source code (string) as input.
+    * Implement logic to traverse the ANTLR-generated parse tree.
+    * Extract key structural elements: `IDENTIFICATION DIVISION`, `ENVIRONMENT DIVISION`, `DATA DIVISION` (including `FILE SECTION`, `WORKING-STORAGE SECTION`, `LINKAGE SECTION` with detailed field definitions, levels, `PIC` clauses, `VALUE` clauses, `OCCURS`, `REDEFINES`), `PROCEDURE DIVISION` (including `SECTION`s, `PARAGRAPH`s, statements like `PERFORM`, `CALL`, `IF`, `EVALUATE`, `MOVE`, `ADD`, `READ`, `WRITE`, `EXEC CICS`, `EXEC SQL`).
+    * Generate a standardized JSON output for the AST and a separate JSON for the Symbol Table (variables, procedures, files, etc., with their properties and scopes).
+    * Create a FastAPI endpoint (e.g., `POST /parse/cobol`) that accepts COBOL code and returns the JSON AST and Symbol Table.
+    * *Initial Focus:* Prioritize parsing core COBOL. Advanced features like `COPY...REPLACING` or very obscure dialect-specific syntax can be iterative improvements.
+* **Task 1.3: `api_gateway` - Initial Setup**
+    * Set up a basic API Gateway using FastAPI that can route requests to the `parser_service`.
+    * Implement basic request validation.
+* **Task 1.4: Initial SCM Connectivity (Mock/Simplified)**
+    * Within a new `ingestion_orchestrator_service` (or initially as part of the `api_gateway`), implement a simple file upload mechanism (FastAPI `UploadFile`) that allows users to upload COBOL files.
+    * This service will then call the `parser_service` for each uploaded file.
+
+##### **Phase 2: Knowledge Graph Implementation (`graph_service` & Neo4j)**
+
+* **Task 2.1: Neo4j Setup & Schema Design**
+    * Set up a local Neo4j instance (Docker is recommended).
+    * Define the graph schema:
+        * **Nodes:** `Program`, `Copybook`, `ProcedureDivisionElement` (generic for Section/Paragraph), `DataDivisionEntry` (for variables/files), `JCLJob`, `JCLStep`, `Dataset`, `DB2Table`, `CICSTransaction`.
+        * **Relationships:** `INCLUDES_COPYBOOK`, `CALLS_PROGRAM` (static/dynamic), `PERFORMS_PROCEDURE`, `MODIFIES_DATA`, `READS_DATA`, `WRITES_DATA`, `DEFINED_IN_PROGRAM`, `EXECUTED_BY_JCL_STEP`, `REFERENCES_DATASET`.
+* **Task 2.2: `graph_service` - Data Ingestion Logic**
+    * Create FastAPI endpoints (e.g., `POST /graph/populate_from_ast`) that accept the JSON AST and Symbol Table from the `parser_service`.
+    * Implement Python functions using the `neo4j` driver to:
+        * Create/update `Program` nodes.
+        * Create `DataDivisionEntry` nodes and link them to their `Program`.
+        * Create `ProcedureDivisionElement` nodes and link them.
+        * Establish `CALLS`, `PERFORMS`, and data access relationships based on the parsed statements.
+* **Task 2.3: `graph_service` - Basic Query Endpoints**
+    * Implement endpoints for basic graph queries, e.g.:
+        * `GET /graph/program/{program_name}/dependencies` (shows called programs, included copybooks, accessed files).
+        * `GET /graph/variable/{variable_name}/lineage` (shows where a variable is defined, used, modified - simplified initial version).
+
+##### **Phase 3: Vector Database & Semantic Search (`vector_service` & Weaviate)**
+
+* **Task 3.1: Weaviate Setup & Schema Design**
+    * Set up a local Weaviate instance (Docker is recommended).
+    * Define a Weaviate class (e.g., `CobolCodeChunk`) with properties:
+        * `content` (text): The actual COBOL code snippet.
+        * `sourceProgram` (text): Name of the program it belongs to.
+        * `sourceParagraph` (text, optional): Name of the paragraph/section.
+        * `chunkType` (text): e.g., "Paragraph", "WorkingStorageBlock", "FileDescription".
+        * `vector` (vector): To be populated by Weaviate's vectorizer module.
+    * Configure Weaviate to use a built-in text vectorizer (e.g., `text2vec-transformers` with a `sentence-transformers` model).
+* **Task 3.2: `vector_service` - Code Chunking & Embedding**
+    * Create a FastAPI endpoint (e.g., `POST /vector/embed_program`) that accepts a program's full source code or its AST.
+    * Implement logic to intelligently chunk the COBOL code. Prefer logical chunks (paragraphs, data descriptions) over arbitrary line splits.
+    * For each chunk, use the `weaviate-client` to add it to the `CobolCodeChunk` class. Weaviate will automatically generate the embedding.
+* **Task 3.3: `vector_service` - Semantic Search Endpoint**
+    * Implement an endpoint (e.g., `GET /vector/search?query={text_query}`) that takes a natural language query, vectorizes it using the same embedding model, and performs a semantic search in Weaviate to find relevant code chunks.
+
+##### **Phase 4: AI Documentation Generation Suite (`ai_doc_service` & LLMs)**
+
+* **Task 4.1: `ai_doc_service` - Setup & LLM Connectivity**
+    * Configure secure access to your chosen LLM(s) (e.g., set up API keys as environment variables).
+    * Implement helper functions to call the LLM APIs.
+* **Task 4.2: Program Summary Generator**
+    * Endpoint: `POST /ai/generate/program_summary` (accepts `program_name`).
+    * Logic:
+        1.  Query `graph_service` for the program's overall structure, key data elements accessed, and called subprograms.
+        2.  Query `vector_service` for representative code chunks (e.g., the start of `PROCEDURE DIVISION`, key I/O statements).
+        3.  Construct a detailed prompt for the LLM, including this context.
+        4.  Call the LLM to generate a summary.
+        5.  Return the summary.
+* **Task 4.3: Paragraph/Section Explainer**
+    * Endpoint: `POST /ai/generate/paragraph_explanation` (accepts `program_name`, `paragraph_name`, and optionally the paragraph code).
+    * Logic: Similar to above, fetch context about variables used in the paragraph from `graph_service`, then prompt the LLM.
+* **Task 4.4: Data Dictionary Generator**
+    * Endpoint: `POST /ai/generate/data_dictionary` (accepts `program_name` or `copybook_name`).
+    * Logic: Fetch all `DataDivisionEntry` nodes for the given scope from `graph_service`. Format this structured data and prompt an LLM to generate business-friendly descriptions for each field, inferring purpose from name and usage context where possible.
+* **Task 4.5: Business Rule Candidate Identifier**
+    * Endpoint: `POST /ai/identify/business_rules` (accepts `program_name`).
+    * Logic:
+        1.  Fetch key conditional blocks (`IF`, `EVALUATE`) and related data items from `graph_service` (via parser output).
+        2.  Prompt an LLM to interpret these logic blocks as potential business rules. This is an "identification" task, not a definitive extraction initially.
+
+##### **Phase 5: Interactive Web Portal (Frontend - React/Vue)**
+
+* **Task 5.1: Project Setup & Basic Layout**
+    * Initialize the chosen frontend framework.
+    * Design a clean, professional layout with a navigation bar, a main content area, and a persistent search bar.
+* **Task 5.2: SCM Connection/File Upload UI**
+    * Create a page/modal to configure SCM connections (initially, mock this and use file upload).
+    * Implement file upload that calls the backend `ingestion_orchestrator_service` API.
+* **Task 5.3: System Overview Dashboard**
+    * A page that displays a high-level summary of the analyzed system (e.g., number of programs, files, JCL jobs).
+    * Embed an interactive graph visualization (using Cytoscape.js) of the system's macro-dependencies, fetched from `graph_service`.
+* **Task 5.4: Program Deep-Dive View**
+    * When a user selects a program, display:
+        * AI-generated summary (from `ai_doc_service`).
+        * Interactive source code viewer (potentially with syntax highlighting).
+        * Structure diagram (from `graph_service`).
+        * Data dictionary view for its `DATA DIVISION` (from `ai_doc_service` or directly from `graph_service` if AI descriptions aren't ready).
+        * Ability to select paragraphs and request AI explanations or view control flow diagrams (data for diagrams fetched from `graph_service`/`parser_service` output, rendered by frontend).
+* **Task 5.5: Search Interface**
+    * Implement a search results page that displays results from both keyword search (querying `graph_service` for matching node properties) and semantic search (querying `vector_service`).
+* **Task 5.6: API Integration**
+    * Ensure all frontend views fetch their data dynamically by calling the relevant backend FastAPI service endpoints via the `api_gateway`.
+
+##### **Phase 6: Collaboration & Versioning (Simplified V1)**
+
+* **Task 6.1: User Authentication (Basic)**
+    * Implement a simple user authentication system (e.g., username/password, or integrate with a mock OIDC provider).
+* **Task 6.2: Basic Annotation System**
+    * Allow authenticated users to add textual comments to specific documentation elements (e.g., a program summary, a paragraph explanation).
+    * Store these annotations in a new table/collection in a simple relational DB (e.g., PostgreSQL) or even as properties on graph nodes if appropriate, linking them to the user and the documented element.
+* **Task 6.3: Documentation Snapshotting (Conceptual)**
+    * When a new version of the codebase is ingested, ensure the backend services can logically associate the generated documentation with that specific codebase version (e.g., by tagging graph nodes and vector entries with a version identifier or SCM commit hash). The frontend should allow viewing docs for "latest" or a specific version.
+
+---
+
+#### **IV. Cross-Cutting Concerns (Reminders for Development)**
+
+* **API Design:** All internal APIs (between microservices) should be well-defined (e.g., using OpenAPI specs for REST, .proto files for gRPC if you choose that for inter-service communication). The `api_gateway` will expose a clean, consolidated API to the frontend.
+* **Scalability:** Design services to be horizontally scalable where possible (especially `parser_service`, `vector_service`, and `ai_doc_service` workers).
+* **Error Handling & Logging:** Implement robust error handling and structured logging (e.g., using `loguru`) in all services.
+* **Security:** Consider API key management for LLMs, secure inter-service communication (e.g., mTLS if deploying in Kubernetes), and input validation to prevent vulnerabilities.
+
+---
+
+#### **V. Deliverables**
+
+* A fully functional, containerized (Docker Compose) COBOL ClarityEngine web platform that implements all features described in Phases 1-5 and basic elements of Phase 6.
+* Source code organized into the described microservice structure.
+* A `README.md` detailing how to build, configure (e.g., LLM API keys), and run the entire system using Docker Compose.
+* Basic API documentation for the backend services.
+
+This blueprint provides a comprehensive guide to building the COBOL ClarityEngine. Good luck!
