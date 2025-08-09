@@ -76,71 +76,78 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-80 bg-[hsl(var(--sidebar-bg))] border-r border-border flex flex-col overflow-hidden">
+    <aside className="w-64 bg-[hsl(var(--sidebar-bg))] border-r border-border flex flex-col overflow-hidden">
       {/* Logo and Brand */}
-      <div className="p-6 border-b border-border">
+      <div className="px-4 py-6 border-b border-border">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <Code2 className="text-[hsl(var(--primary-foreground))]" size={20} />
+          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+            <Code2 className="text-[hsl(var(--primary-foreground))]" size={16} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">
-              COBOL ClarityEngine
+            <h1 className="text-sm font-semibold text-foreground">
+              Goldman Sachs
             </h1>
-            <p className="text-xs text-muted-foreground">
-              Legacy Documentation Platform
-            </p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-6 space-y-8">
-        <div>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-            Navigation
-          </h3>
-          <div className="space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`sidebar-item ${item.active ? "active" : ""}`}
-                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-              >
-                <item.icon size={20} />
-                <span className="font-medium">{item.label}</span>
-                {item.badge && item.badge > 0 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="ml-auto bg-primary/20 text-primary border-primary/30"
-                  >
-                    {item.badge}
-                  </Badge>
-                )}
-              </Link>
-            ))}
-          </div>
+      <nav className="flex-1 px-4 py-4 space-y-6">
+        <div className="space-y-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                item.active 
+                  ? "bg-[hsl(var(--sidebar-active))] text-[hsl(var(--primary-foreground))]" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))]"
+              }`}
+              data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <item.icon size={16} className="mr-3" />
+              <span className="font-medium">{item.label}</span>
+            </Link>
+          ))}
         </div>
 
-        <div>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-            Recent Projects
+        <div className="border-t border-border pt-4">
+          <h3 className="text-xs font-medium text-muted-foreground px-3 mb-2">
+            Actions
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-1">
+            <Link
+              href="/repositories"
+              className="flex items-center px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))] rounded-md transition-colors"
+            >
+              <GitBranch size={16} className="mr-3" />
+              Knowledge Base Search
+            </Link>
+            <Link
+              href="/upload"
+              className="flex items-center px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))] rounded-md transition-colors"
+            >
+              <Upload size={16} className="mr-3" />
+              Authentication
+            </Link>
+          </div>
+        </div>
+        
+        <div className="border-t border-border pt-4">
+          <h3 className="text-xs font-medium text-muted-foreground px-3 mb-2">
+            Workspaces
+          </h3>
+          <div className="space-y-1">
             {recentProjects.map((project) => (
               <Link
                 key={project.name}
                 href="/programs"
-                className="flex items-center justify-between p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))] transition-all duration-200"
+                className="flex items-center px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))] rounded-md transition-colors"
                 data-testid={`recent-project-${project.name.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <span className="text-sm font-medium">{project.name}</span>
-                </div>
-                {project.status === "active" && <Activity size={14} className="text-primary" />}
-                {project.status === "processing" && <Zap size={14} className="text-warning animate-pulse" />}
+                <div className="w-2 h-2 rounded-full bg-primary mr-3"></div>
+                <span className="font-medium truncate">{project.name}</span>
+                {project.status === "active" && <Activity size={12} className="text-primary ml-auto" />}
               </Link>
             ))}
           </div>
