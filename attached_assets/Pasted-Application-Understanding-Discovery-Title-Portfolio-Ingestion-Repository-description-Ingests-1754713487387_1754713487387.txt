@@ -1,0 +1,259 @@
+Application Understanding & Discovery
+Title: Portfolio Ingestion & Repository
+description: Ingests heterogeneous COBOL assets (source, copybooks, JCL, PROC, BMS maps, DDL) into a unified, queryable repository to enable large-scale, multi-user analysis.
+how to implement it:
+
+Build parsers for COBOL dialects and related artifacts; normalize into a metamodel stored in a graph/relational store.
+
+Provide multi-user repository with indexing, versioning, and incremental re-analysis.
+
+Support workspace baselines, access control, and on-prem deployment options.
+
+Title: Application Blueprint (Topography)
+description: Auto-discovers programs, jobs, datasets, transactions, databases, and inter-component dependencies to generate an application blueprint.
+how to implement it:
+
+Use static analysis to resolve CALLs, COPYs, PERFORMs, file I/O, CICS/IMS calls, DB access.
+
+Build a dependency graph with typed edges (call, dataflow, job-step).
+
+Expose interactive diagrams and graph queries for drill-down.
+
+Title: Control Flow Graphs (CFG) & Program Slicing
+description: Generates CFGs for each program to visualize execution paths, decisions, and loops, enabling precise slicing by variable, paragraph, or transaction path.
+how to implement it:
+
+Construct CFGs from parsed AST with paragraph/section boundaries and PERFORM ranges.
+
+Implement backward/forward slicing algorithms keyed to variables and I/O statements.
+
+Integrate with UI for path highlighting and export.
+
+Code Quality, Security, and Performance
+Title: Static Quality Rules & Metrics
+description: Enforces COBOL-specific rules (bugs, vulnerabilities, code smells) and reports complexity, duplication, coverage gaps, and maintainability indices.
+how to implement it:
+
+Implement rule engine aligned with established COBOL rule sets; compute metrics from AST/CFG.
+
+Integrate with CI/CD scanners and quality gates; produce HTML/JSON reports.
+
+Title: Portability & Migration Readiness
+description: Identifies dialect/extension usage and portability hotspots to inform modernization or platform migration.
+how to implement it:
+
+Map constructs to dialect capabilities; flag non-portable features.
+
+Generate migration checklists and code annotations.
+
+Title: Performance Hotspot Detection
+description: Pinpoints inefficient statements and patterns, prioritizing optimization opportunities and linking advice to exact lines.
+how to implement it:
+
+Pattern-match known performance antipatterns (e.g., excessive I/O in loops).
+
+Optionally integrate runtime listings/profiles to correlate static hints with execution data.
+
+Provide ranked issues with actionable recommendations and line linking.
+
+Documentation & Explainability
+Title: Code Explanation (Natural Language)
+description: Generates human-readable explanations of COBOL paragraphs, files, screens, and JCL steps for rapid comprehension and documentation.
+how to implement it:
+
+Use a fine-tuned LLM for mainframe languages; ground prompts with AST, symbol tables, CFG slices.
+
+Insert explanations as comments or export to docs; add guardrails and validation workflows.
+
+Title: Automated Documentation & Blueprints
+description: Produces navigable documentation: program overviews, data dictionaries, job flows, APIs, and architecture views.
+how to implement it:
+
+Template-driven generators fed by repository metadata; regenerate on change.
+
+Provide export formats (HTML/PDF/Markdown) and deep links to code.
+
+Business Rules Extraction (BRE)
+Title: Business Rule Discovery (Candidates)
+description: Finds candidate business rules (conditions, decisions, calculations) by analyzing control structures, dataflows, and I/O boundaries.
+how to implement it:
+
+Heuristic/static analysis to prioritize conditions tied to external inputs (screens, DB, files).
+
+Rank and cluster candidates; attach supporting code evidence.
+
+Title: Rule Validation & Authoring Workbench
+description: Human-in-the-loop workbench to confirm, refine, label, and version business rules with traceability to source.
+how to implement it:
+
+Provide review UX with side-by-side code and candidate rule; tagging, ownership, and status.
+
+Maintain a rules catalog with provenance links back to line-level code slices.
+
+Title: Process & Transaction Flow Modeling
+description: Visualizes how transactions traverse programs and where rules execute; maps rules to business processes.
+how to implement it:
+
+Compose CFG segments into transaction paths; annotate with rule execution points.
+
+Export BPMN-like views for stakeholder consumption.
+
+Modernization Assistance
+Title: Refactoring Assistant
+description: Suggests modularization, dead-code removal, variable slicing, and service extraction to prepare for incremental modernization.
+how to implement it:
+
+Analyze cohesion/coupling; propose slices for business services.
+
+Generate refactoring plans and previews; track applied changes.
+
+Title: Transformation Readiness & Guidance
+description: Assesses feasibility for COBOL-to-Java (or other) transformations and guides pre-transform cleanup to reduce risk.
+how to implement it:
+
+Score components by complexity, dependencies, and non-portable features.
+
+Recommend prerequisite refactors and test scaffolding.
+
+Title: Assisted Code Transformation (Optional)
+description: Leverages AI and templates to transform selected COBOL to target languages with domain-preserving structures.
+how to implement it:
+
+Combine pattern-based transformation with LLM suggestions and rule-based mappers.
+
+Preserve data semantics and file I/O via adapters; generate idiomatic constructs.
+
+Title: Semantic Equivalence Validation
+description: Generates tests and data to validate equivalence between original COBOL and transformed code.
+how to implement it:
+
+Auto-generate unit/integration tests from slices and I/O contracts.
+
+Execute equivalence tests; report discrepancies with tracebacks.
+
+Data, Files, and Interfaces
+Title: Copybook & Data Dictionary Management
+description: Centralizes copybooks, resolves REDEFINES/OCCURS/DEPENDING ON, and builds a searchable enterprise data dictionary.
+how to implement it:
+
+Parse and normalize data definitions; resolve nesting and overlays.
+
+Provide lineage from fields to programs, jobs, DB columns, and rules.
+
+Title: File & Database Access Mapping
+description: Catalogs file datasets, VSAM usage, SQL/IMS/DB2 calls, and maps CRUD operations to business entities.
+how to implement it:
+
+Extract I/O statements and DB API calls; classify by operation and entity.
+
+Visualize data access hotspots and cross-program impacts.
+
+Title: Job/JCL Flow Analysis
+description: Parses JCL to model batch pipelines, step dependencies, datasets, and restart points; links steps to programs and rules.
+how to implement it:
+
+Build a DAG of JCL jobs/steps; correlate to COBOL programs and datasets.
+
+Surface critical paths, late-cut risks, and recovery guidance.
+
+Developer Experience & Operations
+Title: Interactive Impact Analysis
+description: Instantly answers “what breaks if X changes?” across copybooks, paragraphs, datasets, jobs, and rules.
+how to implement it:
+
+Graph queries over call/data dependency graph; cache results for sub-second responses.
+
+Provide diff-aware impact views for commits and branches.
+
+Title: Query Language & API
+description: Offers a domain-specific query language and REST/Graph APIs to automate custom analyses and reports.
+how to implement it:
+
+Expose repository via secured APIs; implement DSL for graph and metadata queries.
+
+Provide SDKs and examples for pipelines and dashboards.
+
+Title: CI/CD Quality Gates for COBOL
+description: Integrates with pipelines to block merges on critical violations and regressions in quality/performance.
+how to implement it:
+
+Headless scanner CLI; publish SARIF/JSON; configure thresholds and badges.
+
+Store historical trends and alerts in pipeline logs and dashboards.
+
+Title: On-Prem, Air-Gapped Deployment & Governance
+description: Enterprise-grade security, audit logging, RBAC, and offline operation for regulated environments.
+how to implement it:
+
+Hardened containers, SSO integration, encryption at rest/in transit, per-project RBAC.
+
+Full audit trails for rule edits, scans, exports, and transformations.
+
+AI Assistant & Safety
+Title: Conversational Assistant for Mainframe Context
+description: Answers questions about code, jobs, datasets, and rules; suggests next best actions with safe automations.
+how to implement it:
+
+Retrieval-augmented generation grounded on repository metadata.
+
+Skill plugins to trigger safe operations (e.g., open slice, generate doc); enforce approvals.
+
+Title: Hallucination Guardrails & Provenance
+description: Ensures AI outputs cite sources, show confidence, and retain deep links to exact code spans.
+how to implement it:
+
+Structured prompting with citations; require provenance for every claim.
+
+Human validation workflows and feedback loops to retrain prompts/models.
+
+Reporting & Stakeholder Communication
+Title: Executive & Persona Dashboards
+description: Role-based dashboards for executives, architects, developers, and analysts with KPIs, risk, and modernization readiness.
+how to implement it:
+
+Prebuilt widgets sourcing repository statistics, trends, and risk scores.
+
+Drill-through to underlying diagrams, code, and rules.
+
+Title: Compliance & Audit Packs
+description: Generates defensible evidence of business rules, control mappings, and change lineage for audits and regulators.
+how to implement it:
+
+Export rule catalogs with traceability to code and process flows.
+
+Include timestamped reviews, approvals, and change logs.
+
+Extensibility & Ecosystem
+Title: Plugin SDK for Parsers & Heuristics
+description: Extensible framework to add new dialects, platforms (CICS/IMS variants), and BRE heuristics.
+how to implement it:
+
+Define parser interfaces and semantic events; sandboxed plugin runtime.
+
+Certification tools and tests for plugin quality.
+
+Title: Interop with Existing Tools
+description: Bridges to static analyzers, IDEs, ticketing, and data tooling to fit enterprise workflows.
+how to implement it:
+
+Build connectors/adapters for SonarQube, VS Code/IDz, Jira, and data editors.
+
+Synchronize issues, code locations, and statuses bidirectionally.
+
+Data Handling & Test Support
+Title: Test Data Generation & Masking
+description: Creates representative, compliant datasets for validation and modernization testing.
+how to implement it:
+
+Derive data models from copybooks; synthesize boundary cases; mask PII.
+
+Integrate with equivalence testing and CI pipelines.
+
+Title: Data Lineage & Impact to Downstream Systems
+description: Tracks lineage from COBOL fields through files/DB to reports/interfaces to assess change blast radius.
+how to implement it:
+
+Propagate field-level lineage across I/O and transformation steps.
+
+Visualize downstream consumers and notify owners on changes.
+

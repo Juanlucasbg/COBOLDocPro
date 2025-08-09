@@ -11,6 +11,7 @@ import { insertProgramSchema, insertUploadSessionSchema } from "@shared/schema";
 import { z } from "zod";
 import { registerRepositoryRoutes } from "./repository-routes";
 import { registerDocumentationRoutes } from "./documentation-routes";
+import { registerAnalysisRoutes } from "./analysis-routes";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -36,6 +37,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register documentation routes
   registerDocumentationRoutes(app);
+  
+  // Register analysis routes
+  registerAnalysisRoutes(app);
   
   // Get all programs
   app.get("/api/programs", async (req, res) => {

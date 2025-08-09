@@ -117,6 +117,12 @@ export default function ProgramDetail() {
           </div>
         </div>
         <div className="flex space-x-2">
+          <Link href={`/program/${id}/analysis`}>
+            <Button className="bg-green-600 hover:bg-green-700">
+              <Bot size={16} className="mr-2" />
+              Analysis
+            </Button>
+          </Link>
           <Button variant="outline">
             <Eye size={16} className="mr-2" />
             View Source

@@ -1,12 +1,18 @@
 import { 
   users, programs, dataElements, programRelationships, uploadSessions,
   repositories, codeFiles, documentation, diagrams, businessLogic, dependencies,
+  qualityIssues, codeMetrics, businessRuleCandidates, controlFlowGraphs, jclJobs,
+  copybookRegistry, transformationReadiness,
   type User, type InsertUser, type Program, type InsertProgram,
   type DataElement, type InsertDataElement, type ProgramRelationship,
   type InsertProgramRelationship, type UploadSession, type InsertUploadSession,
   type Repository, type InsertRepository, type CodeFile, type InsertCodeFile,
   type Documentation, type InsertDocumentation, type Diagram, type InsertDiagram,
   type BusinessLogic, type InsertBusinessLogic, type Dependency, type InsertDependency,
+  type QualityIssue, type InsertQualityIssue, type CodeMetrics, type InsertCodeMetrics,
+  type BusinessRuleCandidate, type InsertBusinessRuleCandidate, type ControlFlowGraph,
+  type InsertControlFlowGraph, type JclJob, type InsertJclJob, type CopybookRegistry,
+  type InsertCopybookRegistry, type TransformationReadiness, type InsertTransformationReadiness,
   type Statistics
 } from "@shared/schema";
 import { db } from "./db";
@@ -79,6 +85,40 @@ export interface IStorage {
   // Dependency methods
   getDependenciesByProgram(programId: number): Promise<Dependency[]>;
   createDependency(dependency: InsertDependency): Promise<Dependency>;
+  getAllDependencies(): Promise<Dependency[]>;
+
+  // Quality issue methods
+  getQualityIssuesByProgram(programId: number): Promise<QualityIssue[]>;
+  createQualityIssue(issue: InsertQualityIssue): Promise<QualityIssue>;
+  updateQualityIssue(id: number, updates: Partial<QualityIssue>): Promise<QualityIssue>;
+  getQualityIssuesByRule(rule: string): Promise<QualityIssue[]>;
+
+  // Code metrics methods
+  getCodeMetricsByProgram(programId: number): Promise<CodeMetrics | undefined>;
+  createCodeMetrics(metrics: InsertCodeMetrics): Promise<CodeMetrics>;
+  updateCodeMetrics(programId: number, updates: Partial<CodeMetrics>): Promise<CodeMetrics>;
+
+  // Business rule candidate methods
+  getBusinessRuleCandidatesByProgram(programId: number): Promise<BusinessRuleCandidate[]>;
+  getBusinessRuleCandidate(id: string): Promise<BusinessRuleCandidate | undefined>;
+  updateBusinessRuleCandidate(id: string, updates: Partial<BusinessRuleCandidate>): Promise<BusinessRuleCandidate>;
+  
+  // Control flow graph methods
+  getControlFlowGraphByProgram(programId: number): Promise<ControlFlowGraph | undefined>;
+  createControlFlowGraph(cfg: InsertControlFlowGraph): Promise<ControlFlowGraph>;
+
+  // JCL job methods
+  getJclJobsByRepository(repositoryId: number): Promise<JclJob[]>;
+  createJclJob(job: InsertJclJob): Promise<JclJob>;
+
+  // Copybook registry methods
+  getCopybookByName(name: string): Promise<CopybookRegistry | undefined>;
+  createCopybook(copybook: InsertCopybookRegistry): Promise<CopybookRegistry>;
+  getCopybooksByProgram(programId: number): Promise<CopybookRegistry[]>;
+
+  // Transformation readiness methods
+  getTransformationReadinessByProgram(programId: number): Promise<TransformationReadiness | undefined>;
+  createTransformationReadiness(readiness: InsertTransformationReadiness): Promise<TransformationReadiness>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -268,6 +308,22 @@ export class DatabaseStorage implements IStorage {
     const [totalFilesCount] = await db
       .select({ count: count() })
       .from(codeFiles);
+
+    const [qualityIssuesCount] = await db
+      .select({ count: count() })
+      .from(qualityIssues);
+
+    const [businessRulesCount] = await db
+      .select({ count: count() })
+      .from(businessRuleCandidates)
+      .where(eq(businessRuleCandidates.status, 'confirmed'));
+
+    const [copybooksCount] = await db
+      .select({ count: count() })
+      .from(copybookRegistry);
+
+    // Calculate average complexity - simplified for now
+    const avgComplexity = 5; // Placeholder
     
     return {
       totalPrograms: totalPrograms.count,
@@ -276,6 +332,10 @@ export class DatabaseStorage implements IStorage {
       issuesFound: issuesFound.count,
       repositories: repositoriesCount.count,
       totalFiles: totalFilesCount.count,
+      qualityIssues: qualityIssuesCount.count,
+      businessRules: businessRulesCount.count,
+      copybooksManaged: copybooksCount.count,
+      averageComplexity: avgComplexity,
     };
   }
 
@@ -443,6 +503,155 @@ export class DatabaseStorage implements IStorage {
       .values([insertDependency])
       .returning();
     return dependency;
+  }
+
+  async getAllDependencies(): Promise<Dependency[]> {
+    return await db.select().from(dependencies);
+  }
+
+  // Quality issue methods
+  async getQualityIssuesByProgram(programId: number): Promise<QualityIssue[]> {
+    return await db.select().from(qualityIssues).where(eq(qualityIssues.programId, programId));
+  }
+
+  async createQualityIssue(insertIssue: InsertQualityIssue): Promise<QualityIssue> {
+    const [issue] = await db
+      .insert(qualityIssues)
+      .values([insertIssue])
+      .returning();
+    return issue;
+  }
+
+  async updateQualityIssue(id: number, updates: Partial<QualityIssue>): Promise<QualityIssue> {
+    const [issue] = await db
+      .update(qualityIssues)
+      .set(updates)
+      .where(eq(qualityIssues.id, id))
+      .returning();
+    
+    if (!issue) {
+      throw new Error(`Quality issue with id ${id} not found`);
+    }
+    
+    return issue;
+  }
+
+  async getQualityIssuesByRule(rule: string): Promise<QualityIssue[]> {
+    return await db.select().from(qualityIssues).where(eq(qualityIssues.rule, rule));
+  }
+
+  // Code metrics methods
+  async getCodeMetricsByProgram(programId: number): Promise<CodeMetrics | undefined> {
+    const [metrics] = await db.select().from(codeMetrics).where(eq(codeMetrics.programId, programId));
+    return metrics || undefined;
+  }
+
+  async createCodeMetrics(insertMetrics: InsertCodeMetrics): Promise<CodeMetrics> {
+    const [metrics] = await db
+      .insert(codeMetrics)
+      .values([insertMetrics])
+      .returning();
+    return metrics;
+  }
+
+  async updateCodeMetrics(programId: number, updates: Partial<CodeMetrics>): Promise<CodeMetrics> {
+    const [metrics] = await db
+      .update(codeMetrics)
+      .set(updates)
+      .where(eq(codeMetrics.programId, programId))
+      .returning();
+    
+    if (!metrics) {
+      throw new Error(`Code metrics for program ${programId} not found`);
+    }
+    
+    return metrics;
+  }
+
+  // Business rule candidate methods
+  async getBusinessRuleCandidatesByProgram(programId: number): Promise<BusinessRuleCandidate[]> {
+    return await db.select().from(businessRuleCandidates).where(eq(businessRuleCandidates.programId, programId));
+  }
+
+  async getBusinessRuleCandidate(id: string): Promise<BusinessRuleCandidate | undefined> {
+    const [candidate] = await db.select().from(businessRuleCandidates).where(eq(businessRuleCandidates.id, parseInt(id)));
+    return candidate || undefined;
+  }
+
+  async updateBusinessRuleCandidate(id: string, updates: Partial<BusinessRuleCandidate>): Promise<BusinessRuleCandidate> {
+    const [candidate] = await db
+      .update(businessRuleCandidates)
+      .set(updates)
+      .where(eq(businessRuleCandidates.id, parseInt(id)))
+      .returning();
+    
+    if (!candidate) {
+      throw new Error(`Business rule candidate with id ${id} not found`);
+    }
+    
+    return candidate;
+  }
+
+  // Control flow graph methods
+  async getControlFlowGraphByProgram(programId: number): Promise<ControlFlowGraph | undefined> {
+    const [cfg] = await db.select().from(controlFlowGraphs).where(eq(controlFlowGraphs.programId, programId));
+    return cfg || undefined;
+  }
+
+  async createControlFlowGraph(insertCfg: InsertControlFlowGraph): Promise<ControlFlowGraph> {
+    const [cfg] = await db
+      .insert(controlFlowGraphs)
+      .values([insertCfg])
+      .returning();
+    return cfg;
+  }
+
+  // JCL job methods
+  async getJclJobsByRepository(repositoryId: number): Promise<JclJob[]> {
+    return await db.select().from(jclJobs).where(eq(jclJobs.repositoryId, repositoryId));
+  }
+
+  async createJclJob(insertJob: InsertJclJob): Promise<JclJob> {
+    const [job] = await db
+      .insert(jclJobs)
+      .values([insertJob])
+      .returning();
+    return job;
+  }
+
+  // Copybook registry methods
+  async getCopybookByName(name: string): Promise<CopybookRegistry | undefined> {
+    const [copybook] = await db.select().from(copybookRegistry).where(eq(copybookRegistry.name, name));
+    return copybook || undefined;
+  }
+
+  async createCopybook(insertCopybook: InsertCopybookRegistry): Promise<CopybookRegistry> {
+    const [copybook] = await db
+      .insert(copybookRegistry)
+      .values([insertCopybook])
+      .returning();
+    return copybook;
+  }
+
+  async getCopybooksByProgram(programId: number): Promise<CopybookRegistry[]> {
+    return await db
+      .select()
+      .from(copybookRegistry)
+      .where(eq(copybookRegistry.usedByPrograms, [programId]));
+  }
+
+  // Transformation readiness methods
+  async getTransformationReadinessByProgram(programId: number): Promise<TransformationReadiness | undefined> {
+    const [readiness] = await db.select().from(transformationReadiness).where(eq(transformationReadiness.programId, programId));
+    return readiness || undefined;
+  }
+
+  async createTransformationReadiness(insertReadiness: InsertTransformationReadiness): Promise<TransformationReadiness> {
+    const [readiness] = await db
+      .insert(transformationReadiness)
+      .values([insertReadiness])
+      .returning();
+    return readiness;
   }
 }
 

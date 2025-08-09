@@ -175,6 +175,169 @@ export const dependencies = pgTable("dependencies", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Control Flow Graphs
+export const controlFlowGraphs = pgTable("control_flow_graphs", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  nodes: jsonb("nodes").$type<Array<{
+    id: string;
+    type: string;
+    statement?: string;
+    condition?: string;
+    location: { line: number; paragraph?: string; section?: string };
+    predecessors: string[];
+    successors: string[];
+  }>>(),
+  entryNode: text("entry_node").notNull(),
+  exitNodes: text("exit_nodes").array(),
+  metadata: jsonb("metadata").$type<{
+    complexity?: number;
+    nodeCount?: number;
+    edgeCount?: number;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Quality Issues
+export const qualityIssues = pgTable("quality_issues", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  rule: text("rule").notNull(),
+  severity: text("severity").notNull(), // critical, major, minor, info
+  category: text("category").notNull(), // bug, vulnerability, smell, performance
+  message: text("message").notNull(),
+  location: jsonb("location").$type<{
+    line: number;
+    column?: number;
+    paragraph?: string;
+    endLine?: number;
+  }>(),
+  suggestion: text("suggestion"),
+  status: text("status").notNull().default("open"), // open, fixed, suppressed, false-positive
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+// Code Metrics
+export const codeMetrics = pgTable("code_metrics", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  linesOfCode: integer("lines_of_code").notNull(),
+  cyclomaticComplexity: integer("cyclomatic_complexity").notNull(),
+  cognitiveComplexity: integer("cognitive_complexity").notNull(),
+  depthOfNesting: integer("depth_of_nesting").notNull(),
+  numberOfParagraphs: integer("number_of_paragraphs").notNull(),
+  numberOfSections: integer("number_of_sections").notNull(),
+  halsteadMetrics: jsonb("halstead_metrics").$type<{
+    vocabulary: number;
+    length: number;
+    difficulty: number;
+    effort: number;
+  }>(),
+  maintainabilityIndex: integer("maintainability_index"),
+  technicalDebt: integer("technical_debt_minutes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Business Rule Candidates
+export const businessRuleCandidates = pgTable("business_rule_candidates", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  type: text("type").notNull(), // condition, calculation, validation, decision
+  description: text("description").notNull(),
+  confidence: integer("confidence").notNull(), // 0-100
+  location: jsonb("location").$type<{
+    line: number;
+    paragraph?: string;
+    section?: string;
+  }>(),
+  variables: text("variables").array(),
+  conditions: text("conditions").array(),
+  actions: text("actions").array(),
+  evidence: text("evidence").array(),
+  status: text("status").notNull().default("candidate"), // candidate, confirmed, rejected
+  reviewedBy: text("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// JCL Jobs and Steps
+export const jclJobs = pgTable("jcl_jobs", {
+  id: serial("id").primaryKey(),
+  repositoryId: integer("repository_id").notNull(),
+  jobName: text("job_name").notNull(),
+  filePath: text("file_path").notNull(),
+  content: text("content").notNull(),
+  steps: jsonb("steps").$type<Array<{
+    stepName: string;
+    program?: string;
+    datasets: string[];
+    conditions?: string[];
+    order: number;
+  }>>(),
+  dependencies: jsonb("dependencies").$type<Array<{
+    type: 'dataset' | 'program' | 'job';
+    target: string;
+    relationship: 'input' | 'output' | 'calls';
+  }>>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Copybook Registry
+export const copybookRegistry = pgTable("copybook_registry", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  library: text("library"),
+  content: text("content").notNull(),
+  dataElements: jsonb("data_elements").$type<Array<{
+    name: string;
+    level: number;
+    picture?: string;
+    usage?: string;
+    redefines?: string;
+    occurs?: number;
+    dependingOn?: string;
+  }>>(),
+  usedByPrograms: integer("used_by_programs").array(),
+  version: text("version").notNull(),
+  hash: text("hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Impact Analysis Cache
+export const impactAnalysisCache = pgTable("impact_analysis_cache", {
+  id: serial("id").primaryKey(),
+  sourceType: text("source_type").notNull(), // program, copybook, dataset
+  sourceId: text("source_id").notNull(),
+  impactedItems: jsonb("impacted_items").$type<Array<{
+    type: string;
+    id: string;
+    name: string;
+    relationship: string;
+    severity: 'high' | 'medium' | 'low';
+  }>>(),
+  analysisDate: timestamp("analysis_date").notNull(),
+  cacheExpiry: timestamp("cache_expiry").notNull(),
+});
+
+// Transformation Readiness
+export const transformationReadiness = pgTable("transformation_readiness", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  readinessScore: integer("readiness_score").notNull(), // 0-100
+  complexityFactors: jsonb("complexity_factors").$type<{
+    dialectSpecific: number;
+    dataStructureComplexity: number;
+    businessLogicComplexity: number;
+    externalDependencies: number;
+  }>(),
+  blockers: text("blockers").array(),
+  recommendations: text("recommendations").array(),
+  estimatedEffort: integer("estimated_effort_days"),
+  targetPlatform: text("target_platform"),
+  assessmentDate: timestamp("assessment_date").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -212,6 +375,41 @@ export const insertBusinessLogicSchema = createInsertSchema(businessLogic).omit(
 export const insertDependencySchema = createInsertSchema(dependencies).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertControlFlowGraphSchema = createInsertSchema(controlFlowGraphs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertQualityIssueSchema = createInsertSchema(qualityIssues).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCodeMetricsSchema = createInsertSchema(codeMetrics).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBusinessRuleCandidateSchema = createInsertSchema(businessRuleCandidates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertJclJobSchema = createInsertSchema(jclJobs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCopybookRegistrySchema = createInsertSchema(copybookRegistry).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTransformationReadinessSchema = createInsertSchema(transformationReadiness).omit({
+  id: true,
+  assessmentDate: true,
 });
 
 export const insertProgramSchema = createInsertSchema(programs).omit({
@@ -255,6 +453,21 @@ export type BusinessLogic = typeof businessLogic.$inferSelect;
 export type InsertBusinessLogic = z.infer<typeof insertBusinessLogicSchema>;
 export type Dependency = typeof dependencies.$inferSelect;
 export type InsertDependency = z.infer<typeof insertDependencySchema>;
+export type ControlFlowGraph = typeof controlFlowGraphs.$inferSelect;
+export type InsertControlFlowGraph = z.infer<typeof insertControlFlowGraphSchema>;
+export type QualityIssue = typeof qualityIssues.$inferSelect;
+export type InsertQualityIssue = z.infer<typeof insertQualityIssueSchema>;
+export type CodeMetrics = typeof codeMetrics.$inferSelect;
+export type InsertCodeMetrics = z.infer<typeof insertCodeMetricsSchema>;
+export type BusinessRuleCandidate = typeof businessRuleCandidates.$inferSelect;
+export type InsertBusinessRuleCandidate = z.infer<typeof insertBusinessRuleCandidateSchema>;
+export type JclJob = typeof jclJobs.$inferSelect;
+export type InsertJclJob = z.infer<typeof insertJclJobSchema>;
+export type CopybookRegistry = typeof copybookRegistry.$inferSelect;
+export type InsertCopybookRegistry = z.infer<typeof insertCopybookRegistrySchema>;
+export type ImpactAnalysisCache = typeof impactAnalysisCache.$inferSelect;
+export type TransformationReadiness = typeof transformationReadiness.$inferSelect;
+export type InsertTransformationReadiness = z.infer<typeof insertTransformationReadinessSchema>;
 
 // Statistics type
 export type Statistics = {
@@ -264,4 +477,8 @@ export type Statistics = {
   issuesFound: number;
   repositories: number;
   totalFiles: number;
+  qualityIssues: number;
+  businessRules: number;
+  copybooksManaged: number;
+  averageComplexity: number;
 };

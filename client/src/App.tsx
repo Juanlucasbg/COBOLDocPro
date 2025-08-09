@@ -11,6 +11,7 @@ import BusinessRules from "@/pages/business-rules";
 import DataDictionary from "@/pages/data-dictionary";
 import Visualizations from "@/pages/visualizations";
 import ProgramDetail from "@/pages/program-detail";
+import AnalysisPage from "@/pages/AnalysisPage";
 import Repositories from "@/pages/repositories";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/visualizations" component={Visualizations} />
       <Route path="/upload" component={Upload} />
       <Route path="/program/:id" component={ProgramDetail} />
+      <Route path="/program/:id/analysis" component={AnalysisPage} />
       <Route component={NotFound} />
     </Switch>
   );
