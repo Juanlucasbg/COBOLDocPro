@@ -30,6 +30,13 @@ export default function Sidebar() {
       active: location === "/",
     },
     {
+      href: "/repositories",
+      icon: GitBranch,
+      label: "Repositories",
+      badge: stats?.repositories || 0,
+      active: location === "/repositories",
+    },
+    {
       href: "/upload",
       icon: Upload,
       label: "Upload COBOL",
@@ -50,7 +57,7 @@ export default function Sidebar() {
     },
     {
       href: "/visualizations",
-      icon: GitBranch,
+      icon: Layers,
       label: "Visualizations",
       active: location === "/visualizations",
     },

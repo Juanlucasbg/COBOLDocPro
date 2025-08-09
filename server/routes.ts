@@ -9,6 +9,8 @@ import { COBOLDocumentationAgent } from "./autonomous-agent";
 import { observabilityTracker } from "./observability";
 import { insertProgramSchema, insertUploadSessionSchema } from "@shared/schema";
 import { z } from "zod";
+import { registerRepositoryRoutes } from "./repository-routes";
+import { registerDocumentationRoutes } from "./documentation-routes";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -29,6 +31,12 @@ const upload = multer({
 const cobolParser = new CobolParser();
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register repository routes
+  registerRepositoryRoutes(app);
+  
+  // Register documentation routes
+  registerDocumentationRoutes(app);
+  
   // Get all programs
   app.get("/api/programs", async (req, res) => {
     try {

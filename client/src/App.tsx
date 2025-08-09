@@ -11,6 +11,7 @@ import BusinessRules from "@/pages/business-rules";
 import DataDictionary from "@/pages/data-dictionary";
 import Visualizations from "@/pages/visualizations";
 import ProgramDetail from "@/pages/program-detail";
+import Repositories from "@/pages/repositories";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 
@@ -18,6 +19,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/repositories" component={Repositories} />
       <Route path="/programs" component={Programs} />
       <Route path="/business-rules" component={BusinessRules} />
       <Route path="/data-dictionary" component={DataDictionary} />

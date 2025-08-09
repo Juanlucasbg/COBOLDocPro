@@ -1,0 +1,61 @@
+You are an AI software engineer tasked with designing and implementing a new application.
+The application should include the following functionalities:
+
+From GitHub COBOL Documentation Generator:
+
+Upload COBOL applications to GitHub for automatic processing.
+
+Break COBOL code into sections for structured documentation.
+
+Automatically update documentation when the code changes.
+
+Generate documentation for:
+
+Initialized files with Mermaid diagrams.
+
+Book file with extensive explanation.
+
+Member file with brief explanation plus a complete decision tree that repeats throughout documentation.
+
+Provide visual diagrams for every documentation session.
+
+From Tribal by Hyper Cubic:
+6. Connect to a codebase via repository link (e.g., GitHub).
+7. Automatically fetch and parse the codebase.
+8. Perform deep code comprehension to identify:
+
+Business logic.
+
+Interdependencies between files.
+
+Function-level details and behaviors.
+
+Naming conventions common in COBOL.
+
+Generate an AI-powered documentation hub including:
+
+Overview & high-level docs (summary, goals/non-goals, background, architecture, error handling).
+
+Automatic high-level architecture diagrams showing service interactions.
+
+Architecture design diagrams for key flows (e.g., request handling sequences).
+
+Getting started guide (setup, onboarding, tech stack, glossary).
+
+High-level documentation per service (overview, goals, design, data flows).
+
+Business logic breakdown (source, purpose, responsibilities, use cases, inputs, outputs, dependencies).
+
+Dependency mapping (libraries, APIs, services like IBM Z/OS).
+
+Your task:
+
+Design a full system architecture that integrates all of these functionalities into one cohesive application.
+
+Define modules, APIs, data models, and AI capabilities required.
+
+Describe the workflow from code ingestion to final documentation output and continuous updates.
+
+Include UI/UX design suggestions, automation triggers, and security considerations.
+
+Provide the complete technical specification so a development team can build the application.

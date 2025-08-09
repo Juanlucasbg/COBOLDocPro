@@ -1,12 +1,16 @@
 import { 
   users, programs, dataElements, programRelationships, uploadSessions,
+  repositories, codeFiles, documentation, diagrams, businessLogic, dependencies,
   type User, type InsertUser, type Program, type InsertProgram,
   type DataElement, type InsertDataElement, type ProgramRelationship,
   type InsertProgramRelationship, type UploadSession, type InsertUploadSession,
+  type Repository, type InsertRepository, type CodeFile, type InsertCodeFile,
+  type Documentation, type InsertDocumentation, type Diagram, type InsertDiagram,
+  type BusinessLogic, type InsertBusinessLogic, type Dependency, type InsertDependency,
   type Statistics
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, ilike, or, count } from "drizzle-orm";
+import { eq, ilike, or, count, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -41,6 +45,40 @@ export interface IStorage {
 
   // Statistics
   getStatistics(): Promise<Statistics>;
+
+  // Repository methods
+  getRepository(id: number): Promise<Repository | undefined>;
+  getAllRepositories(): Promise<Repository[]>;
+  getRepositoriesByUser(userId: number): Promise<Repository[]>;
+  createRepository(repository: InsertRepository): Promise<Repository>;
+  updateRepository(id: number, updates: Partial<Repository>): Promise<Repository>;
+  deleteRepository(id: number): Promise<void>;
+
+  // Code file methods
+  getCodeFile(id: number): Promise<CodeFile | undefined>;
+  getCodeFilesByRepository(repositoryId: number): Promise<CodeFile[]>;
+  createCodeFile(codeFile: InsertCodeFile): Promise<CodeFile>;
+  updateCodeFile(id: number, updates: Partial<CodeFile>): Promise<CodeFile>;
+  deleteCodeFilesByRepository(repositoryId: number): Promise<void>;
+
+  // Documentation methods
+  getDocumentation(programId: number, type: string): Promise<Documentation | undefined>;
+  getAllDocumentationByProgram(programId: number): Promise<Documentation[]>;
+  createDocumentation(doc: InsertDocumentation): Promise<Documentation>;
+  updateDocumentation(id: number, updates: Partial<Documentation>): Promise<Documentation>;
+
+  // Diagram methods
+  getDiagramsByProgram(programId: number): Promise<Diagram[]>;
+  getDiagramsByDocumentation(documentationId: number): Promise<Diagram[]>;
+  createDiagram(diagram: InsertDiagram): Promise<Diagram>;
+
+  // Business logic methods
+  getBusinessLogicByProgram(programId: number): Promise<BusinessLogic[]>;
+  createBusinessLogic(logic: InsertBusinessLogic): Promise<BusinessLogic>;
+
+  // Dependency methods
+  getDependenciesByProgram(programId: number): Promise<Dependency[]>;
+  createDependency(dependency: InsertDependency): Promise<Dependency>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -223,12 +261,188 @@ export class DatabaseStorage implements IStorage {
       .from(programs)
       .where(eq(programs.status, 'failed'));
     
+    const [repositoriesCount] = await db
+      .select({ count: count() })
+      .from(repositories);
+    
+    const [totalFilesCount] = await db
+      .select({ count: count() })
+      .from(codeFiles);
+    
     return {
       totalPrograms: totalPrograms.count,
       documentedPrograms: documentedPrograms.count,
       dataElements: dataElementsCount.count,
       issuesFound: issuesFound.count,
+      repositories: repositoriesCount.count,
+      totalFiles: totalFilesCount.count,
     };
+  }
+
+  // Repository methods
+  async getRepository(id: number): Promise<Repository | undefined> {
+    const [repository] = await db.select().from(repositories).where(eq(repositories.id, id));
+    return repository || undefined;
+  }
+
+  async getAllRepositories(): Promise<Repository[]> {
+    return await db.select().from(repositories);
+  }
+
+  async getRepositoriesByUser(userId: number): Promise<Repository[]> {
+    return await db.select().from(repositories).where(eq(repositories.userId, userId));
+  }
+
+  async createRepository(insertRepository: InsertRepository): Promise<Repository> {
+    const [repository] = await db
+      .insert(repositories)
+      .values([insertRepository])
+      .returning();
+    return repository;
+  }
+
+  async updateRepository(id: number, updates: Partial<Repository>): Promise<Repository> {
+    const [repository] = await db
+      .update(repositories)
+      .set(updates)
+      .where(eq(repositories.id, id))
+      .returning();
+    
+    if (!repository) {
+      throw new Error(`Repository with id ${id} not found`);
+    }
+    
+    return repository;
+  }
+
+  async deleteRepository(id: number): Promise<void> {
+    await db.delete(codeFiles).where(eq(codeFiles.repositoryId, id));
+    await db.delete(repositories).where(eq(repositories.id, id));
+  }
+
+  // Code file methods
+  async getCodeFile(id: number): Promise<CodeFile | undefined> {
+    const [codeFile] = await db.select().from(codeFiles).where(eq(codeFiles.id, id));
+    return codeFile || undefined;
+  }
+
+  async getCodeFilesByRepository(repositoryId: number): Promise<CodeFile[]> {
+    return await db.select().from(codeFiles).where(eq(codeFiles.repositoryId, repositoryId));
+  }
+
+  async createCodeFile(insertCodeFile: InsertCodeFile): Promise<CodeFile> {
+    const [codeFile] = await db
+      .insert(codeFiles)
+      .values([insertCodeFile])
+      .returning();
+    return codeFile;
+  }
+
+  async updateCodeFile(id: number, updates: Partial<CodeFile>): Promise<CodeFile> {
+    const [codeFile] = await db
+      .update(codeFiles)
+      .set(updates)
+      .where(eq(codeFiles.id, id))
+      .returning();
+    
+    if (!codeFile) {
+      throw new Error(`Code file with id ${id} not found`);
+    }
+    
+    return codeFile;
+  }
+
+  async deleteCodeFilesByRepository(repositoryId: number): Promise<void> {
+    await db.delete(codeFiles).where(eq(codeFiles.repositoryId, repositoryId));
+  }
+
+  // Documentation methods
+  async getDocumentation(programId: number, type: string): Promise<Documentation | undefined> {
+    const [doc] = await db
+      .select()
+      .from(documentation)
+      .where(and(
+        eq(documentation.programId, programId),
+        eq(documentation.type, type)
+      ));
+    return doc || undefined;
+  }
+
+  async getAllDocumentationByProgram(programId: number): Promise<Documentation[]> {
+    return await db.select().from(documentation).where(eq(documentation.programId, programId));
+  }
+
+  async createDocumentation(insertDoc: InsertDocumentation): Promise<Documentation> {
+    const [doc] = await db
+      .insert(documentation)
+      .values([insertDoc])
+      .returning();
+    return doc;
+  }
+
+  async updateDocumentation(id: number, updates: Partial<Documentation>): Promise<Documentation> {
+    const [doc] = await db
+      .update(documentation)
+      .set(updates)
+      .where(eq(documentation.id, id))
+      .returning();
+    
+    if (!doc) {
+      throw new Error(`Documentation with id ${id} not found`);
+    }
+    
+    return doc;
+  }
+
+  // Diagram methods
+  async getDiagramsByProgram(programId: number): Promise<Diagram[]> {
+    return await db.select().from(diagrams).where(eq(diagrams.programId, programId));
+  }
+
+  async getDiagramsByDocumentation(documentationId: number): Promise<Diagram[]> {
+    return await db.select().from(diagrams).where(eq(diagrams.documentationId, documentationId));
+  }
+
+  async createDiagram(insertDiagram: InsertDiagram): Promise<Diagram> {
+    const [diagram] = await db
+      .insert(diagrams)
+      .values([insertDiagram])
+      .returning();
+    return diagram;
+  }
+
+  // Business logic methods
+  async getBusinessLogicByProgram(programId: number): Promise<BusinessLogic[]> {
+    return await db.select().from(businessLogic).where(eq(businessLogic.programId, programId));
+  }
+
+  async createBusinessLogic(insertLogic: InsertBusinessLogic): Promise<BusinessLogic> {
+    const [logic] = await db
+      .insert(businessLogic)
+      .values([insertLogic])
+      .returning();
+    return logic;
+  }
+
+  // Dependency methods
+  async getDependenciesByProgram(programId: number): Promise<Dependency[]> {
+    return await db
+      .select()
+      .from(dependencies)
+      .where(
+        or(
+          eq(dependencies.fromProgramId, programId),
+          eq(dependencies.toProgramId, programId)
+        )
+      );
+  }
+
+  async createDependency(insertDependency: InsertDependency): Promise<Dependency> {
+    const [dependency] = await db
+      .insert(dependencies)
+      .values([insertDependency])
+      .returning();
+    return dependency;
   }
 }
 

@@ -16,6 +16,10 @@ A modern web application for analyzing and documenting legacy COBOL systems. The
 - **2025-01-08**: Implemented glass-card design system with backdrop blur effects
 - **2025-01-08**: Enhanced sidebar with 320px width and improved navigation
 - **2025-01-08**: Updated header with quick stats and search functionality
+- **2025-01-09**: Implemented comprehensive GitHub integration for repository management
+- **2025-01-09**: Added new database tables for repositories, code files, documentation, and dependencies
+- **2025-01-09**: Created repository connection and sync functionality
+- **2025-01-09**: Expanded schema to support business logic extraction and enhanced documentation
 
 ## User Preferences
 - **Design Style**: Modern dark interface with green (#00D26A) and white color scheme
@@ -32,12 +36,28 @@ A modern web application for analyzing and documenting legacy COBOL systems. The
 - **Express.js** for backend API
 
 ## Key Features
-1. **COBOL File Upload & Analysis**
-2. **AI-Powered Code Documentation**
-3. **Business Rules Extraction**
-4. **Data Dictionary Generation**
-5. **System Visualizations (Mermaid diagrams)**
-6. **Program Relationship Mapping**
+1. **GitHub Repository Integration**
+   - Connect to GitHub repositories
+   - Automatic COBOL file discovery
+   - Branch management
+   - Webhook support for auto-updates
+2. **COBOL File Upload & Analysis**
+3. **AI-Powered Code Documentation**
+   - Overview documentation
+   - Book-style extensive explanations
+   - Member file with decision trees
+   - Architecture analysis
+4. **Business Rules Extraction**
+   - Automated rule identification
+   - Decision tree generation
+   - Input/output mapping
+5. **Data Dictionary Generation**
+6. **System Visualizations (Mermaid diagrams)**
+   - Flowcharts
+   - Architecture diagrams
+   - Dependency graphs
+7. **Program Relationship Mapping**
+8. **Continuous Documentation Updates**
 
 ## Database Schema
 Core entities: users, programs, dataElements, programRelationships, uploadSessions
