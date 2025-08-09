@@ -170,8 +170,8 @@ export default function AnalysisPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">{program.name} - Analysis</h1>
-          <p className="text-green-400">
+          <h1 className="text-2xl font-bold text-foreground">{program.name} - Analysis</h1>
+          <p className="text-muted-foreground">
             Comprehensive COBOL program analysis and insights
           </p>
         </div>
@@ -183,9 +183,9 @@ export default function AnalysisPage() {
       </div>
 
       {/* Analysis Controls */}
-      <Card className="glass-card">
+      <Card className="border border-border shadow-sm">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Zap className="h-5 w-5" />
             Run Analysis
           </CardTitle>
@@ -211,7 +211,7 @@ export default function AnalysisPage() {
                   data-testid={`checkbox-${option.id}`}
                 />
                 <div>
-                  <div className="text-sm font-medium text-white">{option.label}</div>
+                  <div className="text-sm font-medium text-foreground">{option.label}</div>
                   <div className="text-xs text-gray-400">{option.description}</div>
                 </div>
               </label>
@@ -222,7 +222,7 @@ export default function AnalysisPage() {
             <Button 
               onClick={runAnalysis}
               disabled={analysisMutation.isPending || selectedAnalysisTypes.length === 0}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
               data-testid="button-run-analysis"
             >
               <Play className="h-4 w-4 mr-2" />
@@ -230,7 +230,7 @@ export default function AnalysisPage() {
             </Button>
             
             {analysisMutation.data && (
-              <div className="text-sm text-green-400">
+              <div className="text-sm text-primary">
                 Analysis completed in {analysisMutation.data.executionTime}ms
               </div>
             )}
@@ -261,30 +261,30 @@ export default function AnalysisPage() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="glass-card">
+            <Card className="border border-border shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-gray-400">Quality Score</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-foreground">
                   {qualityIssues?.length ? (
                     `${Math.max(0, 100 - qualityIssues.length * 5)}%`
                   ) : (
                     'N/A'
                   )}
                 </div>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-muted-foreground">
                   {qualityIssues?.length || 0} issues found
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="border border-border shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-400">Complexity</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Complexity</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-foreground">
                   {metrics?.cyclomaticComplexity || 'N/A'}
                 </div>
                 <p className={`text-xs ${getComplexityLevel(metrics?.cyclomaticComplexity || 0).color}`}>
@@ -293,12 +293,12 @@ export default function AnalysisPage() {
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="border border-border shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-400">Maintainability</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Maintainability</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-foreground">
                   {metrics?.maintainabilityIndex || 'N/A'}
                 </div>
                 <p className={`text-xs ${getMaintainabilityLevel(metrics?.maintainabilityIndex).color}`}>

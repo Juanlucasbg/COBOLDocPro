@@ -23,13 +23,13 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-card/50 backdrop-blur-xl border-b border-border/50 sticky top-0 z-50">
+    <header className="bg-card border-b border-border sticky top-0 z-50">
       <div className="flex items-center justify-between px-8 py-4">
         {/* Quick Stats */}
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-4">
             <div className="text-center">
-              <div className="text-lg font-bold text-white">{stats?.totalPrograms || 0}</div>
+              <div className="text-lg font-bold text-foreground">{stats?.totalPrograms || 0}</div>
               <div className="text-xs text-muted-foreground">Programs</div>
             </div>
             <div className="w-px h-8 bg-border"></div>
@@ -56,7 +56,7 @@ export default function Header() {
             <Input
               type="text"
               placeholder="Search programs, variables, documentation..."
-              className="pl-12 h-12 bg-input/50 border-border/50 rounded-xl text-white placeholder:text-muted-foreground focus:bg-input focus:border-primary/50"
+              className="pl-12 h-12 bg-input border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {

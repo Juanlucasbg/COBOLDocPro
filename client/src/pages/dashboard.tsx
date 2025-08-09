@@ -1,338 +1,275 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { 
-  FileCode, 
-  CheckCircle, 
+  Plus, 
+  FileCode2, 
   Database, 
-  AlertTriangle, 
-  Upload,
+  GitBranch,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
   TrendingUp,
   Activity,
-  Zap,
-  Users,
-  Clock
+  Eye,
+  ExternalLink
 } from "lucide-react";
 import { Link } from "wouter";
-
-interface StatCardProps {
-  title: string;
-  value: number;
-  icon: any;
-  trend?: string;
-  color: string;
-  description?: string;
-}
-
-function StatCard({ title, value, icon: Icon, trend, color, description }: StatCardProps) {
-  return (
-    <Card className="glass-card hover:border-primary/30 transition-all duration-300">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <p className="text-muted-foreground text-sm font-medium">{title}</p>
-            <div className="flex items-baseline space-x-2">
-              <span className={`text-3xl font-bold ${color}`}>{value}</span>
-              {trend && (
-                <Badge className="bg-success/20 text-success border-success/30 text-xs">
-                  {trend}
-                </Badge>
-              )}
-            </div>
-            {description && (
-              <p className="text-xs text-muted-foreground">{description}</p>
-            )}
-          </div>
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${color === 'text-primary' ? 'from-primary/20 to-primary/10' : color === 'text-success' ? 'from-success/20 to-success/10' : color === 'text-warning' ? 'from-warning/20 to-warning/10' : 'from-destructive/20 to-destructive/10'}`}>
-            <Icon size={24} className={color} />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function QuickAction({ icon: Icon, title, description, href, color }: {
-  icon: any;
-  title: string;
-  description: string;
-  href: string;
-  color: string;
-}) {
-  return (
-    <Link href={href}>
-      <Card className="glass-card hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-        <CardContent className="p-6">
-          <div className="flex items-center space-x-4">
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${color} group-hover:scale-110 transition-transform duration-200`}>
-              <Icon size={20} className="text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-white">{title}</h3>
-              <p className="text-sm text-muted-foreground">{description}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
-
-function ActivityItem({ type, title, time, status }: {
-  type: 'upload' | 'analysis' | 'documentation';
-  title: string;
-  time: string;
-  status: 'success' | 'processing' | 'failed';
-}) {
-  const icons = {
-    upload: Upload,
-    analysis: Activity,
-    documentation: FileCode
-  };
-  
-  const statusColors = {
-    success: 'text-success',
-    processing: 'text-warning',
-    failed: 'text-destructive'
-  };
-  
-  const Icon = icons[type];
-  
-  return (
-    <div className="flex items-center space-x-4 p-4 rounded-lg hover:bg-card/50 transition-colors">
-      <div className="p-2 rounded-lg bg-primary/20">
-        <Icon size={16} className="text-primary" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">{title}</p>
-        <p className="text-xs text-muted-foreground">{time}</p>
-      </div>
-      <Badge className={`${statusColors[status]}`} variant="outline">
-        {status}
-      </Badge>
-    </div>
-  );
-}
+import { format } from "date-fns";
+import type { Statistics } from "@shared/schema";
 
 export default function Dashboard() {
-  const { data: stats = {} } = useQuery({
+  const [repositoryUrl, setRepositoryUrl] = useState("");
+
+  const { data: stats } = useQuery<Statistics>({
     queryKey: ["/api/statistics"],
+    refetchInterval: 30000,
   });
 
-  const { data: programs = [] } = useQuery({
+  const { data: programs } = useQuery({
     queryKey: ["/api/programs"],
   });
 
-  const { data: uploadSessions = [] } = useQuery({
+  const { data: repositories } = useQuery({
+    queryKey: ["/api/repositories"],
+  });
+
+  const { data: uploadSessions } = useQuery({
     queryKey: ["/api/upload-sessions"],
   });
 
-  // Type-safe stats with proper defaults
-  const totalPrograms = (stats as any)?.totalPrograms || 0;
-  const documentedPrograms = (stats as any)?.documentedPrograms || 0;
-  const dataElements = (stats as any)?.dataElements || 0;
-  const pendingPrograms = totalPrograms - documentedPrograms;
+  const recentPrograms = programs?.slice(0, 3) || [];
+  const recentRepositories = repositories?.slice(0, 2) || [];
 
-  const recentActivities = [
-    {
-      type: 'upload' as const,
-      title: 'Billing System v2.1 uploaded',
-      time: '2 hours ago',
-      status: 'success' as const
-    },
-    {
-      type: 'analysis' as const,
-      title: 'Customer Master analysis',
-      time: '4 hours ago',
-      status: 'processing' as const
-    },
-    {
-      type: 'documentation' as const,
-      title: 'Payroll Legacy documented',
-      time: '6 hours ago',
-      status: 'success' as const
+  const handleAddRepository = () => {
+    if (repositoryUrl.trim()) {
+      // Navigate to repositories page with the URL
+      window.location.href = `/repositories?add=${encodeURIComponent(repositoryUrl)}`;
     }
-  ];
+  };
 
   return (
-    <div className="min-h-screen bg-background p-8 space-y-8">
-      {/* Header */}
+    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+      {/* Header Section */}
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold gradient-text">
-          Welcome to COBOL ClarityEngine
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Transform your legacy systems into clear, understandable documentation
+        <h1 className="text-3xl font-bold text-foreground">Add New Codebase</h1>
+        <p className="text-muted-foreground">
+          Connect your COBOL repositories or upload individual programs to begin documentation.
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Programs"
-          value={totalPrograms}
-          icon={FileCode}
-          color="text-primary"
-          description="COBOL programs analyzed"
-          data-testid="stat-total-programs"
-        />
-        <StatCard
-          title="Documented"
-          value={documentedPrograms}
-          icon={CheckCircle}
-          color="text-success"
-          trend={documentedPrograms > 0 ? "+12%" : undefined}
-          description="Fully processed programs"
-          data-testid="stat-documented-programs"
-        />
-        <StatCard
-          title="Data Elements"
-          value={dataElements}
-          icon={Database}
-          color="text-warning"
-          description="Variables discovered"
-          data-testid="stat-data-elements"
-        />
-        <StatCard
-          title="Pending Analysis"
-          value={pendingPrograms}
-          icon={Clock}
-          color="text-muted-foreground"
-          description="Awaiting processing"
-          data-testid="stat-pending-analysis"
-        />
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Quick Actions */}
-        <div className="lg:col-span-2 space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <QuickAction
-                icon={Upload}
-                title="Upload COBOL Files"
-                description="Add new programs to analyze"
-                href="/upload"
-                color="from-primary to-accent"
-              />
-              <QuickAction
-                icon={FileCode}
-                title="View Programs"
-                description="Browse analyzed programs"
-                href="/programs"
-                color="from-success to-success/80"
-              />
-              <QuickAction
-                icon={Database}
-                title="Data Dictionary"
-                description="Explore variables and structures"
-                href="/data-dictionary"
-                color="from-warning to-warning/80"
-              />
-              <QuickAction
-                icon={TrendingUp}
-                title="Visualizations"
-                description="View system diagrams"
-                href="/visualizations"
-                color="from-accent to-primary"
-              />
-            </div>
+      {/* Add Repository Section */}
+      <Card className="border border-border shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-xl text-foreground">Codebase Repository URL</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex space-x-3">
+            <Input
+              type="url"
+              placeholder="https://github.com/your-org/cobol-project"
+              value={repositoryUrl}
+              onChange={(e) => setRepositoryUrl(e.target.value)}
+              className="flex-1 h-12"
+              data-testid="repository-url-input"
+            />
+            <Button 
+              onClick={handleAddRepository}
+              disabled={!repositoryUrl.trim()}
+              className="h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground"
+              data-testid="generate-button"
+            >
+              Generate
+            </Button>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Progress Overview */}
-          {totalPrograms > 0 && (
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Activity className="text-primary" size={20} />
-                  <span>Documentation Progress</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Completed Programs</span>
-                    <span className="text-white">{documentedPrograms} of {totalPrograms}</span>
-                  </div>
-                  <Progress 
-                    value={(documentedPrograms / totalPrograms) * 100} 
-                    className="h-2"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-success">{Math.round((documentedPrograms / totalPrograms) * 100)}%</div>
-                    <div className="text-xs text-muted-foreground">Complete</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-warning">{pendingPrograms}</div>
-                    <div className="text-xs text-muted-foreground">Remaining</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+      {/* Your Codebases Section */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold text-foreground">Your Codebases</h2>
+        
+        {recentRepositories.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {recentRepositories.map((repo: any) => (
+              <Card key={repo.id} className="border border-border shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-foreground">{repo.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Last updated: {repo.lastSyncedAt ? format(new Date(repo.lastSyncedAt), 'h:mm a') : 'Never'}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                        <Activity className="w-3 h-3 mr-1" />
+                        Live
+                      </Badge>
+                    </div>
 
-        {/* Recent Activity */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
-          <Card className="glass-card">
-            <CardContent className="p-0">
-              <div className="space-y-1">
-                {recentActivities.map((activity, index) => (
-                  <ActivityItem key={index} {...activity} />
-                ))}
+                    <div className="bg-muted rounded-lg p-4">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <FileCode2 className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Domain</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {repo.description || "Enterprise COBOL Application"}
+                      </p>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-1 h-1 rounded-full bg-muted-foreground"></div>
+                          <span className="text-muted-foreground">
+                            {repo.branch || 'main'} branch
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex space-x-4">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/repositories/${repo.id}`}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Visit Docs
+                          </Link>
+                        </Button>
+                      </div>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                        <Activity className="w-3 h-3 mr-1" />
+                        Live
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="border border-border shadow-sm">
+            <CardContent className="pt-6">
+              <div className="text-center py-8">
+                <GitBranch className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No Codebases Connected</h3>
+                <p className="text-muted-foreground mb-4">
+                  Connect your first COBOL repository to start generating documentation.
+                </p>
+                <Link href="/repositories">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Repository
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
-          
-          {/* Getting Started */}
-          {totalPrograms === 0 && (
-            <Card className="glass-card border-primary/30">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Zap className="text-primary" size={20} />
-                  <span>Getting Started</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground text-sm">
-                  Start documenting your COBOL systems in three simple steps:
+        )}
+      </div>
+
+      {/* Activity History Section */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold text-foreground">Activity History</h2>
+        <Card className="border border-border shadow-sm">
+          <CardContent className="pt-6">
+            {uploadSessions && uploadSessions.length > 0 ? (
+              <div className="space-y-4">
+                {uploadSessions.slice(0, 5).map((session: any) => (
+                  <div key={session.id} className="flex items-center justify-between py-3 border-b border-border last:border-b-0">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {session.fileName || 'Program Upload'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {session.createdAt ? format(new Date(session.createdAt), 'MMM d, yyyy h:mm a') : 'Unknown time'}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge 
+                      variant="secondary"
+                      className={
+                        session.status === 'completed' 
+                          ? 'bg-primary/10 text-primary border-primary/20'
+                          : session.status === 'processing'
+                          ? 'bg-orange-100 text-orange-700 border-orange-200'
+                          : 'bg-red-100 text-red-700 border-red-200'
+                      }
+                    >
+                      {session.status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
+                      {session.status === 'processing' && <Clock className="w-3 h-3 mr-1" />}
+                      {session.status === 'failed' && <AlertTriangle className="w-3 h-3 mr-1" />}
+                      {session.status || 'Unknown'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Clock className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No Recent Activity</h3>
+                <p className="text-muted-foreground">
+                  Upload your first COBOL program or connect a repository to see activity here.
                 </p>
-                <ol className="space-y-3 text-sm">
-                  <li className="flex items-center space-x-3">
-                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-[hsl(var(--primary-foreground))]">
-                      1
-                    </div>
-                    <span className="text-white">Upload your COBOL files</span>
-                  </li>
-                  <li className="flex items-center space-x-3">
-                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-[hsl(var(--primary-foreground))]">
-                      2
-                    </div>
-                    <span className="text-white">AI analyzes the code structure</span>
-                  </li>
-                  <li className="flex items-center space-x-3">
-                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-[hsl(var(--primary-foreground))]">
-                      3
-                    </div>
-                    <span className="text-white">Get clear documentation & diagrams</span>
-                  </li>
-                </ol>
-                <Link href="/upload">
-                  <Button className="w-full mt-4" data-testid="get-started-upload">
-                    Upload Your First Program
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="border border-border shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Programs</p>
+                <p className="text-2xl font-bold text-foreground">{stats?.totalPrograms || 0}</p>
+              </div>
+              <FileCode2 className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Documented</p>
+                <p className="text-2xl font-bold text-primary">{stats?.documentedPrograms || 0}</p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Repositories</p>
+                <p className="text-2xl font-bold text-foreground">{stats?.repositories || 0}</p>
+              </div>
+              <GitBranch className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Data Elements</p>
+                <p className="text-2xl font-bold text-foreground">{stats?.dataElements || 0}</p>
+              </div>
+              <Database className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

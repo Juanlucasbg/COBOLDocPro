@@ -3,58 +3,58 @@
 @tailwind utilities;
 
 :root {
-  --background: 220 20% 14%; /* Dark blue-gray background */
-  --foreground: 0 0% 100%; /* Pure white text */
-  --muted: 220 15% 20%; /* Darker muted background */
-  --muted-foreground: 210 15% 75%; /* Light gray muted text */
-  --popover: 220 20% 16%; /* Slightly lighter dark background */
-  --popover-foreground: 0 0% 100%; /* Pure white text */
-  --card: 220 20% 18%; /* Card background */
-  --card-foreground: 0 0% 100%; /* White card text */
-  --border: 220 13% 25%; /* Border color */
-  --input: 220 13% 25%; /* Input background */
-  --primary: 150 100% 40%; /* Bright green primary */
-  --primary-foreground: 220 20% 14%; /* Dark text on green */
-  --secondary: 220 15% 25%; /* Secondary background */
-  --secondary-foreground: 0 0% 100%; /* White secondary text */
-  --accent: 150 80% 35%; /* Darker green accent */
-  --accent-foreground: 0 0% 100%; /* White accent text */
-  --destructive: 0 75% 60%; /* Red destructive */
+  --background: 0 0% 100%; /* Pure white background */
+  --foreground: 220 13% 18%; /* Dark gray text */
+  --muted: 220 14% 96%; /* Light gray muted background */
+  --muted-foreground: 220 9% 46%; /* Medium gray muted text */
+  --popover: 0 0% 100%; /* White popover background */
+  --popover-foreground: 220 13% 18%; /* Dark text */
+  --card: 0 0% 100%; /* White card background */
+  --card-foreground: 220 13% 18%; /* Dark card text */
+  --border: 220 13% 91%; /* Light gray border */
+  --input: 0 0% 100%; /* White input background */
+  --primary: 142 71% 45%; /* Green primary */
+  --primary-foreground: 0 0% 100%; /* White text on green */
+  --secondary: 220 14% 96%; /* Light gray secondary */
+  --secondary-foreground: 220 13% 18%; /* Dark secondary text */
+  --accent: 220 14% 96%; /* Light gray accent */
+  --accent-foreground: 220 13% 18%; /* Dark accent text */
+  --destructive: 0 84% 60%; /* Red destructive */
   --destructive-foreground: 0 0% 100%; /* White destructive text */
-  --success: 150 100% 40%; /* Green success */
-  --warning: 45 100% 60%; /* Yellow warning */
-  --ring: 150 100% 40%; /* Green ring */
-  --radius: 0.75rem;
-  --sidebar-bg: 220 25% 11%; /* Darker sidebar */
-  --sidebar-hover: 220 20% 16%; /* Sidebar hover */
-  --sidebar-active: 150 100% 40%; /* Green active state */
+  --success: 142 71% 45%; /* Green success */
+  --warning: 38 92% 50%; /* Orange warning */
+  --ring: 142 71% 45%; /* Green ring */
+  --radius: 0.5rem;
+  --sidebar-bg: 0 0% 100%; /* White sidebar */
+  --sidebar-hover: 220 14% 96%; /* Light gray hover */
+  --sidebar-active: 142 71% 45%; /* Green active state */
 }
 
 .dark {
-  --background: 220 20% 14%; /* Dark blue-gray background */
-  --foreground: 0 0% 100%; /* Pure white text */
-  --muted: 220 15% 20%; /* Darker muted background */
-  --muted-foreground: 210 15% 75%; /* Light gray muted text */
-  --popover: 220 20% 16%; /* Slightly lighter dark background */
-  --popover-foreground: 0 0% 100%; /* Pure white text */
-  --card: 220 20% 18%; /* Card background */
-  --card-foreground: 0 0% 100%; /* White card text */
-  --border: 220 13% 25%; /* Border color */
-  --input: 220 13% 25%; /* Input background */
-  --primary: 150 100% 40%; /* Bright green primary */
-  --primary-foreground: 220 20% 14%; /* Dark text on green */
-  --secondary: 220 15% 25%; /* Secondary background */
-  --secondary-foreground: 0 0% 100%; /* White secondary text */
-  --accent: 150 80% 35%; /* Darker green accent */
-  --accent-foreground: 0 0% 100%; /* White accent text */
-  --destructive: 0 75% 60%; /* Red destructive */
+  --background: 0 0% 100%; /* Keep light theme */
+  --foreground: 220 13% 18%; /* Dark gray text */
+  --muted: 220 14% 96%; /* Light gray muted background */
+  --muted-foreground: 220 9% 46%; /* Medium gray muted text */
+  --popover: 0 0% 100%; /* White popover background */
+  --popover-foreground: 220 13% 18%; /* Dark text */
+  --card: 0 0% 100%; /* White card background */
+  --card-foreground: 220 13% 18%; /* Dark card text */
+  --border: 220 13% 91%; /* Light gray border */
+  --input: 0 0% 100%; /* White input background */
+  --primary: 142 71% 45%; /* Green primary */
+  --primary-foreground: 0 0% 100%; /* White text on green */
+  --secondary: 220 14% 96%; /* Light gray secondary */
+  --secondary-foreground: 220 13% 18%; /* Dark secondary text */
+  --accent: 220 14% 96%; /* Light gray accent */
+  --accent-foreground: 220 13% 18%; /* Dark accent text */
+  --destructive: 0 84% 60%; /* Red destructive */
   --destructive-foreground: 0 0% 100%; /* White destructive text */
-  --success: 150 100% 40%; /* Green success */
-  --warning: 45 100% 60%; /* Yellow warning */
-  --ring: 150 100% 40%; /* Green ring */
-  --sidebar-bg: 220 25% 11%; /* Darker sidebar */
-  --sidebar-hover: 220 20% 16%; /* Sidebar hover */
-  --sidebar-active: 150 100% 40%; /* Green active state */
+  --success: 142 71% 45%; /* Green success */
+  --warning: 38 92% 50%; /* Orange warning */
+  --ring: 142 71% 45%; /* Green ring */
+  --sidebar-bg: 0 0% 100%; /* White sidebar */
+  --sidebar-hover: 220 14% 96%; /* Light gray hover */
+  --sidebar-active: 142 71% 45%; /* Green active state */
 }
 
 @layer base {
@@ -74,11 +74,11 @@
 
 @layer components {
   .sidebar-item {
-    @apply flex items-center space-x-3 px-4 py-3 rounded-lg text-white/70 hover:text-white hover:bg-[hsl(var(--sidebar-hover))] transition-all duration-200;
+    @apply flex items-center space-x-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))] transition-all duration-200;
   }
 
   .sidebar-item.active {
-    @apply bg-primary text-[hsl(var(--primary-foreground))] hover:bg-primary shadow-lg shadow-primary/20;
+    @apply bg-primary text-[hsl(var(--primary-foreground))] hover:bg-primary shadow-sm;
   }
 
   .code-line {

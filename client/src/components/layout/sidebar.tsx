@@ -76,15 +76,15 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-80 bg-[hsl(var(--sidebar-bg))] border-r border-border/30 flex flex-col overflow-hidden">
+    <aside className="w-80 bg-[hsl(var(--sidebar-bg))] border-r border-border flex flex-col overflow-hidden">
       {/* Logo and Brand */}
-      <div className="p-6 border-b border-border/30">
+      <div className="p-6 border-b border-border">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
             <Code2 className="text-[hsl(var(--primary-foreground))]" size={20} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white gradient-text">
+            <h1 className="text-lg font-bold text-foreground">
               COBOL ClarityEngine
             </h1>
             <p className="text-xs text-muted-foreground">
@@ -132,7 +132,7 @@ export default function Sidebar() {
               <Link
                 key={project.name}
                 href="/programs"
-                className="flex items-center justify-between p-3 rounded-lg text-white/70 hover:text-white hover:bg-[hsl(var(--sidebar-hover))] transition-all duration-200"
+                className="flex items-center justify-between p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))] transition-all duration-200"
                 data-testid={`recent-project-${project.name.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <div className="flex items-center space-x-3">
