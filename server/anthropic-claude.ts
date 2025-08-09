@@ -216,7 +216,7 @@ export async function generateClaudeDataElementDescriptions(
       "name": "data element name",
       "inferredPurpose": "what this data element is used for",
       "businessContext": "business meaning and significance",
-      "commonValues": ["example1", "example2", "example3"]
+      "commonValues": []
     }
   ]
 }

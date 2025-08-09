@@ -560,7 +560,7 @@ ${program.paragraphs.slice(0, 5).map(p =>
   private generateTechnicalCodeExamples(semanticResults: SemanticAnalysisResult[]): CodeExample[] {
     const examples: CodeExample[] = [];
     
-    // Add example of complex procedure
+    // Extract actual complex procedures from semantic analysis
     const complexProgram = semanticResults.find(r => 
       r.controlFlowGraph.cyclomaticComplexity > 10);
     
