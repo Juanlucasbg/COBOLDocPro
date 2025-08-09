@@ -1,0 +1,83 @@
+curl --location 'https://serverless-region-v1.inferless.com/api/v1/cb77-instruct-7b_efda690be88d48dab1b51b5d852c564f/infer' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Bearer b7ec13e06dee09ac0cf712a8134dfd50cbb28d37950d87672280c56aa7796fb1b0837f4a31119bf98db376826c83a2727b32315668695e0e6ae498ce356f1658' \
+          --data '{
+    "inputs": [
+        {
+            "name": "prompt",
+            "shape": [
+                1
+            ],
+            "data": [
+                "Write a short story about a robot learning to paint:"
+            ],
+            "datatype": "BYTES"
+        },
+        {
+            "name": "min_tokens",
+            "optional": true,
+            "shape": [
+                1
+            ],
+            "data": [
+                0
+            ],
+            "datatype": "INT16"
+        },
+        {
+            "name": "max_tokens",
+            "optional": true,
+            "shape": [
+                1
+            ],
+            "data": [
+                128
+            ],
+            "datatype": "INT16"
+        },
+        {
+            "name": "temperature",
+            "optional": true,
+            "shape": [
+                1
+            ],
+            "data": [
+                1
+            ],
+            "datatype": "FP32"
+        },
+        {
+            "name": "top_p",
+            "optional": true,
+            "shape": [
+                1
+            ],
+            "data": [
+                1
+            ],
+            "datatype": "FP32"
+        },
+        {
+            "name": "top_k",
+            "optional": true,
+            "shape": [
+                1
+            ],
+            "data": [
+                50
+            ],
+            "datatype": "INT8"
+        },
+        {
+            "name": "repetition_penalty",
+            "optional": true,
+            "shape": [
+                1
+            ],
+            "data": [
+                1
+            ],
+            "datatype": "FP32"
+        }
+    ]
+}'
