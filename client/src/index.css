@@ -3,58 +3,58 @@
 @tailwind utilities;
 
 :root {
-  --background: 240 10% 3.9%; /* Very dark background */
-  --foreground: 0 0% 98%; /* Almost white text */
-  --muted: 240 3.7% 15.9%; /* Dark gray muted background */
-  --muted-foreground: 240 5% 64.9%; /* Medium gray muted text */
-  --popover: 240 10% 3.9%; /* Dark popover background */
-  --popover-foreground: 0 0% 98%; /* Light text */
-  --card: 240 10% 3.9%; /* Dark card background */
-  --card-foreground: 0 0% 98%; /* Light card text */
-  --border: 240 3.7% 15.9%; /* Dark gray border */
-  --input: 240 3.7% 15.9%; /* Dark input background */
-  --primary: 142 71% 45%; /* Green primary */
-  --primary-foreground: 240 10% 3.9%; /* Dark text on green */
-  --secondary: 240 3.7% 15.9%; /* Dark gray secondary */
-  --secondary-foreground: 0 0% 98%; /* Light secondary text */
-  --accent: 240 3.7% 15.9%; /* Dark gray accent */
-  --accent-foreground: 0 0% 98%; /* Light accent text */
-  --destructive: 0 75% 60%; /* Red destructive */
-  --destructive-foreground: 0 0% 98%; /* Light destructive text */
-  --success: 142 71% 45%; /* Green success */
-  --warning: 38 92% 50%; /* Orange warning */
-  --ring: 142 71% 45%; /* Green ring */
-  --radius: 0.5rem;
-  --sidebar-bg: 240 5.9% 10%; /* Dark sidebar */
-  --sidebar-hover: 240 3.7% 15.9%; /* Darker hover */
-  --sidebar-active: 142 71% 45%; /* Green active state */
+  --background: 0 0% 0%; /* Pure black background */
+  --foreground: 0 0% 100%; /* Pure white text */
+  --muted: 0 0% 0%; /* Black muted background */
+  --muted-foreground: 0 0% 100%; /* White muted text */
+  --popover: 0 0% 0%; /* Black popover background */
+  --popover-foreground: 0 0% 100%; /* White text */
+  --card: 0 0% 0%; /* Black card background */
+  --card-foreground: 0 0% 100%; /* White card text */
+  --border: 0 0% 0%; /* Black border */
+  --input: 0 0% 0%; /* Black input background */
+  --primary: 0 0% 100%; /* White primary */
+  --primary-foreground: 0 0% 0%; /* Black text on white */
+  --secondary: 0 0% 0%; /* Black secondary */
+  --secondary-foreground: 0 0% 100%; /* White secondary text */
+  --accent: 0 0% 0%; /* Black accent */
+  --accent-foreground: 0 0% 100%; /* White accent text */
+  --destructive: 0 0% 100%; /* White destructive */
+  --destructive-foreground: 0 0% 0%; /* Black destructive text */
+  --success: 0 0% 100%; /* White success */
+  --warning: 0 0% 100%; /* White warning */
+  --ring: 0 0% 100%; /* White ring */
+  --radius: 0rem;
+  --sidebar-bg: 0 0% 0%; /* Black sidebar */
+  --sidebar-hover: 0 0% 0%; /* Black hover */
+  --sidebar-active: 0 0% 100%; /* White active state */
 }
 
 .dark {
-  --background: 240 10% 3.9%; /* Very dark background */
-  --foreground: 0 0% 98%; /* Almost white text */
-  --muted: 240 3.7% 15.9%; /* Dark gray muted background */
-  --muted-foreground: 240 5% 64.9%; /* Medium gray muted text */
-  --popover: 240 10% 3.9%; /* Dark popover background */
-  --popover-foreground: 0 0% 98%; /* Light text */
-  --card: 240 10% 3.9%; /* Dark card background */
-  --card-foreground: 0 0% 98%; /* Light card text */
-  --border: 240 3.7% 15.9%; /* Dark gray border */
-  --input: 240 3.7% 15.9%; /* Dark input background */
-  --primary: 142 71% 45%; /* Green primary */
-  --primary-foreground: 240 10% 3.9%; /* Dark text on green */
-  --secondary: 240 3.7% 15.9%; /* Dark gray secondary */
-  --secondary-foreground: 0 0% 98%; /* Light secondary text */
-  --accent: 240 3.7% 15.9%; /* Dark gray accent */
-  --accent-foreground: 0 0% 98%; /* Light accent text */
-  --destructive: 0 75% 60%; /* Red destructive */
-  --destructive-foreground: 0 0% 98%; /* Light destructive text */
-  --success: 142 71% 45%; /* Green success */
-  --warning: 38 92% 50%; /* Orange warning */
-  --ring: 142 71% 45%; /* Green ring */
-  --sidebar-bg: 240 5.9% 10%; /* Dark sidebar */
-  --sidebar-hover: 240 3.7% 15.9%; /* Darker hover */
-  --sidebar-active: 142 71% 45%; /* Green active state */
+  --background: 0 0% 0%; /* Pure black background */
+  --foreground: 0 0% 100%; /* Pure white text */
+  --muted: 0 0% 0%; /* Black muted background */
+  --muted-foreground: 0 0% 100%; /* White muted text */
+  --popover: 0 0% 0%; /* Black popover background */
+  --popover-foreground: 0 0% 100%; /* White text */
+  --card: 0 0% 0%; /* Black card background */
+  --card-foreground: 0 0% 100%; /* White card text */
+  --border: 0 0% 0%; /* Black border */
+  --input: 0 0% 0%; /* Black input background */
+  --primary: 0 0% 100%; /* White primary */
+  --primary-foreground: 0 0% 0%; /* Black text on white */
+  --secondary: 0 0% 0%; /* Black secondary */
+  --secondary-foreground: 0 0% 100%; /* White secondary text */
+  --accent: 0 0% 0%; /* Black accent */
+  --accent-foreground: 0 0% 100%; /* White accent text */
+  --destructive: 0 0% 100%; /* White destructive */
+  --destructive-foreground: 0 0% 0%; /* Black destructive text */
+  --success: 0 0% 100%; /* White success */
+  --warning: 0 0% 100%; /* White warning */
+  --ring: 0 0% 100%; /* White ring */
+  --sidebar-bg: 0 0% 0%; /* Black sidebar */
+  --sidebar-hover: 0 0% 0%; /* Black hover */
+  --sidebar-active: 0 0% 100%; /* White active state */
 }
 
 @layer base {
@@ -135,5 +135,39 @@
 
   .gradient-text {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+}
+
+/* Pure Black/White Override - Remove all UI panels and decorative elements */
+@layer utilities {
+  .ultra-minimal {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+  }
+  
+  .ultra-minimal * {
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+  
+  .ultra-minimal-text {
+    color: #FFFFFF !important;
+    background-color: transparent !important;
+  }
+  
+  .ultra-minimal-button {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 }

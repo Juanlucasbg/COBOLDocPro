@@ -76,16 +76,16 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-[hsl(var(--sidebar-bg))] border-r border-border flex flex-col overflow-hidden">
+    <aside className="w-64 ultra-minimal flex flex-col overflow-hidden">
       {/* Logo and Brand */}
-      <div className="px-4 py-6 border-b border-border">
+      <div className="px-4 py-6">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-            <Code2 className="text-[hsl(var(--primary-foreground))]" size={16} />
+          <div className="w-8 h-8 ultra-minimal-button flex items-center justify-center">
+            <Code2 className="text-black" size={16} />
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-foreground">
-              Goldman Sachs
+            <h1 className="text-sm font-semibold ultra-minimal-text">
+              COBOL Docs AI
             </h1>
           </div>
         </div>
@@ -98,10 +98,10 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+              className={`flex items-center px-3 py-2 text-sm transition-colors ${
                 item.active 
-                  ? "bg-[hsl(var(--sidebar-active))] text-[hsl(var(--primary-foreground))]" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-hover))]"
+                  ? "ultra-minimal-button" 
+                  : "ultra-minimal-text"
               }`}
               data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
             >

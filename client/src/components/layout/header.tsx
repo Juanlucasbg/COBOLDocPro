@@ -13,16 +13,16 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-background border-b border-border">
+    <header className="ultra-minimal">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Search */}
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
-            <Input
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white" size={16} />
+            <input
               type="text"
               placeholder="Search..."
-              className="pl-10 h-9 bg-muted border-0 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary"
+              className="pl-10 h-9 bg-black text-white text-sm placeholder-white w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {
@@ -37,19 +37,19 @@ export default function Header() {
 
         {/* Right Actions */}
         <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm" className="h-8 px-3 text-xs">
+          <button className="ultra-minimal-button h-8 px-3 text-xs">
             Dashboard
-          </Button>
-          <Button variant="outline" size="sm" className="h-8 px-3 text-xs">
+          </button>
+          <button className="ultra-minimal-button h-8 px-3 text-xs">
             Community
-          </Button>
-          <Button size="sm" className="h-8 px-3 text-xs bg-primary hover:bg-primary/90">
+          </button>
+          <button className="ultra-minimal-button h-8 px-3 text-xs">
             View Codebase
-          </Button>
+          </button>
           
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
-            <span className="text-xs text-muted-foreground">Live</span>
+            <div className="w-2 h-2 bg-white"></div>
+            <span className="text-xs text-white">Live</span>
           </div>
         </div>
       </div>
