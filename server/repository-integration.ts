@@ -1,5 +1,7 @@
 import { CobolStaticAnalyzer, setupRepositoryAnalysis, type StaticAnalysisResult } from './cobol-analyzer';
 import { AIDocumentationGenerator, type DocumentationResult } from './ai-documentation-generator';
+import { COBOLSemanticAnalyzer, type SemanticAnalysisResult } from './cobol-semantic-analyzer';
+import { EnterpriseDocumentationGenerator, type EnterpriseDocumentationResult } from './enterprise-documentation-generator';
 import type { IStorage } from './storage';
 import * as path from 'path';
 
@@ -7,11 +9,13 @@ export interface RepositoryAnalysisJob {
   id: string;
   repositoryUrl: string;
   repositoryName: string;
-  status: 'PENDING' | 'ANALYZING' | 'GENERATING_DOCS' | 'COMPLETED' | 'FAILED';
+  status: 'PENDING' | 'ANALYZING' | 'SEMANTIC_ANALYSIS' | 'GENERATING_DOCS' | 'ENTERPRISE_DOCS' | 'COMPLETED' | 'FAILED';
   progress: number;
   currentStep: string;
   staticAnalysis?: StaticAnalysisResult[];
+  semanticAnalysis?: SemanticAnalysisResult[];
   documentation?: DocumentationResult;
+  enterpriseDocumentation?: EnterpriseDocumentationResult;
   error?: string;
   createdAt: Date;
   completedAt?: Date;
@@ -21,10 +25,14 @@ export class RepositoryIntegrationService {
   private jobs = new Map<string, RepositoryAnalysisJob>();
   private storage: IStorage;
   private aiGenerator: AIDocumentationGenerator;
+  private semanticAnalyzer: COBOLSemanticAnalyzer;
+  private enterpriseGenerator: EnterpriseDocumentationGenerator;
 
   constructor(storage: IStorage) {
     this.storage = storage;
     this.aiGenerator = new AIDocumentationGenerator();
+    this.semanticAnalyzer = new COBOLSemanticAnalyzer();
+    this.enterpriseGenerator = new EnterpriseDocumentationGenerator();
   }
 
   async startRepositoryAnalysis(repositoryUrl: string): Promise<string> {
@@ -74,7 +82,7 @@ export class RepositoryIntegrationService {
 
       // Step 2: Static Analysis
       this.updateJob(jobId, {
-        progress: 20,
+        progress: 15,
         currentStep: 'Performing static code analysis...'
       });
 
@@ -82,19 +90,35 @@ export class RepositoryIntegrationService {
       const staticAnalysis = await analyzer.analyzeRepository();
 
       this.updateJob(jobId, {
-        progress: 60,
-        currentStep: 'Static analysis completed. Generating AI documentation...',
+        progress: 35,
+        currentStep: 'Static analysis completed. Starting semantic analysis...',
         staticAnalysis
       });
 
-      // Step 3: Store Static Results
-      await this.storeStaticAnalysis(staticAnalysis, job.repositoryName);
+      // Step 3: Semantic Analysis
+      this.updateJob(jobId, {
+        status: 'SEMANTIC_ANALYSIS',
+        progress: 40,
+        currentStep: 'Performing semantic analysis and business rule extraction...'
+      });
 
-      // Step 4: AI-Enhanced Documentation
+      const semanticAnalysis = await this.semanticAnalyzer.analyzeSemantics(staticAnalysis);
+
+      this.updateJob(jobId, {
+        progress: 55,
+        currentStep: 'Semantic analysis completed. Starting AI documentation generation...',
+        semanticAnalysis
+      });
+
+      // Step 4: Store Analysis Results
+      await this.storeStaticAnalysis(staticAnalysis, job.repositoryName);
+      await this.storeSemanticAnalysis(semanticAnalysis, job.repositoryName);
+
+      // Step 5: AI-Enhanced Documentation
       this.updateJob(jobId, {
         status: 'GENERATING_DOCS',
-        progress: 70,
-        currentStep: 'Generating comprehensive documentation with AI...'
+        progress: 60,
+        currentStep: 'Generating AI-enhanced documentation...'
       });
 
       const documentation = await this.aiGenerator.generateComprehensiveDocumentation(
@@ -102,20 +126,48 @@ export class RepositoryIntegrationService {
         job.repositoryName
       );
 
-      // Step 5: Store Documentation
+      this.updateJob(jobId, {
+        progress: 75,
+        currentStep: 'AI documentation completed. Generating enterprise documentation...',
+        documentation
+      });
+
+      // Step 6: Enterprise Documentation Generation
+      this.updateJob(jobId, {
+        status: 'ENTERPRISE_DOCS',
+        progress: 80,
+        currentStep: 'Generating enterprise-grade documentation package...'
+      });
+
+      const enterpriseDocumentation = await this.enterpriseGenerator.generateEnterpriseDocumentation(
+        staticAnalysis,
+        semanticAnalysis,
+        job.repositoryName,
+        {
+          detailLevel: 'COMPREHENSIVE',
+          audience: 'TECHNICAL',
+          exportFormats: ['HTML', 'PDF', 'JSON'],
+          generateDiagrams: true,
+          includeSourceCode: true
+        }
+      );
+
+      // Step 7: Store All Documentation
       this.updateJob(jobId, {
         progress: 90,
-        currentStep: 'Storing documentation...'
+        currentStep: 'Storing comprehensive documentation...'
       });
 
       await this.storeDocumentation(documentation, job.repositoryName);
+      await this.storeEnterpriseDocumentation(enterpriseDocumentation, job.repositoryName);
 
-      // Step 6: Complete
+      // Step 8: Complete
       this.updateJob(jobId, {
         status: 'COMPLETED',
         progress: 100,
-        currentStep: 'Analysis completed successfully!',
+        currentStep: 'Comprehensive analysis and documentation completed successfully!',
         documentation,
+        enterpriseDocumentation,
         completedAt: new Date()
       });
 
@@ -209,6 +261,20 @@ export class RepositoryIntegrationService {
     }
   }
 
+  private async storeSemanticAnalysis(
+    semanticResults: SemanticAnalysisResult[],
+    repositoryName: string
+  ): Promise<void> {
+    // Store semantic analysis results
+    console.log(`Storing semantic analysis for ${repositoryName}:`, {
+      programs: semanticResults.length,
+      businessRules: semanticResults.reduce((sum, r) => sum + r.businessRules.length, 0),
+      dataFlows: semanticResults.reduce((sum, r) => sum + r.dataLineage.flows.length, 0)
+    });
+    
+    // Would implement actual storage in production
+  }
+
   private async storeDocumentation(
     documentation: DocumentationResult,
     repositoryName: string
@@ -228,8 +294,27 @@ export class RepositoryIntegrationService {
       generatedAt: new Date().toISOString()
     };
 
+    console.log(`Storing AI documentation for ${repositoryName}`);
     // This would need to be implemented in the storage layer
     // await this.storage.createDocumentation(docData);
+  }
+
+  private async storeEnterpriseDocumentation(
+    enterpriseDoc: EnterpriseDocumentationResult,
+    repositoryName: string
+  ): Promise<void> {
+    // Store enterprise documentation package
+    console.log(`Storing enterprise documentation for ${repositoryName}:`, {
+      sections: enterpriseDoc.sections.length,
+      exports: enterpriseDoc.exports.length,
+      visualizations: enterpriseDoc.visualizations.callGraphs.length + 
+                     enterpriseDoc.visualizations.dataFlowDiagrams.length,
+      searchEntries: enterpriseDoc.searchIndex.programs.length +
+                     enterpriseDoc.searchIndex.dataItems.length +
+                     enterpriseDoc.searchIndex.businessRules.length
+    });
+    
+    // Would implement actual storage in production
   }
 
   // Cleanup old jobs (keep only last 24 hours)

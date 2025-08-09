@@ -1,0 +1,132 @@
+# Building the best COBOL documentation tool: a practical blueprint
+
+## What “best” means for COBOL documentation
+To truly help large COBOL estates, a documentation tool should deliver:
+- Accurate parsing across dialects and preprocessors (COPY/REPLACE, EXEC CICS/SQL) with copybook resolution.[1][2][3]
+- Business-level comprehension: data lineage, call graphs, program flows, and rule extraction, not just comments.[4][5][6]
+- Always-current docs wired into CI/CD and mainframe change flows.[7][4]
+- Output for both engineers and auditors: navigable hyperdocs, PDFs, and machine-readable JSON for integration.[6][7]
+
+Below is an implementation plan using proven components and lessons from existing tools.
+
+## Core architecture
+
+1) Parsing and preprocessing (the foundation)
+- Use an ANTLR4-based COBOL grammar with robust preprocessor support to handle COPY/REPLACE and dialect variants, producing both AST and ASG for downstream analysis.[2][3][1]
+- Justification: ProLeap’s ANTLR4 parser and analyzer are battle-tested (NIST suite), extract EXEC SQL/CICS as text, and generate AST/ASG—exactly what’s needed for reliable static analysis.[3][1]
+- Notes:
+  - Ensure preprocessor integrates copybook resolution and dialect switches (IBM/Micro Focus/GnuCOBOL), leveraging ProLeap’s preprocessor and patterns documented in academic/engineering work on ANTLR for COBOL.[8][9][3]
+  - Provide clear recovery strategies for ambiguous constructs and non-reserved keyword usages common in COBOL, a known pitfall in LL parsing and legacy grammars.[9][10][11][8]
+
+2) Semantic analysis and models
+- Build a normalized program model from ASG:
+  - Program/Division/Section/Paragraph graph
+  - Perform and GO TO control flow graph, with paragraph-level CFGs
+  - Call graph across programs and external modules; include JCL and PROC stubs where available
+  - Data model: Working-Storage, Linkage, File/Report sections, copybook expansion with level numbers, redefines/occurs, picture/usage attributes
+  - Data lineage: source-to-sink tracking across moves, computes, I/O, and calls
+- Why: Redvers RCANALIZ shows the value of procedure maps, while enterprise tools emphasize full program flows and callgraphs for maintainers and auditors.[5][6]
+
+3) Documentation generation
+- Multi-target emitters:
+  - Interactive HTML site with code-to-doc cross-links, flow diagrams, and searchable indices.[6]
+  - PDF/Word reports for governance packages.[7][6]
+  - JSON/Graph (e.g., OpenAPI-like for interfaces; GraphML for call graphs) to integrate with CMDBs and data catalogs.[7][6]
+- Include business-rule summaries and natural-language descriptions per program/paragraph/data group using an LLM constrained by the ASG and lineage graph, similar to capabilities advertised by AI documentation tools—but grounded strictly in parsed facts to avoid hallucinations.[12][13][7]
+
+4) Keeping docs up to date
+- CI/CD and mainframe pipelines:
+  - Trigger regeneration on repository changes or promotion events; publish deltas and highlight impacted programs/copybooks.[4][7]
+  - Generate diffs of control/data flow changes for reviewers.
+- Rationale: Teams need documentation that updates automatically with code changes to remain trustworthy, a key selling point for modern documentation systems.[4][7]
+
+## Key capabilities to surpass the state of the art
+
+- Dialect-aware preprocessing with copybook cache and fingerprinting for incremental builds, improving speed on very large estates.[2][3]
+- Mixed artifact support: COBOL + JCL + PROC stubs + SQL descriptors for better end-to-end lineage and job flow docs.[6]
+- Visuals that matter:
+  - Call graph (program-level)
+  - Perform tree and CFG per paragraph
+  - Data structure visualizer for nested level-numbers and REDEFINES
+  - File I/O map: which programs read/write which files/tables.[5][6]
+- “Where-used” for copybooks and fields across the estate, backed by ASG references.[1][3]
+- Rules extraction index: surface common patterns (e.g., error handling, validation edits) and classify by business domain terms discovered in identifiers/comments.[4][6]
+- Search and navigation UX inspired by modern analyzers like CANAL, optimized for large projects.[14]
+
+## Implementation stack
+
+- Frontend: Static site generator plus SPA for browsing graphs and code snippets; embed Graphviz/D3 for graphs.[14][6]
+- Backend: JVM-based pipeline leveraging ProLeap parser/analyzer; workers for incremental analysis.[3][1]
+- Storage: Document store for emitted JSON; graph DB optional for advanced queries.
+- Integrations: GitHub/GitLab/Bitbucket, z/OS SCM bridges; export to CMDB/data catalog formats.[7][6][4]
+
+## Build vs. buy lessons from existing tools
+
+- Open-source analyzers and parsers:
+  - ProLeap parser/analyzer: AST+ASG, NIST passing, supports EXEC SQL/CICS extraction—excellent base.[1][3]
+  - ANTLR4 grammars for COBOL85 as references or fallbacks; emphasize preprocessor coupling.[10][11][2]
+  - CANAL shows useful navigation patterns in an editor-centric analyzer.[14]
+  - RCANALIZ demonstrates simple but valuable procedure maps; incorporate as baseline views.[5]
+- Commercial/AI-first docs:
+  - Tools that promise “automatic up-to-date docs” underline the importance of CI and governance hooks, which should be first-class in the design.[7][4]
+  - Be wary of AI-only comment generators; without a semantic model, they risk inaccuracies—ground outputs in ASG and lineage facts.[13][15][12]
+
+## Phased delivery plan
+
+- Phase 1 (MVP):
+  - Parse + preprocess with copybook resolution; produce AST/ASG and program/division/section/paragraph index.[2][3][1]
+  - Generate HTML docs with procedure maps and call graph; PDF export.[5][6]
+- Phase 2:
+  - Add data model extraction, where-used, and file/table I/O maps; lineage for MOVE/COMPUTE chains.[3][1][6]
+  - Incremental builds and CI integration; change diffs.[4][7]
+- Phase 3:
+  - CFGs per paragraph, business-rule summaries via LLM constrained by ASG; governance packs.[6][7]
+  - JCL/PROC ingestion for job-level documentation and cross-artifact lineage.[6]
+- Phase 4:
+  - Enterprise features: access control, multi-repo federation, CMDB/data catalog exports, and custom rulesets.
+
+## Risk management and edge cases
+
+- Grammar/dialect drift: maintain switchable dialect profiles and test suites (NIST + internal corpora) to prevent regressions.[8][9][2][3]
+- Preprocessor corner cases: COPY/REPLACE nesting, copybook search paths; invest in deterministic preprocessing with clear logs.[8][2][3]
+- EXEC blocks: treat EXEC SQL/CICS as opaque nodes with captured text and optionally integrate with SQL/CICS metadata later.[3]
+- Performance on large estates: incremental parsing with copybook fingerprinting; parallelize at file level.[1][3]
+- Accuracy of AI summaries: require traceability to code locations and ASG nodes; never emit claims not backed by parsed structures.[12][13][7]
+
+## Minimal viable data model (must-have entities)
+
+- Program, Division, Section, Paragraph; Perform and Goto edges.[5][6]
+- Data items: name, level, PIC, USAGE, REDEFINES, OCCURS, VALUE; links to references.[3]
+- Files/tables: assigns and I/O statements; inferred CRUD map.[6]
+- Calls: static CALL targets and unresolved names; cross-program edges.[3][6]
+
+## Deliverables to users
+
+- A browsable site with:
+  - Overview map of the system (call graph) and job flows.[6]
+  - Each program page: purpose summary, interfaces (Linkage), files/tables used, performs/CFG, key rules, and change history.[7][6]
+  - Field where-used and copybook dependency pages.[5][3]
+- Exports: PDF reports per application, JSON/GraphML for integration, and CI status checks on docs freshness.[4][7][6]
+
+By grounding the tool in proven ANTLR4-based COBOL parsers like ProLeap for AST/ASG, adding semantic analysis for flows and lineage, and wiring outputs into CI with clear, navigable docs and governance-ready exports, this blueprint goes beyond comment generation to deliver durable, enterprise-grade COBOL documentation that stays in lockstep with the codebase.[15][16][11][13][9][10][12][8][14][1][7][4][3][5][6]
+
+[1] https://github.com/uwol/proleap-cobol
+[2] https://github.com/ulfloe/cobol85parser
+[3] https://github.com/uwol/proleap-cobol-parser
+[4] https://swimm.io/learn/cobol/best-cobol-tools-top-12-tools-to-know-in-2025
+[5] https://www.cobol.org.uk
+[6] https://sector7.com/legacymap/documenting-mainframe-openvms-cobol
+[7] https://overcast.blog/5-tools-for-generating-cobol-documentation-ea96bccb73c4
+[8] https://dspace.cvut.cz/bitstream/handle/10467/92895/F8-DP-2021-Tankos-Andrej-thesis.pdf?sequence=-1&isAllowed=y
+[9] http://essay.utwente.nl/91706/1/Parser%20Benchmarking%20for%20Legacy%20Languages.pdf
+[10] https://stackoverflow.com/questions/49087999/cant-parse-cobol-source-code-with-antlr4
+[11] https://www.antlr.org
+[12] https://www.docuwriter.ai/cobol-code-generator
+[13] https://www.docuwriter.ai/how-to-write-cobol-code-documentation
+[14] https://jannikarndt.github.io/Canal/
+[15] https://codingfleet.com/comment-generator/cobol/
+[16] https://www.in-com.com/blog/top-cobol-static-code-analysis-solutions-for-mission-critical-systems/
+[17] https://www.reddit.com/r/cobol/comments/17wrtdc/cobol_documentation_tool/
+[18] https://overcast.blog/documenting-cobol-in-2025-a-guide-548dd970067f
+[19] https://www.codeconvert.ai/cobol-code-generator
+[20] https://sourceforge.net/directory/documentation/cobol/
