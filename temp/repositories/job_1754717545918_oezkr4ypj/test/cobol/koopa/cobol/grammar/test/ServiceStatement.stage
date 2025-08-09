@@ -1,0 +1,6 @@
+target serviceStatement;
+
+-[ SERVICE ]
++[ SERVICE LABEL ]
+-[ SERVICE RELOAD ]
++[ SERVICE RELOAD foo ]

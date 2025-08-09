@@ -85,7 +85,7 @@ export const programs = pgTable("programs", {
 
 export const dataElements = pgTable("data_elements", {
   id: serial("id").primaryKey(),
-  programId: integer("program_id").notNull(),
+  programId: integer("program_id"), // Made nullable for repository analysis
   name: text("name").notNull(),
   picture: text("picture"),
   level: text("level"),

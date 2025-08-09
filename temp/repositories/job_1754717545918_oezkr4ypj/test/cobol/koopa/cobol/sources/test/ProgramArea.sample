@@ -1,0 +1,144 @@
+123456*89A123456789B123456789C123456789D123456789E123456789F123456789G12|4567
+<---->^<---------------------------------------------------------------><--->^
+FIXED = =                                                               =    =
+!TEXT = !TEXT/COMMENT                                                   !TEXT TEXT
+SEQNR I -                                                               IDENT EOLN
+
+
+123456*89A123456789B123456789C123456789D123456789E123456789F123456789G12
+<---->^<--------------------------------------------------------------->^
+FIXED = =                                                               =
+!TEXT = !TEXT/COMMENT                                                   TEXT
+SEQNR I -                                                               EOLN
+
+
+       IDENTIFICATION DIVISION.
+<---->^<---------------------->^
+FIXED = =                      =
+!TEXT = TEXT                   =
+SEQNR I -                      EOLN
+
+
+       PROGRAM-ID. FOO.
+<---->^<-------------->^
+FIXED = =              =
+!TEXT = TEXT           =
+SEQNR I -              EOLN
+
+
+       PROCEDURE DIVISION.
+<---->^<----------------->^
+FIXED = =                 =
+!TEXT = TEXT              =
+SEQNR I -                 EOLN
+
+
+123456*Hello world.
+<---->^<---------->^
+FIXED = =          =
+!TEXT = !T/COMMENT TEXT
+SEQNR I -          EOLN
+
+
+       DISPLAY FOO
+<---->^<--------->^
+FIXED = =         =
+!TEXT = TEXT      =
+SEQNR I -         EOLN
+
+
+       .
+<---->^^^
+FIXED = =    =
+!TEXT = TEXT =
+SEQNR I -    EOLN
+
+
+# This has some tabs, which by default count for one character each:
+123456*89	123456789	123456789	123456789	123456789	123456789	123456789	12|4567
+<---->^<---------------------------------------------------------------><--->^
+FIXED = =                                                               =    =
+!TEXT = !TEXT/COMMENT                                                   !TEXT TEXT
+SEQNR I -                                                               IDENT EOLN
+
+
+# =============================================================================
+# Switching to FREE mode.
+
+       >> source free
+<------------------->^
+FIXED                FREE
+!TEXT/DIRECTIVE      TEXT
+-                    EOLN
+
+
+123456789A123456789B123456789C123456789D123456789E123456789F123456789G12+++++
+<--------------------------------------------------------------------------->^
+FREE                                                                         =
+TEXT                                                                         =
+-                                                                            EOLN
+
+
+*23456789A123456789B123456789C123456789D123456789E123456789F123456789G12+++++
+^<-------------------------------------------------------------------------->^
+FREE   =                                                                     =
+!TEXT  !TEXT/COMMENT                                                         TEXT
+INDIC  -                                                                     EOLN
+
+
+display "freedom".
+<---------------->^
+FREE              =
+TEXT              =
+-                 EOLN
+
+
+# =============================================================================
+# Switching to VARIABLE mode.
+
+$SET SOURCEFORMAT"VARIABLE"
+<------------------------->^
+FREE                       VARIABLE
+!TEXT/DIRECTIVE            TEXT
+-                          EOLN
+
+
+123456*89A123456789B123456789C123456789D123456789E123456789F123456789G12+++++
+<---->^<-------------------------------------------------------------------->^
+VAR   = =                                                                    =
+!TEXT = !TEXT/COMMENT                                                        TEXT
+SEQNR I -                                                                    EOLN
+
+
+       DISPLAY FOO.
+<---->^<---------->^
+VAR   = =          =
+!TEXT = TEXT       =
+SEQNR I -          EOLN
+
+
+# =============================================================================
+# Switching to FIXED mode.
+
+       >> source fixed
+<-------------------->^
+VARIABLE              FIXED
+!TEXT/DIRECTIVE       TEXT
+-                     EOLN
+
+
+       DISPLAY FOO.
+<---->^<---------->^
+FIXED = =          =
+!TEXT = TEXT       =
+SEQNR I   -        EOLN
+
+
+# Testing "double width" spaces
+# Note that the test-annotations count in character indexes, not columns.
+# And so may look off by one here.
+　    * PROGRAM
+<--->^<------>^
+FIXED = =          =
+!TEXT = !T/COMMENT TEXT
+SEQNR I -          EOLN

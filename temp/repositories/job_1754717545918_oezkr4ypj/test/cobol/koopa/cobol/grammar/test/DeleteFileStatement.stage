@@ -1,0 +1,5 @@
+target deleteFileStatement;
+
+-[ DELETE FILE ]
++[ DELETE FILE "foo" ]
++[ DELETE FILE "foo" "bar" baz ]

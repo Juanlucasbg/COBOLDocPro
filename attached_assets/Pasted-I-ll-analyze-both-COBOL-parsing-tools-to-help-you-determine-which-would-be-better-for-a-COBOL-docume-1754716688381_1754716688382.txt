@@ -1,0 +1,80 @@
+I'll analyze both COBOL parsing tools to help you determine which would be better for a COBOL documenting tool. Let me search for information about these parsers and their characteristics.Based on my analysis of both COBOL parsers, here's a comprehensive comparison to help you decide which is better for a COBOL documenting tool:
+
+## **Koopa COBOL Parser**
+
+### Strengths:
+- Custom DSL approach using island grammars (.kg files) that makes the grammar easily extensible with minimal impact on overall code
+- Can handle source files in isolation without preprocessing and accepts CICS/SQL fragments natively
+- Built-in GUI with visualization capabilities including syntax highlighting, parse tree visualization, and XPath query support
+- Excellent for documentation - includes XML export and custom XPath queries for analysis
+- BSD license (more permissive)
+- Proven track record - used by Tocea for COBOL auditing software
+- Interactive features for documentation like navigating from source to grammar rules
+
+### Weaknesses:
+- Older architecture (not ANTLR4-based)
+- Build system uses ANT rather than Maven
+- Less structured semantic analysis compared to ProLeap's ASG
+
+## **ProLeap COBOL Parser**
+
+### Strengths:
+- Modern ANTLR4-based architecture with both AST (Abstract Syntax Tree) and ASG (Abstract Semantic Graph) generation
+- ASG provides rich semantic analysis with data and control flow information, variable access tracking
+- Comprehensive preprocessor handling COPY, REPLACE, CBL, and PROCESS statements
+- Rigorous test-driven development and passes NIST test suite
+- Successfully applied to numerous COBOL files from banking and insurance sectors
+- Maven-based build system with easy dependency management
+- Handles multiple source formats (fixed, variable, tandem)
+- Active development with regular updates and bug fixes
+- Better programmatic API for integration
+
+### Weaknesses:
+- Requires preprocessing step (though comprehensive)
+- More complex setup for simple parsing tasks
+- Less built-in visualization tools compared to Koopa
+
+## **Recommendation for Documentation Tool**
+
+**For a COBOL documenting tool, I recommend using ProLeap COBOL Parser**, with the following reasoning:
+
+1. **Richer Semantic Information**: ProLeap's ASG provides much deeper program understanding crucial for documentation - it tracks variable usage, data flow, and control flow which are essential for comprehensive documentation.
+
+2. **Better Programmatic Integration**: ProLeap's modern Java API and Maven integration make it easier to build custom documentation tools on top of it.
+
+3. **Production-Proven**: Its successful use in banking and insurance sectors demonstrates reliability with real-world COBOL code.
+
+4. **Active Maintenance**: More recent updates and active development ensure better support for modern COBOL variants.
+
+## **Hybrid Approach (Best of Both Worlds)**
+
+You could actually use **both parsers** for different aspects of your documentation tool:
+
+1. **Use ProLeap as the primary parser** for:
+   - Core parsing and semantic analysis
+   - Extracting program structure and relationships
+   - Variable usage and data flow documentation
+   - Generating comprehensive program documentation
+
+2. **Use Koopa for complementary features**:
+   - Quick visualization and exploration during development
+   - XPath-based queries for specific documentation needs
+   - Interactive grammar exploration features
+   - Handling edge cases where its island grammar approach excels
+
+## **Implementation Strategy**
+
+```java
+// Example: Using ProLeap for documentation generation
+CobolParserParams params = new CobolParserParamsImpl();
+params.setCopyBookDirectories(Arrays.asList("copybooks/"));
+Program program = new CobolParserRunnerImpl()
+    .analyzeFile(inputFile, CobolSourceFormatEnum.FIXED, params);
+
+// Access rich semantic information for documentation
+CompilationUnit cu = program.getCompilationUnit("MYPROG");
+DataDivision dataDivision = cu.getProgramUnit().getDataDivision();
+// Generate documentation from ASG...
+```
+
+The ProLeap parser's semantic graph makes it particularly well-suited for generating detailed documentation including data dictionaries, call graphs, variable cross-references, and impact analysis - all critical components of a comprehensive COBOL documentation tool.

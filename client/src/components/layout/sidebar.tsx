@@ -8,7 +8,8 @@ import {
   Layers,
   Code2,
   Activity,
-  Zap
+  Zap,
+  Search
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +36,12 @@ export default function Sidebar() {
       label: "Repositories",
       badge: stats?.repositories || 0,
       active: location === "/repositories",
+    },
+    {
+      href: "/repository-analysis",
+      icon: Search,
+      label: "Repository Analysis",
+      active: location === "/repository-analysis",
     },
     {
       href: "/upload",

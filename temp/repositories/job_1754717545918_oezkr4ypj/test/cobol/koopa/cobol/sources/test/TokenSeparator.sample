@@ -1,0 +1,377 @@
+# Comments. ###################################################################
+#
+
+123456* ANNOTATED SAMPLE                                                KOOPA
+<---->^<---------------------------------------------------------------><--->^
+FIXED = =                                                               =    =
+!TEXT = !TEXT/COMMENT                                                   !TEXT TEXT
+SEQNR I -                                                               IDENT EOLN
+
+
+           *> Stop bashing COBOL.
+<---->^<-->^^^<-->^<----->^<--->^^
+FIXED = =  ====   ==      ==    ==
+!TEXT = T  ====   ==      ==    ==
+SEQNR I .  ::.WORD.WORD   .WORD :EOLN
+
+
+# Basic character strings. #################################################### 
+#
+
+       IDENTIFICATION DIVISION.
+<---->^<------------>^<------>^^
+FIXED = =            ==       ==
+!TEXT = TEXT         ==       ==
+SEQNR I WORD         .WORD    :EOLN
+
+
+       PROGRAM-ID. FOO.
+<---->^<-------->^^<->^^
+FIXED = =        ===  ==
+!TEXT = TEXT     ===  ==
+SEQNR I WORD     :.W  :EOLN
+
+
+# Basic string literals. ######################################################
+#
+
+       DISPLAY "Plain old Cobol String.".
+<---->^<----->^<----------------------->^^
+FIXED = =     ==                        ==
+!TEXT = TEXT  ==                        ==
+SEQNR I WORD  .STRING                   :EOLN
+
+
+       DISPLAY 'Plain old Cobol String.'.
+<---->^<----->^<----------------------->^^
+FIXED = =     ==                        ==
+!TEXT = TEXT  ==                        ==
+SEQNR I WORD  .STRING                   :EOLN
+
+
+# Null terminated string literals. ############################################
+#
+
+       DISPLAY z"Null terminated String.".
+<---->^<----->^^<----------------------->^^
+FIXED = =     == =                       ==
+!TEXT = TEXT  == =                       ==
+SEQNR I WORD  .W STRING                  :EOLN
+
+       DISPLAY z'Null terminated String.'.
+<---->^<----->^^<----------------------->^^
+FIXED = =     == =                       ==
+!TEXT = TEXT  == =                       ==
+SEQNR I WORD  .W STRING                  :EOLN
+
+
+       DISPLAY Z"Null terminated String".
+<---->^<----->^^<---------------------->^^
+FIXED = =     == =                       ==
+!TEXT = TEXT  == =                       ==
+SEQNR I WORD  .W STRING                  :EOLN
+
+
+       DISPLAY Z'Null terminated String'.
+<---->^<----->^^<---------------------->^^
+FIXED = =     == =                       ==
+!TEXT = TEXT  == =                       ==
+SEQNR I WORD  .W STRING                  :EOLN
+
+
+# National string literals. ###################################################
+#
+
+       DISPLAY n"National String.".
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY n'National String.'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY N"National String.".
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY N'National String.'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+# Boolean literals. ###########################################################
+#
+
+       DISPLAY B"01".
+<---->^<----->^^<-->^^
+FIXED = =     == =  ==
+!TEXT = TEXT  == =  ==
+SEQNR I WORD  .W S  :EOLN
+
+
+       DISPLAY B'01'.
+<---->^<----->^^<-->^^
+FIXED = =     == =  ==
+!TEXT = TEXT  == =  ==
+SEQNR I WORD  .W S  :EOLN
+
+
+       DISPLAY b"01".
+<---->^<----->^^<-->^^
+FIXED = =     == =  ==
+!TEXT = TEXT  == =  ==
+SEQNR I WORD  .W S  :EOLN
+
+
+       DISPLAY b'01'.
+<---->^<----->^^<-->^^
+FIXED = =     == =  ==
+!TEXT = TEXT  == =  ==
+SEQNR I WORD  .W S  :EOLN
+
+
+# Boolean hexadecimal literals. ###############################################
+#
+
+       DISPLAY BX"0123456789ABCDEF".
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+       DISPLAY BX'0123456789ABCDEF'.
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+       DISPLAY bx'0123456789ABCDEF'.
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+       DISPLAY bx'0123456789ABCDEF'.
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+# Numeric hexadecimal literals. ###############################################
+#
+
+       DISPLAY H"0123456789ABCDEF".
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY H'0123456789ABCDEF'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY h'0123456789ABCDEF'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY h'0123456789ABCDEF'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+# Alphanumeric hexadecimal literals. ##########################################
+#
+
+       DISPLAY X"0123456789ABCDEF".
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY X'0123456789ABCDEF'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY x'0123456789ABCDEF'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+       DISPLAY x'0123456789ABCDEF'.
+<---->^<----->^^<---------------->^^
+FIXED = =     == =                ==
+!TEXT = TEXT  == =                ==
+SEQNR I WORD  .W STRING           :EOLN
+
+
+# National hexadecimal literals. ##############################################
+#
+
+       DISPLAY NX"0123456789ABCDEF".
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+       DISPLAY NX'0123456789ABCDEF'.
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+       DISPLAY nx'0123456789ABCDEF'.
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+       DISPLAY nx'0123456789ABCDEF'.
+<---->^<----->^<><---------------->^^
+FIXED = =     == =                 ==
+!TEXT = TEXT  == =                 ==
+SEQNR I WORD  .W STRING            :EOLN
+
+
+# Integer literals. ###########################################################
+#
+
+       DISPLAY 1234567890.
+<---->^<----->^<-------->^^
+FIXED = =     ==         ==
+!TEXT = TEXT  ==         ==
+SEQNR I WORD  .NUMBER    :EOLN
+
+
+       DISPLAY +1234567890.
+<---->^<----->^^<-------->^^
+FIXED = =     ===         ==
+!TEXT = TEXT  ===         ==
+SEQNR I WORD  .:NUMBER    :EOLN
+
+
+       DISPLAY -1234567890.
+<---->^<----->^^<-------->^^
+FIXED = =     ===         ==
+!TEXT = TEXT  ===         ==
+SEQNR I WORD  .:NUMBER    :EOLN
+
+
+# Decimal literals. ###########################################################
+#
+
+       DISPLAY 3.14159265359.
+<---->^<----->^^^<--------->^^
+FIXED = =     ====          ==
+!TEXT = TEXT  ====          ==
+SEQNR I WORD  .N:NUMBER     :EOLN
+
+
+       DISPLAY 3,14159265359.
+<---->^<----->^^^<--------->^^
+FIXED = =     ====          ==
+!TEXT = TEXT  ====          ==
+SEQNR I WORD  .N:NUMBER     :EOLN
+
+
+       DISPLAY +3.14159265359.
+<---->^<----->^^^^<--------->^^
+FIXED = =     =====          ==
+!TEXT = TEXT  =====          ==
+SEQNR I WORD  .:N:NUMBER     :EOLN
+
+
+       DISPLAY +3,14159265359.
+<---->^<----->^^^^<--------->^^
+FIXED = =     =====          ==
+!TEXT = TEXT  =====          ==
+SEQNR I WORD  .:N:NUMBER     :EOLN
+
+
+       DISPLAY -3.14159265359.
+<---->^<----->^^^^<--------->^^
+FIXED = =     =====          ==
+!TEXT = TEXT  =====          ==
+SEQNR I WORD  .:N:NUMBER     :EOLN
+
+
+       DISPLAY -3,14159265359.
+<---->^<----->^^^^<--------->^^
+FIXED = =     =====          ==
+!TEXT = TEXT  =====          ==
+SEQNR I WORD  .:N:NUMBER     :EOLN
+
+
+# If you're wondering why I'm splitting up decimals into parts, rather than
+# detecting them as a whole, here's why:
+
+       DISPLAY FOO (1,2).
+<---->^<----->^<->^^^^^^^^
+FIXED = =     ==  ========
+!TEXT = TEXT  ==  ========
+SEQNR I WORD  .W  .:N:N::EOLN
+
+# There is no way for the lexer to know whether the "1,2" in this example is
+# meant to be a decimal value, or whether it is just a list of two indexes. We
+# need context to figure that out, and that's something which is only really
+# available while parsing. So rather than guessing the wrong token types we
+# prefer to let the parser handle this complexity.
+
+
+# Pseudo literals. ############################################################
+#
+
+       COPY FOO REPLACING ==ONE TWO THREE== BY ==123==.
+<---->^<-->^<->^<------->^^^<->^<->^<--->^^^<>^^^<->^^^^
+FIXED = =  ==  ==        ====  ==  ==    ==== ====  ====
+!TEXT = T  ==  ==        ====  ==  ==    ==== ====  ====
+SEQNR I W  .W  .WORD     .::W  .W  .WORD ::.W .::NUM:::EOLN
+
+
+# Incomplete string literals. #################################################
+#
+
+       DISPLAY "0123456789ABCDEFG
+<---->^<----->^<---------------->^
+FIXED = =     = =                =
+!TEXT = TEXT  = =                =
+SEQNR I WORD  . STR/INCOMPLETE   EOLN
+
+
+       DISPLAY '0123456789ABCDEFG
+<---->^<----->^<---------------->^
+FIXED = =     = =                =
+!TEXT = TEXT  = =                =
+SEQNR I WORD  . STR/INCOMPLETE   EOLN

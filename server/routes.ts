@@ -401,6 +401,163 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Repository Analysis Routes for COBOL Documentation Platform
+  
+  // Get predefined repositories (Koopa and ProLeap)
+  app.get("/api/predefined-repositories", (req, res) => {
+    const PREDEFINED_REPOSITORIES = {
+      KOOPA: {
+        name: 'Koopa COBOL Parser',
+        url: 'https://github.com/krisds/koopa.git',
+        description: 'Custom DSL approach using island grammars for COBOL parsing with GUI visualization',
+        features: [
+          'Island grammars with .kg files',
+          'Built-in GUI with syntax highlighting',
+          'Parse tree visualization',
+          'XPath query support',
+          'XML export capabilities',
+          'Interactive grammar exploration'
+        ]
+      },
+      PROLEAP: {
+        name: 'ProLeap COBOL Parser',
+        url: 'https://github.com/uwol/proleap-cobol-parser.git',
+        description: 'Modern ANTLR4-based parser with comprehensive AST and ASG generation',
+        features: [
+          'ANTLR4-based architecture',
+          'Abstract Syntax Tree (AST) generation',
+          'Abstract Semantic Graph (ASG) with data flow',
+          'Comprehensive preprocessor support',
+          'NIST test suite compliance',
+          'Maven-based build system'
+        ]
+      }
+    };
+    
+    res.json(Object.entries(PREDEFINED_REPOSITORIES).map(([key, repo]) => ({
+      id: key,
+      ...repo
+    })));
+  });
+  
+  // Start analysis for a predefined repository
+  app.post("/api/analyze-repository", async (req, res) => {
+    try {
+      const { repositoryType } = req.body;
+      
+      if (!repositoryType || !['KOOPA', 'PROLEAP'].includes(repositoryType)) {
+        return res.status(400).json({ message: "Invalid repository type. Must be 'KOOPA' or 'PROLEAP'" });
+      }
+      
+      const { RepositoryIntegrationService } = await import("./repository-integration");
+      const repositoryService = new RepositoryIntegrationService(storage);
+      
+      const repositories = {
+        KOOPA: {
+          name: 'Koopa COBOL Parser',
+          url: 'https://github.com/krisds/koopa.git'
+        },
+        PROLEAP: {
+          name: 'ProLeap COBOL Parser', 
+          url: 'https://github.com/uwol/proleap-cobol-parser.git'
+        }
+      };
+      
+      const repo = repositories[repositoryType as keyof typeof repositories];
+      const jobId = await repositoryService.startRepositoryAnalysis(repo.url);
+      
+      res.json({ 
+        jobId, 
+        message: `Started analysis of ${repo.name}`,
+        repository: repo
+      });
+    } catch (error) {
+      console.error("Error starting repository analysis:", error);
+      res.status(500).json({ message: "Failed to start repository analysis" });
+    }
+  });
+  
+  // Start analysis for a custom repository URL
+  app.post("/api/analyze-custom-repository", async (req, res) => {
+    try {
+      const { repositoryUrl } = req.body;
+      
+      if (!repositoryUrl || !repositoryUrl.includes('github.com')) {
+        return res.status(400).json({ message: "Valid GitHub repository URL required" });
+      }
+      
+      const { RepositoryIntegrationService } = await import("./repository-integration");
+      const repositoryService = new RepositoryIntegrationService(storage);
+      
+      const jobId = await repositoryService.startRepositoryAnalysis(repositoryUrl);
+      
+      res.json({ 
+        jobId, 
+        message: "Started analysis of custom repository",
+        repositoryUrl
+      });
+    } catch (error) {
+      console.error("Error starting custom repository analysis:", error);
+      res.status(500).json({ message: "Failed to start repository analysis" });
+    }
+  });
+  
+  // Get analysis job status
+  app.get("/api/analysis-jobs/:jobId", async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      
+      const { RepositoryIntegrationService } = await import("./repository-integration");
+      const repositoryService = new RepositoryIntegrationService(storage);
+      
+      const job = repositoryService.getJobStatus(jobId);
+      
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      
+      res.json(job);
+    } catch (error) {
+      console.error("Error fetching job status:", error);
+      res.status(500).json({ message: "Failed to fetch job status" });
+    }
+  });
+  
+  // Get all active analysis jobs
+  app.get("/api/analysis-jobs", async (req, res) => {
+    try {
+      const { RepositoryIntegrationService } = await import("./repository-integration");
+      const repositoryService = new RepositoryIntegrationService(storage);
+      
+      const jobs = repositoryService.getActiveJobs();
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching active jobs:", error);
+      res.status(500).json({ message: "Failed to fetch active jobs" });
+    }
+  });
+  
+  // Cancel an analysis job
+  app.delete("/api/analysis-jobs/:jobId", async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      
+      const { RepositoryIntegrationService } = await import("./repository-integration");
+      const repositoryService = new RepositoryIntegrationService(storage);
+      
+      const cancelled = repositoryService.cancelJob(jobId);
+      
+      if (!cancelled) {
+        return res.status(404).json({ message: "Job not found or cannot be cancelled" });
+      }
+      
+      res.json({ message: "Job cancelled successfully" });
+    } catch (error) {
+      console.error("Error cancelling job:", error);
+      res.status(500).json({ message: "Failed to cancel job" });
+    }
+  });
+
   // Add error handling middleware
   app.use(errorHandler);
 

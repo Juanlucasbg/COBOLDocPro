@@ -13,6 +13,7 @@ import Visualizations from "@/pages/visualizations";
 import ProgramDetail from "@/pages/program-detail";
 import AnalysisPage from "@/pages/AnalysisPage";
 import Repositories from "@/pages/repositories";
+import RepositoryAnalysis from "@/pages/repository-analysis";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 
@@ -21,6 +22,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/repositories" component={Repositories} />
+      <Route path="/repository-analysis" component={RepositoryAnalysis} />
       <Route path="/programs" component={Programs} />
       <Route path="/business-rules" component={BusinessRules} />
       <Route path="/data-dictionary" component={DataDictionary} />
