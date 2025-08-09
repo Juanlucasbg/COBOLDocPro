@@ -34,6 +34,12 @@ A modern web application for analyzing and documenting legacy COBOL systems. The
   - Repository analysis for Koopa and ProLeap COBOL parsers
   - Interactive visualizations with Mermaid diagrams
   - Full-text search indexing and cross-reference generation
+- **2025-01-09**: Added comprehensive sequence diagram functionality for code understanding:
+  - Client-side sequence diagram generation from COBOL code
+  - Server-side semantic analysis with sequence flow extraction
+  - Interactive sequence diagram viewer with single program and system interaction modes
+  - Real-time Mermaid rendering of execution flows and program interactions
+  - Enhanced dashboard with dedicated sequence analysis tab
 
 ## User Preferences
 - **Design Style**: Professional dark interface with clean typography and minimal elements

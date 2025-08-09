@@ -15,6 +15,28 @@ export interface SemanticAnalysisResult {
   fileIOMap: FileIOMap;
   copybookDependencies: CopybookDependency[];
   whereUsedIndex: WhereUsedIndex;
+  sequenceFlow: SequenceFlow;
+}
+
+export interface SequenceFlow {
+  participants: SequenceParticipant[];
+  interactions: SequenceInteraction[];
+  mermaidDiagram: string;
+}
+
+export interface SequenceParticipant {
+  id: string;
+  name: string;
+  type: 'PROGRAM' | 'FILE' | 'DATABASE' | 'EXTERNAL_SYSTEM' | 'USER';
+}
+
+export interface SequenceInteraction {
+  from: string;
+  to: string;
+  action: string;
+  type: 'CALL' | 'READ' | 'WRITE' | 'RETURN' | 'CONDITION';
+  order: number;
+  description?: string;
 }
 
 export interface ProgramModel {
@@ -335,7 +357,8 @@ export class COBOLSemanticAnalyzer {
       businessRules,
       fileIOMap,
       copybookDependencies,
-      whereUsedIndex
+      whereUsedIndex,
+      sequenceFlow: this.generateSequenceFlow(programModel, callGraph, fileIOMap)
     };
   }
   
@@ -1069,5 +1092,133 @@ export class COBOLSemanticAnalyzer {
         flags: []
       }
     };
+  }
+
+  private generateSequenceFlow(programModel: ProgramModel, callGraph: CallGraph, fileIOMap: FileIOMap): SequenceFlow {
+    const participants: SequenceParticipant[] = [];
+    const interactions: SequenceInteraction[] = [];
+    
+    // Add main program as participant
+    participants.push({
+      id: programModel.programId,
+      name: programModel.programId,
+      type: 'PROGRAM'
+    });
+    
+    // Add called programs as participants
+    callGraph.edges.forEach(edge => {
+      if (!participants.find(p => p.id === edge.to)) {
+        participants.push({
+          id: edge.to,
+          name: edge.to,
+          type: 'PROGRAM'
+        });
+      }
+    });
+    
+    // Add files as participants
+    const fileNames = new Set<string>();
+    fileIOMap.fileOperations.forEach(op => {
+      if (!fileNames.has(op.fileName)) {
+        fileNames.add(op.fileName);
+        participants.push({
+          id: op.fileName,
+          name: op.fileName,
+          type: 'FILE'
+        });
+      }
+    });
+    
+    // Add user/system participant
+    participants.unshift({
+      id: 'USER',
+      name: 'User/System',
+      type: 'USER'
+    });
+    
+    let order = 1;
+    
+    // Program initiation
+    interactions.push({
+      from: 'USER',
+      to: programModel.programId,
+      action: 'Execute Program',
+      type: 'CALL',
+      order: order++
+    });
+    
+    // Program calls
+    callGraph.edges.forEach(edge => {
+      interactions.push({
+        from: edge.from,
+        to: edge.to,
+        action: `CALL "${edge.to}"`,
+        type: 'CALL',
+        order: order++,
+        description: `Called from ${edge.location.paragraph}`
+      });
+      
+      interactions.push({
+        from: edge.to,
+        to: edge.from,
+        action: 'Return',
+        type: 'RETURN',
+        order: order++
+      });
+    });
+    
+    // File operations
+    fileIOMap.fileOperations.forEach(op => {
+      if (op.operation === 'read') {
+        interactions.push({
+          from: programModel.programId,
+          to: op.fileName,
+          action: `READ ${op.recordType || 'record'}`,
+          type: 'read',
+          order: order++
+        });
+      } else if (op.operation === 'write') {
+        interactions.push({
+          from: programModel.programId,
+          to: op.fileName,
+          action: `WRITE ${op.recordType || 'record'}`,
+          type: 'WRITE',
+          order: order++
+        });
+      }
+    });
+    
+    // Generate Mermaid diagram
+    const mermaidDiagram = this.generateMermaidSequence(participants, interactions);
+    
+    return {
+      participants,
+      interactions,
+      mermaidDiagram
+    };
+  }
+  
+  private generateMermaidSequence(participants: SequenceParticipant[], interactions: SequenceInteraction[]): string {
+    let mermaid = 'sequenceDiagram\n';
+    
+    // Add participants
+    participants.forEach(participant => {
+      mermaid += `    participant ${participant.id} as ${participant.name}\n`;
+    });
+    
+    // Sort interactions by order
+    const sortedInteractions = interactions.sort((a, b) => a.order - b.order);
+    
+    // Add interactions
+    sortedInteractions.forEach(interaction => {
+      const arrow = interaction.type === 'RETURN' ? '-->' : '->>';
+      mermaid += `    ${interaction.from}${arrow}${interaction.to}: ${interaction.action}\n`;
+      
+      if (interaction.description) {
+        mermaid += `    Note over ${interaction.to}: ${interaction.description}\n`;
+      }
+    });
+    
+    return mermaid;
   }
 }

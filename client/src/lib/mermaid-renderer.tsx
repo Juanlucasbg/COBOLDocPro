@@ -211,3 +211,138 @@ export function generateDataStructureDiagram(dataItems: Array<{name: string, lev
   
   return mermaid;
 }
+
+// Generate sequence diagram for COBOL program execution flow
+export function generateSequenceDiagram(
+  programName: string, 
+  paragraphs: Array<{name: string, statements: string[], calls: string[]}>,
+  dataItems?: Array<{name: string, level: number}>
+): string {
+  let mermaid = 'sequenceDiagram\n';
+  
+  // Define participants
+  mermaid += `    participant User as User/System\n`;
+  mermaid += `    participant Main as ${programName}\n`;
+  
+  // Add called programs as participants
+  const calledPrograms = new Set<string>();
+  paragraphs.forEach(para => {
+    para.calls.forEach(call => calledPrograms.add(call));
+  });
+  
+  calledPrograms.forEach(program => {
+    mermaid += `    participant ${program.replace(/[^A-Z0-9]/g, '_')} as ${program}\n`;
+  });
+  
+  // Add data sources as participants if significant data operations
+  const hasFileOperations = paragraphs.some(para => 
+    para.statements.some(stmt => 
+      stmt.includes('READ') || stmt.includes('WRITE') || stmt.includes('OPEN') || stmt.includes('CLOSE')
+    )
+  );
+  
+  if (hasFileOperations) {
+    mermaid += `    participant Files as Data Files\n`;
+  }
+  
+  // Generate sequence flow
+  mermaid += `    User->>Main: Execute Program\n`;
+  mermaid += `    activate Main\n`;
+  
+  paragraphs.forEach((para, index) => {
+    // Check for file operations
+    const fileOps = para.statements.filter(stmt => 
+      stmt.includes('OPEN') || stmt.includes('READ') || stmt.includes('WRITE') || stmt.includes('CLOSE')
+    );
+    
+    if (fileOps.length > 0) {
+      fileOps.forEach(op => {
+        if (op.includes('OPEN') || op.includes('READ')) {
+          mermaid += `    Main->>Files: ${op.trim()}\n`;
+          mermaid += `    Files-->>Main: Data/Status\n`;
+        } else if (op.includes('WRITE') || op.includes('CLOSE')) {
+          mermaid += `    Main->>Files: ${op.trim()}\n`;
+        }
+      });
+    }
+    
+    // Add calls to other programs
+    para.calls.forEach(call => {
+      const callId = call.replace(/[^A-Z0-9]/g, '_');
+      mermaid += `    Main->>${callId}: CALL "${call}"\n`;
+      mermaid += `    activate ${callId}\n`;
+      mermaid += `    ${callId}-->>Main: Return\n`;
+      mermaid += `    deactivate ${callId}\n`;
+    });
+    
+    // Add conditional logic
+    const conditionals = para.statements.filter(stmt => 
+      stmt.includes('IF') || stmt.includes('EVALUATE') || stmt.includes('WHEN')
+    );
+    
+    conditionals.forEach(cond => {
+      mermaid += `    Note over Main: ${cond.trim()}\n`;
+    });
+  });
+  
+  mermaid += `    Main-->>User: Program Complete\n`;
+  mermaid += `    deactivate Main\n`;
+  
+  return mermaid;
+}
+
+// Generate interaction sequence between multiple COBOL programs
+export function generateSystemSequenceDiagram(
+  programs: Array<{
+    name: string;
+    calls: string[];
+    fileOperations: string[];
+    businessRules?: string[];
+  }>
+): string {
+  let mermaid = 'sequenceDiagram\n';
+  
+  // Define participants
+  mermaid += `    participant System as External System\n`;
+  programs.forEach(program => {
+    const progId = program.name.replace(/[^A-Z0-9]/g, '_');
+    mermaid += `    participant ${progId} as ${program.name}\n`;
+  });
+  mermaid += `    participant DB as Database/Files\n`;
+  
+  // Generate interaction flow
+  mermaid += `    System->>+${programs[0].name.replace(/[^A-Z0-9]/g, '_')}: Start Batch Process\n`;
+  
+  programs.forEach((program, index) => {
+    const progId = program.name.replace(/[^A-Z0-9]/g, '_');
+    
+    // File operations
+    program.fileOperations.forEach(op => {
+      if (op.includes('READ') || op.includes('READ')) {
+        mermaid += `    ${progId}->>DB: ${op}\n`;
+        mermaid += `    DB-->>${progId}: Data Records\n`;
+      } else if (op.includes('write') || op.includes('update')) {
+        mermaid += `    ${progId}->>DB: ${op}\n`;
+      }
+    });
+    
+    // Business rule processing
+    if (program.businessRules && program.businessRules.length > 0) {
+      mermaid += `    Note over ${progId}: Apply Business Rules\n`;
+    }
+    
+    // Calls to other programs
+    program.calls.forEach(call => {
+      const targetProg = programs.find(p => p.name === call);
+      if (targetProg) {
+        const targetId = targetProg.name.replace(/[^A-Z0-9]/g, '_');
+        mermaid += `    ${progId}->>+${targetId}: CALL ${call}\n`;
+        mermaid += `    ${targetId}-->>-${progId}: Return\n`;
+      }
+    });
+  });
+  
+  mermaid += `    ${programs[0].name.replace(/[^A-Z0-9]/g, '_')}-->>-System: Process Complete\n`;
+  
+  return mermaid;
+}

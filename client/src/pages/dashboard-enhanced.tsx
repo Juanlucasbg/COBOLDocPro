@@ -24,9 +24,10 @@ import EnhancedFileUpload from "@/components/enhanced-file-upload";
 import ProcessingModal from "@/components/processing-modal";
 import { MermaidDiagram } from "@/lib/mermaid-renderer";
 import { ClientCobolParser, parseCobolQuick, generateQuickDiagram } from "@/lib/cobol-client-parser";
+import SequenceDiagramViewer from "@/components/sequence-diagram-viewer";
 import type { Program, DataElement } from "@shared/schema";
 
-type ActiveTab = 'overview' | 'programs' | 'data-dictionary' | 'business-rules' | 'visualizations';
+type ActiveTab = 'overview' | 'programs' | 'data-dictionary' | 'business-rules' | 'visualizations' | 'sequence';
 
 export default function EnhancedDashboard() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
@@ -352,33 +353,72 @@ export default function EnhancedDashboard() {
 
   const renderVisualizations = () => (
     <div className="space-y-4">
-      {programsWithDiagrams.map((program: Program) => (
-        <Card key={program.id} className="bg-gray-900/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <BarChart3 className="h-5 w-5 text-purple-400" />
-                <span>{program.name}</span>
-                <Badge variant="outline" className="border-purple-600 text-purple-400">
-                  {program.mermaidDiagram?.type || 'Flowchart'}
-                </Badge>
-              </div>
-              <Button variant="ghost" size="sm">
-                <Download className="h-4 w-4" />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {program.mermaidDiagram?.mermaidCode && (
-              <MermaidDiagram
-                code={program.mermaidDiagram.mermaidCode}
-                id={`program-${program.id}`}
-                className="border border-gray-700 rounded-lg"
-              />
-            )}
-          </CardContent>
-        </Card>
-      ))}
+      {programsWithDiagrams.map((program: Program) => {
+        // Generate additional diagrams using client-side parser
+        const clientParser = new ClientCobolParser(program.sourceCode || '');
+        const sequenceDiagram = clientParser.generateSequenceDiagram();
+        const dataDiagram = clientParser.generateDataDiagram();
+        
+        return (
+          <Card key={program.id} className="bg-gray-900/50 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <BarChart3 className="h-5 w-5 text-purple-400" />
+                  <span>{program.name}</span>
+                  <Badge variant="outline" className="border-purple-600 text-purple-400">
+                    Multiple Diagrams
+                  </Badge>
+                </div>
+                <Button variant="ghost" size="sm">
+                  <Download className="h-4 w-4" />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="flowchart" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 bg-gray-800/50">
+                  <TabsTrigger value="flowchart" className="data-[state=active]:bg-purple-600">
+                    Flowchart
+                  </TabsTrigger>
+                  <TabsTrigger value="sequence" className="data-[state=active]:bg-purple-600">
+                    Sequence
+                  </TabsTrigger>
+                  <TabsTrigger value="data" className="data-[state=active]:bg-purple-600">
+                    Data Structure
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="flowchart" className="mt-4">
+                  {program.mermaidDiagram?.mermaidCode && (
+                    <MermaidDiagram
+                      code={program.mermaidDiagram.mermaidCode}
+                      id={`flowchart-${program.id}`}
+                      className="border border-gray-700 rounded-lg"
+                    />
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="sequence" className="mt-4">
+                  <MermaidDiagram
+                    code={sequenceDiagram}
+                    id={`sequence-${program.id}`}
+                    className="border border-gray-700 rounded-lg"
+                  />
+                </TabsContent>
+                
+                <TabsContent value="data" className="mt-4">
+                  <MermaidDiagram
+                    code={dataDiagram}
+                    id={`data-${program.id}`}
+                    className="border border-gray-700 rounded-lg"
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 
@@ -395,7 +435,7 @@ export default function EnhancedDashboard() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)}>
-          <TabsList className="grid w-full grid-cols-5 bg-gray-900/50">
+          <TabsList className="grid w-full grid-cols-6 bg-gray-900/50">
             <TabsTrigger value="overview" className="data-[state=active]:bg-green-600">
               Overview
             </TabsTrigger>
@@ -410,6 +450,9 @@ export default function EnhancedDashboard() {
             </TabsTrigger>
             <TabsTrigger value="visualizations" className="data-[state=active]:bg-green-600">
               Visualizations
+            </TabsTrigger>
+            <TabsTrigger value="sequence" className="data-[state=active]:bg-green-600">
+              Sequence
             </TabsTrigger>
           </TabsList>
 
@@ -432,6 +475,10 @@ export default function EnhancedDashboard() {
 
             <TabsContent value="visualizations">
               {renderVisualizations()}
+            </TabsContent>
+
+            <TabsContent value="sequence">
+              <SequenceDiagramViewer programs={programs} />
             </TabsContent>
           </div>
         </Tabs>

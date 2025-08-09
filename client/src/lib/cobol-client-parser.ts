@@ -297,6 +297,84 @@ export class ClientCobolParser {
     
     return mermaid;
   }
+
+  // Generate sequence diagram for this program
+  generateSequenceDiagram(): string {
+    const structure = this.parse();
+    
+    let mermaid = 'sequenceDiagram\n';
+    
+    // Define participants
+    mermaid += `    participant User as User/System\n`;
+    mermaid += `    participant ${structure.programId} as ${structure.programId}\n`;
+    
+    // Add called programs as participants
+    const allCalls = new Set<string>();
+    structure.paragraphs.forEach(para => {
+      para.calls.forEach(call => allCalls.add(call));
+    });
+    
+    allCalls.forEach(call => {
+      const callId = call.replace(/[^A-Z0-9]/g, '_');
+      mermaid += `    participant ${callId} as ${call}\n`;
+    });
+    
+    // Check for file operations
+    const hasFileOps = structure.paragraphs.some(para =>
+      para.statements.some(stmt =>
+        stmt.toUpperCase().includes('READ') || 
+        stmt.toUpperCase().includes('WRITE') || 
+        stmt.toUpperCase().includes('OPEN') || 
+        stmt.toUpperCase().includes('CLOSE')
+      )
+    );
+    
+    if (hasFileOps) {
+      mermaid += `    participant Files as Data Files\n`;
+    }
+    
+    // Generate sequence
+    mermaid += `    User->>+${structure.programId}: Execute Program\n`;
+    
+    structure.paragraphs.forEach(para => {
+      // File operations
+      para.statements.forEach(stmt => {
+        const upperStmt = stmt.toUpperCase();
+        if (upperStmt.includes('OPEN')) {
+          mermaid += `    ${structure.programId}->>Files: ${stmt.trim()}\n`;
+        } else if (upperStmt.includes('READ')) {
+          mermaid += `    ${structure.programId}->>Files: ${stmt.trim()}\n`;
+          mermaid += `    Files-->>${structure.programId}: Record Data\n`;
+        } else if (upperStmt.includes('WRITE')) {
+          mermaid += `    ${structure.programId}->>Files: ${stmt.trim()}\n`;
+        } else if (upperStmt.includes('CLOSE')) {
+          mermaid += `    ${structure.programId}->>Files: ${stmt.trim()}\n`;
+        }
+      });
+      
+      // Program calls
+      para.calls.forEach(call => {
+        const callId = call.replace(/[^A-Z0-9]/g, '_');
+        mermaid += `    ${structure.programId}->>+${callId}: CALL "${call}"\n`;
+        mermaid += `    ${callId}-->>-${structure.programId}: Return\n`;
+      });
+      
+      // Business logic notes
+      const businessLogic = para.statements.filter(stmt => 
+        stmt.toUpperCase().includes('IF') || 
+        stmt.toUpperCase().includes('COMPUTE') || 
+        stmt.toUpperCase().includes('EVALUATE')
+      );
+      
+      businessLogic.forEach(logic => {
+        mermaid += `    Note over ${structure.programId}: ${logic.trim()}\n`;
+      });
+    });
+    
+    mermaid += `    ${structure.programId}-->>-User: Program Complete\n`;
+    
+    return mermaid;
+  }
 }
 
 // Utility functions for immediate use
