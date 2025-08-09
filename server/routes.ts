@@ -129,6 +129,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Upload and parse COBOL files (alias for compatibility)
+  app.post("/api/programs/upload", upload.array('files'), async (req, res) => {
+    // Redirect to main upload handler
+    req.url = '/api/upload';
+    return app._router.handle(req, res);
+  });
+
   // Upload and parse COBOL files
   app.post("/api/upload", upload.array('files'), async (req, res) => {
     try {

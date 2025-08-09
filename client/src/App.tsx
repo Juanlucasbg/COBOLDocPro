@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
+import EnhancedDashboard from "@/pages/dashboard-enhanced";
 import Upload from "@/pages/upload";
 import Programs from "@/pages/programs";
 import BusinessRules from "@/pages/business-rules";
@@ -20,7 +21,8 @@ import Sidebar from "@/components/layout/sidebar";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={EnhancedDashboard} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/repositories" component={Repositories} />
       <Route path="/repository-analysis" component={RepositoryAnalysis} />
       <Route path="/programs" component={Programs} />
