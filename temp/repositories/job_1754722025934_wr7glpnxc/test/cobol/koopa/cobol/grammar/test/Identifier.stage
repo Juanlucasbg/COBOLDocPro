@@ -1,0 +1,114 @@
+target dataName;
+
++ Basic:cobolWord
+
+
+target qualifier;
+
++ [ OF ] dataName
++ [ IN ] dataName
+
+
+target directSubscript;
+
++ [ ALL ]
++ identifier
++ Basic:integer
+- Basic:decimal
+- Basic:floatingPoint
+
+target relativeSubscript;
+
++ dataName [ + ] Basic:integer
++ identifier [ + ] Basic:integer
++ identifier [ - ] Basic:integer
+
+
+target subscript;
+
++directSubscript
++relativeSubscript
+
+
+target qualifiedDataName;
+
++ dataName
++ dataName qualifier
++ dataName qualifier qualifier
+
++ dataName [ ( ] subscript [ ) ]
++ dataName [ ( ] subscript subscript [ ) ]
+
++ dataName qualifier [ ( ] subscript [ ) ]
+
+
+target referenceModifier;
+
++ [ ( ] Basic:cobolWord      [ : ] Basic:cobolWord      [ ) ]
++ [ ( ] Basic:cobolWord      [ : ] Basic:integerLiteral [ ) ]
++ [ ( ] Basic:integerLiteral [ : ] Basic:cobolWord      [ ) ]
++ [ ( ] Basic:integerLiteral [ : ] Basic:integerLiteral [ ) ]
+
++ [ ( ] Basic:cobolWord      [ : ) ]
++ [ ( ] Basic:integerLiteral [ : ) ]
+
+
+target identifier;
+
++ qualifiedDataName
++ qualifiedDataName referenceModifier
+
+- Basic:numericLiteral
+- Basic:alphanumericLiteral
+
+
++[ MY-FIELD ( 1 2 3 ) ( 42 : 11 ) ]
++[ MY-FIELD ( A B C ) ( MY-POSITION : MY-LENGTH ) ]
++[ MY-FIELD ( A + 1 B C - 2 ) ( 42 : ) ]
+
+
++[ FUNCTION CAT ]
++[ FUNCTION CAT ( 1 : 7 ) ]
+
++[ FUNCTION CAT ( 3 ) ]
++[ FUNCTION CAT ( 3 ) ( 1 : 7 ) ]
+
++[ FUNCTION CAT ( 3 " bottles of beer" ) ]
++[ FUNCTION CAT ( 3 " bottles of beer" ) ( 1 : 7 ) ]
+
++[ FUNCTION FOO ( 1 FUNCTION INC ( 1 ) ) ]
+
++[ FUNCTION CHAR ( IND ( 5 ) ) ]
++[ FUNCTION CHAR ( IND ( C ) ) ]
++[ FUNCTION NUMVAL ( "4738" ) ]
++[ FUNCTION MAX ( WS-TABLE ( ALL ALL ALL ) ) ]
++[ AX-2 IN AX ( CX-SUB OF CX ) ]
++[ UNQUAL-ITEM ( SUB1 OF SUBSCRIPTS OF SUBSCRIPTS-PART1 ) ]
+
+
++[ ADDRESS OF ] Basic:cobolWord
+
+# Cfr. ISO/IEC 1989:20xx FCD 1.0 (E), 8.4.2.1.1
++[ EXCEPTION-OBJECT ]
++[ NULL ]
++[ SELF ]
++[ SUPER ]
++[ FOO OF SUPER ]
+
+
+# Reported by FrankTheTank
++[ ROLLBACK ]
+
+
++[ LINAGE-COUNTER ]
++[ LINAGE-COUNTER IN ] Basic:cobolWord
++[ LINAGE-COUNTER OF ] Basic:cobolWord
+
++[ PAGE-COUNTER ]
++[ PAGE-COUNTER IN ] Basic:cobolWord
++[ PAGE-COUNTER OF ] Basic:cobolWord
+
++[ LINE-COUNTER ]
++[ LINE-COUNTER IN ] Basic:cobolWord
++[ LINE-COUNTER OF ] Basic:cobolWord
+

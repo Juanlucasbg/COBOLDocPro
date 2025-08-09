@@ -1,0 +1,202 @@
+target grammar;
+
+# This is a representation of what's in the KGGrammar class using the language
+# it defines.
+#
+# A word of warning: always check the KGGrammar class for the official definition.
+# There is no test that this one is equivalent.
+#
+# In fact, relating to keywords, it probably isn't.
+# And there are some convenience methods in FluentGrammar which KG doesn't 
+# offer either. (But maybe at some point should.)
+
++[
+
+grammar KG.
+
+def `grammar     =  header (rule)* eof                          end
+def header       =  [`tree] grammar_name [extends] .            end
+def `tree        =  'tree'                                      end
+def grammar_name =  'grammar' name                              end
+def `extends     =  'extends' name                              end
+
+def rule =
+    [modifier] 'def' [nokeywords] identifier '='
+      sequence
+      (nested_rule)*
+    'end'
+end
+
+def nested_rule =
+    'where' [modifier] 'def' [nokeywords] identifier '='
+      sequence
+      (nested_rule)*
+    'end'
+end
+
+def modifier =
+    ( `public  : 'public'
+    | `private : 'private'
+    | `hiding  : 'hiding'
+    )
+end
+
+def sequence =
+    ( as : identifier ':' sequence
+    | (part)+
+    )
+end
+
+private def part =
+    ( star : repeatable '*'
+    | plus : repeatable '+' %not (++ '+')
+    | balancing
+    | before
+    | upto
+    | atom
+    )
+end
+
+private def atom =
+    ( permutation
+    | optional-permutation
+    | dispatched
+    | nested
+    | optional
+    | skipping
+    | negation
+    | lookahead
+    | noskip
+    | tagged
+    | ranged
+    | balanced
+    | unbalanced
+    | notempty
+    | tree
+    | rvalue
+    )
+end
+
+private def repeatable =
+    ( permutation
+    | optional-permutation
+    | dispatched
+    | nested
+    | optional
+    | rvalue
+    )
+end
+
+private def rvalue =
+    ( identifier
+    | literal
+    | number
+    | quoted_literal
+    | native_code
+    | any : '_'
+    | dot : .
+    )
+end
+
+def nested      =  '(' (alternating__ sequence '|') ')'                end
+def optional    =  '[' (nested : (alternating__ sequence '|')) ']'     end
+def permutation =  '!' ++('(') (alternating__  sequence '|') ')'  end
+
+private def optional-permutation =
+    ( optional :
+      ( permutation :
+        '!' ++('[') (alternating__ sequence '|') ']'
+      )
+    )
+end
+
+def dispatched =  '$' '(' (alternating__ dispatch '|') ')'      end
+def dispatch   =  literal '=' ++('>') sequence             end
+
+def skipping   =  '-' ++('-' '>') part                     end
+
+def negation   =  '%' ++('not') part                       end
+def lookahead  =  '%' ++('at') part                        end
+def noskip     =  (('+' ++ '+') part)+                     end
+def nokeywords =  '%' ++('nokeywords')                     end
+def tagged     =  '@' ++(name)                             end
+
+def ranged =
+    '<' ++(
+      (begin: ('_' | number))
+      '.' '.' 
+      (`end: ('_' | number))
+    '>')
+end
+
+def name       =  (notAKeyword__ word)                          end
+def type       =  (notAKeyword__ word)                          end
+
+def identifier =
+    ( '`' ++(someLowercase__ word)
+    | (notAKeyword__ (someLowercase__ word))
+    )
+end
+
+def scoped-identifier =
+    identifier ++ (':' ':' identifier)
+end
+
+def literal    =  (allUppercase__  word)                        end
+
+private def word =
+    @WORD _
+    ++( ( '-' | '_' | '$' | @WORD _ | @NUMBER _ )* )
+end
+
+def quoted_literal =  @STRING _                                 end
+def number         =  @NUMBER _                                 end
+def native_code    =  braced                                    end
+
+private def braced =  '{' ( braced | %not('}') _ )* '}'         end
+
+def upto =
+    atom '%' ++('upto') closure
+end
+
+def before =
+    atom '%' ++('before') closure
+end
+
+def balancing =
+    '%' ++('balancing') pair+ part
+end
+
+def pair =
+    '<' closure closure '>'
+end
+
+def balanced =
+    '%' ++('nested') atom
+end
+
+def unbalanced =
+    '%' ++('notnested') atom
+end
+
+def notempty =
+    '%' ++('notempty') atom
+end
+
+def closure =
+    '{' sequence '}'
+end
+
+def tree =
+    ( '<' ++([namespace ':'] word '/' '>')
+    | '<' ++([namespace ':'] word '>') part* '<' ++('/' '>')
+    )
+
+  where def namespace = word end
+end
+
+def todo =
+    '.' ++ ('.' '.')
+end
+
+]

@@ -14,7 +14,7 @@ interface AnalysisJob {
   id: string;
   repositoryUrl: string;
   repositoryName: string;
-  status: 'PENDING' | 'ANALYZING' | 'GENERATING_DOCS' | 'COMPLETED' | 'FAILED';
+  status: 'PENDING' | 'ANALYZING' | 'SEMANTIC_ANALYSIS' | 'GENERATING_DOCS' | 'ENTERPRISE_DOCS' | 'COMPLETED' | 'FAILED';
   progress: number;
   currentStep: string;
   error?: string;
@@ -30,20 +30,20 @@ export default function RepositoryAnalysis() {
   // Fetch predefined repositories
   const { data: repositories = [], isLoading: repositoriesLoading } = useQuery({
     queryKey: ['/api/predefined-repositories'],
-    queryFn: async () => {
+    queryFn: async (): Promise<Repository[]> => {
       const response = await fetch('/api/predefined-repositories');
       if (!response.ok) throw new Error('Failed to fetch repositories');
-      return response.json() as Repository[];
+      return response.json();
     }
   });
 
   // Fetch active jobs
   const { data: jobs = [], refetch: refetchJobs } = useQuery({
     queryKey: ['/api/analysis-jobs'],
-    queryFn: async () => {
+    queryFn: async (): Promise<AnalysisJob[]> => {
       const response = await fetch('/api/analysis-jobs');
       if (!response.ok) throw new Error('Failed to fetch jobs');
-      return response.json() as AnalysisJob[];
+      return response.json();
     },
     refetchInterval: 2000 // Poll every 2 seconds
   });

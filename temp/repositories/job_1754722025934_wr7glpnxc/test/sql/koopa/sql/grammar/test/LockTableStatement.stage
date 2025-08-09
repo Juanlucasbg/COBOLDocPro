@@ -1,0 +1,4 @@
+target lockTableStatement;
+
+# NOTE: All of these are just hand-made dummies.
++[ LOCK TABLE FOO etc etc ]

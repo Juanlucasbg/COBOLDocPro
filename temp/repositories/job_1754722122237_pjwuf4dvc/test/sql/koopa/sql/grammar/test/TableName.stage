@@ -1,0 +1,12 @@
+target tableName;
+
++[ HOPPER ]
++[ GRACE.HOPPER ]
++[ GRACE.MURRAY.HOPPER ]
+
++[ MODULE.HOPPER ]
++[ GRACE.MODULE.HOPPER ]
+
++[ T800 ]
++[ T-800 ]
++[ T_800 ]

@@ -1,0 +1,33 @@
+target copyStatement;
+
++[ COPY FOO . ]
+
++[ COPY FOO IN FUM . ]
+
++[ COPY FOO REPLACING ==FEE== BY ==FUM== . ]
+
++[ COPY FOO REPLACING FEE BY FUM . ]
+
++[ COPY FOO REPLACING "FEE" BY "FUM" . ]
+
++[ COPY FOO SUPPRESS . ]
+
++[ COPY FOO IN FUM SUPPRESS . ]
+
++[ COPY FOO SUPPRESS REPLACING ==FEE== BY ==FUM== . ]
+
++[ COPY FOO SUPPRESS REPLACING FEE BY FUM . ]
+
++[ COPY FOO SUPPRESS REPLACING "FEE" BY "FUM" . ]
+
++[ COPY "WORKSTOR.WS" . ]
+
+# The following tests whether verbs are allowed as operands (they are).
++[ COPY KP004
+   REPLACING ==PUT THIS SOMEWHERE ELSE== BY MOVE
+             ==GET RID OF== BY DELETE.
+]
+
+# Testing dummy operands
+# Cfr https://www.ibm.com/support/knowledgecenter/en/SS6SG3_4.2.0/com.ibm.entcobol.doc_4.2/PGandLR/ref/rlcdscop.htm
++[ COPY FOO REPLACING ==:FEE:== BY ==FUM==. ]

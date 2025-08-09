@@ -1,0 +1,4 @@
+target raiseStatement;
+
++[ RAISE ]
++[ RAISE foo ]

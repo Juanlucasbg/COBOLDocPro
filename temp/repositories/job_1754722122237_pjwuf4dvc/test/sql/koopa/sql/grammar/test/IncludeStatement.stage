@@ -1,0 +1,5 @@
+target includeStatement;
+
+# Example by Suman Saurabh.
++[ INCLUDE SQLCA ]
+

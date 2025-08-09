@@ -1,0 +1,27 @@
+123456* ANNOTATED SAMPLE                                                KOOPA
+<--------------------------------------------------------------------------->^
+!TEXT                                                                        EOLN
+
+       IDENTIFICATION DIVISION.
+<----------------------------->^
+!TEXT                          EOLN
+
+       PROGRAM-ID. FOO.
+<--------------------->^
+!TEXT                  EOLN
+
+       PROCEDURE DIVISION.
+<------------------------>^
+!TEXT                     EOLN
+
+123456*Hello world.
+<----------------->^
+!TEXT              EOLN
+
+       DISPLAY FOO
+<---------------->^
+!TEXT             EOLN
+
+       .
+<------>^
+!TEXT   EOLN

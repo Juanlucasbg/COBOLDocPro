@@ -440,6 +440,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })));
   });
   
+  // Shared repository service instance
+  let repositoryService: any = null;
+  
+  const getRepositoryService = async () => {
+    if (!repositoryService) {
+      const { RepositoryIntegrationService } = await import("./repository-integration");
+      repositoryService = new RepositoryIntegrationService(storage);
+    }
+    return repositoryService;
+  };
+
   // Start analysis for a predefined repository
   app.post("/api/analyze-repository", async (req, res) => {
     try {
@@ -449,8 +460,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid repository type. Must be 'KOOPA' or 'PROLEAP'" });
       }
       
-      const { RepositoryIntegrationService } = await import("./repository-integration");
-      const repositoryService = new RepositoryIntegrationService(storage);
+      const repoService = await getRepositoryService();
       
       const repositories = {
         KOOPA: {
@@ -464,7 +474,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const repo = repositories[repositoryType as keyof typeof repositories];
-      const jobId = await repositoryService.startRepositoryAnalysis(repo.url);
+      const jobId = await repoService.startRepositoryAnalysis(repo.url);
       
       res.json({ 
         jobId, 
@@ -486,10 +496,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Valid GitHub repository URL required" });
       }
       
-      const { RepositoryIntegrationService } = await import("./repository-integration");
-      const repositoryService = new RepositoryIntegrationService(storage);
+      const repoService = await getRepositoryService();
       
-      const jobId = await repositoryService.startRepositoryAnalysis(repositoryUrl);
+      const jobId = await repoService.startRepositoryAnalysis(repositoryUrl);
       
       res.json({ 
         jobId, 
@@ -507,10 +516,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { jobId } = req.params;
       
-      const { RepositoryIntegrationService } = await import("./repository-integration");
-      const repositoryService = new RepositoryIntegrationService(storage);
+      const repoService = await getRepositoryService();
       
-      const job = repositoryService.getJobStatus(jobId);
+      const job = repoService.getJobStatus(jobId);
       
       if (!job) {
         return res.status(404).json({ message: "Job not found" });
@@ -526,10 +534,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all active analysis jobs
   app.get("/api/analysis-jobs", async (req, res) => {
     try {
-      const { RepositoryIntegrationService } = await import("./repository-integration");
-      const repositoryService = new RepositoryIntegrationService(storage);
+      const repoService = await getRepositoryService();
       
-      const jobs = repositoryService.getActiveJobs();
+      const jobs = repoService.getActiveJobs();
       res.json(jobs);
     } catch (error) {
       console.error("Error fetching active jobs:", error);

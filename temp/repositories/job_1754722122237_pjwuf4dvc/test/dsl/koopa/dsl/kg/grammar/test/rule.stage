@@ -1,0 +1,74 @@
+target rule;
+
++[ def cobol =  GRACE MURRAY HOPPER  end ]
++[ def dot   =  .                    end ]
+
++[ def repetition =  (PRACTICE)+  end ]
++[ def repetition =  (PRACTICE)*  end ]
++[ def anything   =  _            end ]
+
++[ def choice =  (RED PILL | BLUE PILL)  end ]
+
++[ def nested = inTheRough
+     where def inTheRough = DIAMOND end
+   end ]
+
+-[ def noKeywords =  def    end ]
+-[ def noKeywords =  where  end ]
+
+-[ DEF caseSensitive  =  OOPS  end ]
+-[ def caseSensitive  =  OOPS  END ]
+-[ def CASE_SENSITIVE =  OOPS  end ]
+
++[ def escapedKeywords = `def end ]
++[ def escapedKeywords = `where end ]
+
++[ def `def = `where
+     where def `where = `end end
+   end ]
+
++[ def before =  something %before { something else }  end ]
++[ def upto   =  something %upto   { something else }  end ]
+   
++[ def disjunction =
+       conjunction (OR conjunction)
+       
+     where def conjunction =
+         (unknown: _*) %upto { OR }
+     end
+   end ]
+
++[ def balancing =
+       %balancing 
+         <{ '(' } { ')' }>
+         <{ '[' } { ']' }>
+         <{ '{' } { '}' }>
+           condition
+   end ]
+
++[ def nested =
+       %nested FOO
+   end ]
+
++[ def not_nested =
+       %notnested FOO
+   end ]
+
++[ def skip =  --> END-PROGRAM  end ]
+
++[ def todo =  ...  end ]
+
++[ def not_empty =
+       %notempty FOO
+   end ]
+
++[ def tagged =  @FOO  end ]
+
++[ def ranged1 =  <1..256> _  end ]
++[ def ranged2 =  <_..256> _  end ]
++[ def ranged3 =  <1.._>   _  end ]
+
++[ def no_skip1  =  ++ foo           end ]
++[ def no_skip2  =  ++ 'fum'         end ]
++[ def no_skip3a =  ++ (foo 'fum')   end ]
++[ def no_skip3b =  ++ foo ++ 'fum'  end ]

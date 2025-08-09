@@ -1,0 +1,7 @@
+target openStatement;
+
++[ OPEN C USING A , B ]
+
+# Example by Suman Saurabh.
++[ OPEN CD05 ]
+

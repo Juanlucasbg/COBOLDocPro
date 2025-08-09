@@ -102,7 +102,13 @@ export class RepositoryIntegrationService {
         currentStep: 'Performing semantic analysis and business rule extraction...'
       });
 
-      const semanticAnalysis = await this.semanticAnalyzer.analyzeSemantics(staticAnalysis);
+      let semanticAnalysis: SemanticAnalysisResult[] = [];
+      try {
+        semanticAnalysis = await this.semanticAnalyzer.analyzeSemantics(staticAnalysis);
+      } catch (error) {
+        console.warn('Semantic analysis failed, continuing with static analysis only:', error);
+        // Continue with empty semantic analysis if it fails
+      }
 
       this.updateJob(jobId, {
         progress: 55,

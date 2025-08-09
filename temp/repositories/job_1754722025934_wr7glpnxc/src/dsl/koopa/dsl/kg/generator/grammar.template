@@ -1,0 +1,234 @@
+# Template for expanded Koopa grammars.
+
+def grammar
+    package #package#;
+    
+    import koopa.core.data.markers.Start;
+    import koopa.core.parsers.ParserCombinator;
+    import koopa.core.parsers.FutureParser;
+    
+    import static koopa.core.parsers.combinators.Opt.NOSKIP;
+    import static koopa.core.grammars.combinators.Scoped.Visibility.PUBLIC;
+    import static koopa.core.grammars.combinators.Scoped.Visibility.PRIVATE;
+    import static koopa.core.grammars.combinators.Scoped.Visibility.HIDING;
+    
+>   user_imports
+    
+    /**
+     * <b>This is generated code.<b>
+     * <p>
+     * @see <code>#grammar_file#</code>
+     */
+    public class #name#Grammar extends #extending#Grammar {
+        private static #name#Grammar INSTANCE = null;
+    
+        protected #name#Grammar() {
+        }
+        
+        public static #name#Grammar instance() {
+          if (INSTANCE == null)
+            INSTANCE = new #name#Grammar();
+            
+          return INSTANCE;
+        }
+        
+>       rules
+    }
+end
+
+def rule
+    // ========================================================
+    // #name#
+    // ........................................................
+    
+    private ParserCombinator #fullyQualifiedName#Parser = null;
+    
+    #modifier# final Start #fullyQualifiedName# = Start.on(getNamespace(), "#name#");
+    
+    #modifier# ParserCombinator #fullyQualifiedName#() {
+      if (#fullyQualifiedName#Parser == null) {
+        FutureParser future = scoped("#name#", #visibility#, #allowKeywords#);
+        #fullyQualifiedName#Parser = future;
+        future.setParser(
+>         body
+        );
+      }
+    
+      return #fullyQualifiedName#Parser;
+    }
+    
+end
+
+def binding
+    #type# #name# = (#type#) parse.getStack().getScope().getValue("#name#");
+end
+
+def unbinding
+    parse.getStack().getScope().setValue("#name#", #name#);
+end
+
+def return_value
+    returning("#unescaped:xpath:identifier#")
+end
+
+def sequence
+    sequence(
+>     all_part
+    )
+end
+
+def star
+    star(
+>     first_part
+    )
+end
+
+def plus
+    plus(
+>     first_part
+    )
+end
+
+def identifier
+    #fully_qualified_identifier#()
+end
+
+def scoped_identifier
+    #unescaped:xpath:identifier[1]#Grammar().#unescaped:xpath:identifier[2]#()
+end
+
+def literal
+    keyword("#text#")
+end
+
+def quoted_literal
+    literal("#unquoted:text#")
+end
+
+def number
+    number("#text#")
+end
+
+def dot
+    literal(".")
+end
+
+def any
+    any()
+end
+
+def nested
+    choice(
+>     all_part
+    )
+end
+
+def optional
+    optional(
+>     all_part
+    )
+end
+
+def permutation
+    permuted(
+>     all_part
+    )
+end
+
+def as
+    as("#unescaped:xpath:identifier#",
+>     last_part
+    )
+end
+
+def skipping
+    skipto(
+>     all_part
+    )
+end
+
+def before
+    limited(
+>     all_part
+    )
+end
+
+def negation
+    not(
+>     first_part
+    )
+end
+
+def lookahead
+    at(
+>     first_part
+    )
+end
+
+def dispatched
+    dispatched(
+      new String[]{
+>       all_dispatch_literal
+      },
+      new ParserCombinator[]{
+>       all_dispatch_sequence
+      }
+    )
+end
+
+def tagged
+    tagged(#xpath:name#)
+end
+
+def ranged
+    ranged(#xpath[-1]:begin/number#, #xpath[-1]:end/number#)
+end
+
+def noskip
+    opt(NOSKIP,
+>     all_part
+    )
+end
+
+def upto
+    upto(
+>     all_part
+    )
+end
+
+def balancing
+    balancing(
+>     all_part
+    )
+end
+
+def pair
+>   all_part
+end
+
+def balanced
+    nested(
+>     all_part
+    )
+end
+
+def unbalanced
+    notNested(
+>     all_part
+    )
+end
+
+def closure
+    // Closure:
+>   all_part
+end
+
+def todo
+    todo(/* TODO Define this grammar rule. */)
+end
+
+def notempty
+    notEmpty(
+>     all_part
+    )
+end

@@ -1,0 +1,193 @@
+grammar CobolPreprocessing extends CobolPreprocessingBase.
+
+## #############################################################################
+## Top level definitions.
+## -----------------------------------------------------------------------------
+
+# Preprocessing.
+def preprocessing =
+	( (--> preprocessingDirective) preprocessingDirective )*
+end
+
+def preprocessingDirective =
+	( copyStatement
+	| replaceStatement
+	)
+end
+
+
+## #############################################################################
+## COPY statement.
+## -----------------------------------------------------------------------------
+
+def copyStatement =  copyStatementBody .  end
+
+private def copyStatementBody =
+    COPY textName [ (OF | IN) libraryName ]
+    [SUPPRESS [PRINTING]]
+    [replacing]
+
+  where def replacing =  REPLACING (replacementInstruction)+  end
+end
+
+def replacementInstruction =
+	[leading | trailing] replacementOperand
+	BY replacementOperand
+
+  where def leading  =  LEADING   end
+  where def trailing =  TRAILING  end
+end
+
+def replacementOperand = 
+	( pseudoLiteral
+	| literal
+	| cobolWord
+	)
+end
+
+
+## #############################################################################
+## REPLACE statement.
+## -----------------------------------------------------------------------------
+
+def replaceStatement =
+    REPLACE (replacing | off) .
+
+  where def replacing =  [also: ALSO] (replacementInstruction)+  end
+  where def off       =  [last: LAST] OFF                        end
+end
+
+
+## #############################################################################
+## Lower level stuff.
+## -----------------------------------------------------------------------------
+
+def textName =
+    ( cobolWord
+    | alphanumericLiteral
+    )
+end
+
+def libraryName =
+    ( cobolWord
+    | alphanumericLiteral
+    )
+end
+
+def literal =
+    ( numeric
+    | alphanumericLiteral
+    )
+end
+
+def numeric =
+    ( integerLiteral
+    | decimal
+    | hexadecimal
+    )
+end
+
+def integerLiteral =
+    ( '+' ++ uintgr
+    | '-' ++ uintgr
+    
+    | uintgr
+      # We want to be sure this is not the start of a cobolWord.
+      # E.g. 404-NOT-FOUND
+      (++ ( %at %not ( '-' | '_' | (@WORD _)) 
+          | eof 
+          )
+      )
+    )
+end
+
+def hexadecimal =
+    'H' ++ str
+end
+
+def alphanumericHexadecimal =
+    'X' ++ str
+end
+
+def nationalAlphanumericHexadecimal =
+    'NX' ++ str
+end
+
+def booleanHexadecimal =
+    'BX' ++ str
+end
+
+private def hexadecimalLiteral =
+    ( hexadecimal
+    | alphanumericHexadecimal
+    | nationalAlphanumericHexadecimal
+    | booleanHexadecimal
+    )
+end
+
+def booleanLiteral =
+    ( booleanHexadecimal
+    | 'B' ++ str
+    )
+end
+
+def nullTerminatedStringLiteral =
+    'Z' ++ str
+end
+
+def nationalStringLiteral =
+    'N' ++ str
+end
+
+def alphanumericLiteral =
+    ( alphanumericHexadecimal
+    | nationalAlphanumericHexadecimal
+    | nullTerminatedStringLiteral
+    | nationalStringLiteral
+    | str
+    )
+end
+
+private def str =
+    (@STRING _)
+    
+    # Because of continuations, strings may be split across lines. So we need
+    # to check if there are any more parts (STRINGs) following the initial one,
+    # albeit without skipping whitespace.
+    [++ ((@STRING _)+)]
+end
+
+def pseudoLiteral =
+    ('=' ++ '=') 
+    ((_)*) %upto {'=' ++ ('=' %not '=')}
+    ('=' ++ '=') 
+end
+
+
+# -----------------------------------------------------------------------------
+# Decimals
+#
+# Whether we're working on a decimal is something which can only be decided at
+# parsing time. But it does require some lexer info.
+#
+# TODO Allow ",2"; which is still tricky.
+def decimal =
+    ( ('+' | '-') ++ unsigned_decimal
+    | unsigned_decimal
+    )
+end
+
+private def unsigned_decimal =
+    ( uintgr ++ ( (',' | '.') uintgr )
+    | '.' ++ uintgr
+    )
+end
+
+private def uintgr =
+    @NUMBER _ 
+    
+    # Because of continuations, the digits of a number may be split across
+    # lines. So we need to check if there are any more digits (NUMBERs)
+    # following the initial one, albeit without skipping whitespace.
+    [++ ((@NUMBER _)+)]
+end

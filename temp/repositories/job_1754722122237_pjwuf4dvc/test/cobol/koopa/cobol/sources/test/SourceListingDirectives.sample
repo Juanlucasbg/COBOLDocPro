@@ -1,0 +1,33 @@
+123456*89A123456789B123456789C123456789D123456789E123456789F123456789G12|4567
+<--------------------------------------------------------------------------->^
+FIXED                                                                        =
+!DIRECTIVE                                                                   =
+!TEXT                                                                        EOLN
+
+
+       SKIP1
+<---------->^
+FIXED       =
+DIR/LISTING !DIRECTIVE
+!TEXT       EOLN
+
+
+       SKIP2
+<---------->^
+FIXED       =
+DIR/LISTING !DIRECTIVE
+!TEXT       EOLN
+
+
+       SKIP3
+<---------->^
+FIXED       =
+DIR/LISTING !DIRECTIVE
+!TEXT       EOLN
+
+
+       EJECT
+<---------->^
+FIXED       =
+DIR/LISTING !DIRECTIVE
+!TEXT       EOLN

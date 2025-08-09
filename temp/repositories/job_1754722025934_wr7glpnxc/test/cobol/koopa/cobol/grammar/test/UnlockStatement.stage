@@ -1,0 +1,5 @@
+target unlockStatement;
+
++[ UNLOCK foo ]
++[ UNLOCK foo RECORD ]
++[ UNLOCK foo RECORDS ]

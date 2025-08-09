@@ -1,0 +1,134 @@
+grammar CICS extends CICSBase.
+
+# Based on:
+# Application Programming Reference, CICS Transaction Server for z/OS Version 5 Release 2
+# Via. https://developer.ibm.com/answers/questions/170491/finding-cics-manuals-in-hardcopy-pdf-and-html-form.html
+
+def cicsStatement =
+   command (option)*
+end
+
+def command =
+    ( ABEND 
+    | ACQUIRE
+    | ADD
+    | ADDRESS
+    | ALLOCATE
+    | ASKTIME
+    | ASSIGN
+    | BIF
+    | BUILD
+    | CANCEL
+    | CHANGE
+    | CHECK
+    | CONNECT
+    | CONVERSE
+    | CONVERTTIME
+    | DEFINE
+    | DELAY
+    | DELETE
+    | DELETEQ
+    | DEQ
+    | DOCUMENT
+    | DUMP
+    | ENDBR
+    | ENDBROWSE
+    | ENQ
+    | ENTER
+    | EXTRACT
+    | FORCE
+    | FORMATTIME
+    | FREE
+    | FREEMAIN
+    | GET
+    | GETMAIN
+    | GETNEXT
+    | HANDLE
+    | IGNORE
+    | INQUIRE
+    | INVOKE
+    | ISSUE
+    | JOURNAL
+    | LINK
+    | LOAD
+    | MONITOR
+    | MOVE
+    | POINT
+    | POP
+    | POST
+    | PURGE
+    | PUSH
+    | PUT
+    | QUERY
+    | READ
+    | READNEXT
+    | READPREV
+    | READQ
+    | RECEIVE
+    | RELEASE
+    | REMOVE
+    | RESET
+    | RESETBR
+    | RESUME
+    | RETRIEVE
+    | RETURN
+    | REWIND
+    | REWRITE
+    | ROUTE
+    | RUN
+    | SEND
+    | SIGNAL
+    | SIGNOFF
+    | SIGNON
+    | SOAPFAULT
+    | SPOOLCLOSE
+    | SPOOLOPEN
+    | SPOOLREAD
+    | SPOOLWRITE
+    | START
+    | STARTBR
+    | STARTBROWSE
+    | SUSPEND
+    | SYNCPOINT
+    | TEST
+    | TRANSFORM
+    | UNLOCK
+    | UPDATE
+    | VERIFY
+    | WAIT
+    | WAITCICS
+    | WEB
+    | WRITE
+    | WRITEQ
+    | WSACONTEXT
+    | WSAEPR
+    | XCTL
+    )
+end
+
+def option = 
+    ( map   : MAP    ['(' value ')']
+    | queue : QUEUE  ['(' value ')']
+    | file  : FILE   ['(' value ')']
+    | resp  : RESP   ['(' value ')']
+    | name ['(' value ')']
+    )
+end
+
+# TODO I could try listing all possible option names as well...
+def name =
+    (%not '(') (%not ')') _ 
+end
+
+# Values can have more embedded parentheses. So we just make sure those are 
+# balanced, without caring much what else is in there. 
+def value =
+    (param)+ 
+end
+
+private def param =
+    ( '(' (param)+ ')'
+    | (%not '(') (%not ')') _ 
+    )
+end
+

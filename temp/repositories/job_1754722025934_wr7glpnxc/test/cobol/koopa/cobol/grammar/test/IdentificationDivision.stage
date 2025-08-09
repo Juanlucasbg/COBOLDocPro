@@ -1,0 +1,181 @@
+target programName;
+
++[ UNTITLED ]
++[ GRACE-MURRAY-HOPPER ]
++[ "Grace Murray Hopper" ]
++[ 'Grace Murray Hopper' ]
+
+
+target programIdParagraph;
+
++[ PROGRAM-ID . ] programName [ . ]
++[ PROGRAM-ID . ] programName [   ]
++[ PROGRAM-ID   ] programName [   ]
++[ PROGRAM-ID   ] programName [ . ]
+
++[ PROGRAM-ID . ] programName [ IS INITIAL . ]
++[ PROGRAM-ID . ] programName [ IS INITIAL   ]
++[ PROGRAM-ID . ] programName [    INITIAL . ]
++[ PROGRAM-ID . ] programName [    INITIAL   ]
+
++[ PROGRAM-ID . ] programName [ IS COMMON . ]
++[ PROGRAM-ID . ] programName [ IS COMMON   ]
++[ PROGRAM-ID . ] programName [    COMMON . ]
++[ PROGRAM-ID . ] programName [    COMMON   ]
+
++[ PROGRAM-ID . ] programName [ IS INITIAL COMMON . ]
++[ PROGRAM-ID . ] programName [ IS INITIAL COMMON   ]
++[ PROGRAM-ID . ] programName [    INITIAL COMMON . ]
++[ PROGRAM-ID . ] programName [    INITIAL COMMON   ]
+
++[ PROGRAM-ID . ] programName [ IS COMMON INITIAL . ]
++[ PROGRAM-ID . ] programName [ IS COMMON INITIAL   ]
++[ PROGRAM-ID . ] programName [    COMMON INITIAL . ]
++[ PROGRAM-ID . ] programName [    COMMON INITIAL   ]
+
++[ PROGRAM-ID . ] programName [ IS INITIAL PROGRAM . ]
++[ PROGRAM-ID . ] programName [ IS INITIAL PROGRAM   ]
++[ PROGRAM-ID . ] programName [    INITIAL PROGRAM . ]
++[ PROGRAM-ID . ] programName [    INITIAL PROGRAM   ]
+
++[ PROGRAM-ID . ] programName [ IS COMMON PROGRAM . ]
++[ PROGRAM-ID . ] programName [ IS COMMON PROGRAM   ]
++[ PROGRAM-ID . ] programName [    COMMON PROGRAM . ]
++[ PROGRAM-ID . ] programName [    COMMON PROGRAM   ]
+
++[ PROGRAM-ID . ] programName [ IS INITIAL COMMON PROGRAM . ]
++[ PROGRAM-ID . ] programName [ IS INITIAL COMMON PROGRAM   ]
++[ PROGRAM-ID . ] programName [    INITIAL COMMON PROGRAM . ]
++[ PROGRAM-ID . ] programName [    INITIAL COMMON PROGRAM   ]
+
++[ PROGRAM-ID . ] programName [ IS COMMON INITIAL PROGRAM . ]
++[ PROGRAM-ID . ] programName [ IS COMMON INITIAL PROGRAM   ]
++[ PROGRAM-ID . ] programName [    COMMON INITIAL PROGRAM . ]
++[ PROGRAM-ID . ] programName [    COMMON INITIAL PROGRAM   ]
+
+
+target classIdParagraph;
+
++[ CLASS-ID . foo . ]
++[ CLASS-ID . foo  AS "bar" . ]
++[ CLASS-ID . foo INHERITS FROM bar . ]
++[ CLASS-ID . foo INHERITS FROM bar baz . ]
++[ CLASS-ID . foo INHERITS FROM bar IS STATIC FINAL PUBLIC . ]
++[ CLASS-ID . foo PUBLIC IMPLEMENTS bar baz . ]
+
++[ CLASS-ID . foo PUBLIC
+   IMPLEMENTS baz . ]
+#   ATTRIBUTE bar (b1 NAME b2 = v2 NAME b3 = v3 b4)
+
++[ CLASS-ID . foo PUBLIC
+   IMPLEMENTS baz . ]
+#   ATTRIBUTE bar ()
+   
++[ CLASS-ID . foo PUBLIC
+   IMPLEMENTS baz . ]
+#   ATTRIBUTE bar (b1)
+
++[ CLASS-ID . foo PUBLIC
+   IMPLEMENTS baz . ]
+#   ATTRIBUTE bar (b1 b2)
+
++[ CLASS-ID . foo PUBLIC
+   IMPLEMENTS boojum . ]
+#   ATTRIBUTE bar (b1 b2)
+#   ATTRIBUTE baz (b3)
+
++[ CLASS-ID . foo
+   IMPLEMENTS baz . ]
+#   ATTRIBUTE bar (NAME snark = "boojum")
+   
++[ CLASS-ID . foo
+   IMPLEMENTS baz . ]
+#   CUSTOM-ATTRIBUTE IS bar (snark = "boojum")
+   
+
+target methodIdParagraph;
+
++[ METHOD-ID . foo . ]
++[ METHOD-ID . foo  AS "bar" . ]
++[ METHOD-ID . GET PROPERTY foo . ]
+#+[  METHOD-ID . SET PROPERTY foo SYNC . ]
+#+[  METHOD-ID . foo IS STATIC PUBLIC . ]
+#+[  METHOD-ID . foo ABSTRACT FOR bar . ]
+#+[  METHOD-ID . foo PUBLIC USING bar . ]
+
+
+target factoryParagraph;
+
++[ FACTORY . ]
++[ FACTORY . IMPLEMENTS foo . ]
++[ FACTORY . IMPLEMENTS foo bar . ]
+
+
+target interfaceIdParagraph;
+
+#+[ INTERFACE-ID . foo INTERNAL INHERITS FROM bar USING baz ]
+
+
+target functionIdParagraph;
+
++[ FUNCTION-ID . foo ]
+
+
+target functionPrototypeIdParagraph;
+
++[ FUNCTION-ID . foo AS "bar" PROTOTYPE ]
++[ FUNCTION-ID . foo PROTOTYPE ]
++[ FUNCTION-ID . foo IS PROTOTYPE ]
+
+
+target delegateIdParagraph;
+
++[ DELEGATE-ID . foo . ]
++[ DELEGATE-ID . foo IS PROTECTED . ]
+
+
+target enumIdParagraph;
+
++[ ENUM-ID . foo . ]
++[ ENUM-ID . foo IS PUBLIC . ]
++[ ENUM-ID . foo IS PRIVATE . ]
++[ ENUM-ID . foo IS PROTECTED . ]
++[ ENUM-ID . foo IS INTERNAL . ]
+
+
+target iteratorIdParagraph;
+
++[ ITERATOR-ID . foo . ]
++[ ITERATOR-ID . foo AS "baz" . ]
++[ ITERATOR-ID . foo AS "baz" PUBLIC . ]
+
+
+target operatorIdParagraph;
+
++[ OPERATOR-ID . = . ]
++[ OPERATOR-ID . = EXTENSION . ]
++[ OPERATOR-ID . <> . ]
++[ OPERATOR-ID . + . ]
++[ OPERATOR-ID . - . ]
++[ OPERATOR-ID . * . ]
++[ OPERATOR-ID . / . ]
++[ OPERATOR-ID . B-AND . ]
++[ OPERATOR-ID . B-XOR . ]
++[ OPERATOR-ID . B-NOT . ]
++[ OPERATOR-ID . IMPLICIT . ]
++[ OPERATOR-ID . EXPLICIT . ]
+
+target valueTypeIdParagraph;
+
++[ VALUETYPE-ID . foo . ]
++[ VALUETYPE-ID . foo PARTIAL . ]
++[ VALUETYPE-ID . foo IMPLEMENTS bar . ]
+
++[ VALUETYPE-ID . foo
+   IMPLEMENTS baz . ]
+#   ATTRIBUTE bar (b1 b2)
+
++[ VALUETYPE-ID . foo
+   IMPLEMENTS boojum . ]
+#   ATTRIBUTE bar (b1 b2)
+#   ATTRIBUTE baz ()

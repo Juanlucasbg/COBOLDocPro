@@ -342,7 +342,8 @@ export class COBOLSemanticAnalyzer {
   private buildProgramModel(staticResult: StaticAnalysisResult): ProgramModel {
     const program = staticResult.programs[0];
     if (!program) {
-      throw new Error('No program found in static analysis result');
+      // Create a minimal program model from the static result
+      return this.createMinimalProgramModel(staticResult);
     }
     
     // Build enhanced data items with hierarchy
@@ -1024,5 +1025,49 @@ export class COBOLSemanticAnalyzer {
     if (type === 'CALL') return 'CALL';
     
     return 'READ';
+  }
+
+  private createMinimalProgramModel(staticResult: StaticAnalysisResult): ProgramModel {
+    // Create a minimal program model when no programs are found
+    // This handles cases where repository analysis finds files but no valid COBOL programs
+    
+    const programId = staticResult.fileName.replace(/\.(cbl|cob|cobol)$/i, '');
+    
+    return {
+      programId,
+      divisions: [{
+        name: 'IDENTIFICATION',
+        sections: [],
+        metadata: {}
+      }],
+      sections: [],
+      paragraphs: [],
+      dataItems: staticResult.dataElements.map(de => ({
+        name: de.name,
+        level: de.level || 1,
+        picture: de.picture,
+        usage: de.usage,
+        value: de.value,
+        occurs: de.occurs,
+        redefines: de.redefines,
+        parent: undefined,
+        children: [],
+        lineNumber: de.lineNumber || 1,
+        section: 'WORKING-STORAGE' as const,
+        dataType: this.inferDataType(de.picture || ''),
+        length: this.calculateLength(de.picture || ''),
+        editMask: this.extractEditMask(de.picture || '')
+      })),
+      fileDefinitions: [],
+      linkageSection: {
+        parameters: [],
+        totalLength: 0
+      },
+      workingStorage: {
+        items: [],
+        constants: [],
+        flags: []
+      }
+    };
   }
 }

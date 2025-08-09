@@ -1,0 +1,7 @@
+target renameStatement;
+
+# NOTE: All of these are just hand-made dummies.
++[ RENAME TABLE               FOO etc etc ]
++[ RENAME INDEX               FOO etc etc ]
+# Catch-all:
++[ RENAME                     FOO etc etc ]

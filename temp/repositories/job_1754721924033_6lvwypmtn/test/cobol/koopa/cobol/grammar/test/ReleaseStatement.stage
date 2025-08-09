@@ -1,0 +1,5 @@
+target releaseStatement;
+
++[ RELEASE MY-SORT-RECORD ]
+
++[ RELEASE MY-SORT-RECORD FROM MY-FILE ]
