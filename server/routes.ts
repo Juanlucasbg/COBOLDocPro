@@ -13,6 +13,7 @@ import { registerRepositoryRoutes } from "./repository-routes";
 import { registerDocumentationRoutes } from "./documentation-routes";
 import { registerAnalysisRoutes } from "./analysis-routes";
 import { setupAIDocumentationRoutes } from "./ai-documentation-routes";
+import { setupWorkflowRoutes } from "./workflow-routes";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -44,6 +45,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register AI documentation routes
   setupAIDocumentationRoutes(app);
+  
+  // Register workflow routes
+  setupWorkflowRoutes(app);
   
   // Get all programs
   app.get("/api/programs", async (req, res) => {
