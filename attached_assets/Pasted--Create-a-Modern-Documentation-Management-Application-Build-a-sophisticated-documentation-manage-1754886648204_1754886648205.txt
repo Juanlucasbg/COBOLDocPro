@@ -1,0 +1,174 @@
+# Create a Modern Documentation Management Application
+
+Build a sophisticated documentation management application with the following specifications:
+
+## Core Interface Layout
+
+### Left Sidebar Navigation
+- **Header**: Company branding area (Goldman Sachs style)
+- **Main Sections**:
+  - Overview (dashboard icon)
+  - Editor (edit icon)
+  - Analytics (chart icon)
+  - Settings (gear icon)
+
+- **Actions Section**:
+  - Knowledge Base Search (search icon)
+  - Authentication (shield icon)
+  - MCP Server (server icon)
+  - Add-ons (puzzle piece icon)
+
+- **Workspaces Section**:
+  - Payment Services (green indicator)
+  - Loan Services 
+  - Customer Services
+  - Add ability to create/manage custom workspaces
+
+### Main Content Area
+
+#### Top Section - Add New Codebase
+- Input field for GitHub repository URL (placeholder: "https://github.com/walmartlabs/zECS")
+- Green "Generate" button to process repositories
+- Support for multiple repository sources (GitHub, GitLab, Bitbucket)
+
+#### Codebase Gallery
+Display existing codebases in a responsive grid with cards showing:
+- **Service Name** (e.g., "zECS/cobol-caching-service")
+- **Last Updated** timestamp
+- **Domain** with colored status indicator
+- **Service Description** 
+- **Branch Information**
+- **Live Status** indicator
+- **Visit Docs** button for each codebase
+
+## Enhanced Functionalities to Add
+
+### 1. Advanced Search & Discovery
+- Global search across all documentation
+- AI-powered semantic search
+- Filter by workspace, domain, language, last updated
+- Search suggestions and autocomplete
+- Saved search queries
+
+### 2. Real-time Collaboration
+- Live editing with multiple users
+- Comment and annotation system
+- Review and approval workflows
+- Version history with diff visualization
+- Team mentions and notifications
+
+### 3. AI-Powered Features
+- **Auto-documentation**: Generate docs from code comments
+- **Smart Summarization**: Create executive summaries
+- **Code Analysis**: Detect security issues, performance bottlenecks
+- **Dependency Mapping**: Visualize service relationships
+- **API Documentation**: Auto-generate from OpenAPI specs
+
+### 4. Analytics Dashboard
+- Documentation usage metrics
+- Most accessed repositories
+- Team collaboration statistics
+- Code quality trends
+- Documentation coverage reports
+
+### 5. Integration Capabilities
+- **CI/CD Integration**: Auto-update docs on code changes
+- **Slack/Teams Integration**: Notifications and quick access
+- **JIRA Integration**: Link docs to tickets
+- **SSO Integration**: Enterprise authentication
+- **Webhook Support**: Custom integrations
+
+### 6. Advanced Editor Features
+- **Markdown Editor**: Rich text with live preview
+- **Code Highlighting**: Multi-language syntax support
+- **Diagram Support**: Mermaid, PlantUML integration
+- **Template System**: Standardized documentation templates
+- **Media Management**: Image, video, and file uploads
+
+### 7. Workspace Management
+- **Custom Workspaces**: Create domain-specific areas
+- **Permission Management**: Role-based access control
+- **Workspace Analytics**: Usage and collaboration metrics
+- **Custom Branding**: Workspace-specific themes
+- **Resource Allocation**: Storage and processing limits
+
+### 8. Documentation Lifecycle
+- **Automated Archiving**: Remove outdated documentation
+- **Health Monitoring**: Track documentation freshness
+- **Compliance Tracking**: Ensure regulatory requirements
+- **Backup & Recovery**: Automated data protection
+- **Migration Tools**: Import from other documentation systems
+
+### 9. Developer Experience
+- **API Documentation**: Interactive API explorer
+- **SDK Generation**: Auto-generate client libraries
+- **Code Examples**: Interactive code snippets
+- **Testing Integration**: Link to test suites
+- **Performance Monitoring**: Track service health
+
+### 10. Enterprise Features
+- **Audit Logging**: Complete activity tracking
+- **Data Governance**: Classification and retention policies
+- **Multi-tenant Support**: Isolated customer environments
+- **SLA Monitoring**: Track system performance
+- **Disaster Recovery**: Multi-region backup
+
+## Technical Implementation Requirements
+
+### Frontend
+- Modern React/Vue.js application
+- Responsive design (mobile-first)
+- Dark/light theme support
+- Progressive Web App capabilities
+- Real-time updates via WebSockets
+
+### Backend
+- Microservices architecture
+- RESTful API with GraphQL support
+- Real-time synchronization
+- Scalable document processing
+- Advanced caching strategies
+
+### Database
+- Document store for content (MongoDB/CouchDB)
+- Search engine integration (Elasticsearch)
+- Version control for documents
+- Metadata indexing
+
+### Security
+- Enterprise-grade authentication
+- End-to-end encryption
+- Rate limiting and DDoS protection
+- Security scanning integration
+- Compliance reporting
+
+## UI/UX Specifications
+
+### Design System
+- Clean, professional interface
+- Consistent color scheme with status indicators
+- Intuitive navigation patterns
+- Accessibility compliance (WCAG 2.1)
+- Loading states and error handling
+
+### Color Scheme
+- Primary: Professional blue (#1f2937)
+- Success: Green (#10b981)
+- Warning: Orange (#f59e0b)
+- Error: Red (#ef4444)
+- Neutral: Gray scales for backgrounds and text
+
+### Typography
+- System fonts for optimal performance
+- Clear hierarchy with proper spacing
+- Readable font sizes (16px+ for body text)
+- Proper contrast ratios
+
+### Interactive Elements
+- Hover states for all clickable elements
+- Loading spinners for async operations
+- Toast notifications for user feedback
+- Modal dialogs for complex forms
+- Drag-and-drop functionality where appropriate
+
+Create this application with modern web technologies, ensuring it's scalable, secure, and provides an exceptional user experience for technical documentation management.

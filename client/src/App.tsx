@@ -3,13 +3,20 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Dashboard from "@/pages/Dashboard";
+import Sidebar from "@/components/layout/Sidebar";
+import Overview from "@/pages/Overview";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/" component={Overview} />
+      <Route path="/editor" component={() => <div className="p-8 text-white">Editor - Coming Soon</div>} />
+      <Route path="/analytics" component={() => <div className="p-8 text-white">Analytics - Coming Soon</div>} />
+      <Route path="/settings" component={() => <div className="p-8 text-white">Settings - Coming Soon</div>} />
+      <Route path="/search" component={() => <div className="p-8 text-white">Knowledge Base Search - Coming Soon</div>} />
+      <Route path="/auth" component={() => <div className="p-8 text-white">Authentication - Coming Soon</div>} />
+      <Route path="/mcp" component={() => <div className="p-8 text-white">MCP Server - Coming Soon</div>} />
+      <Route path="/addons" component={() => <div className="p-8 text-white">Add-ons - Coming Soon</div>} />
       <Route>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -26,7 +33,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-black flex">
+          <Sidebar />
           <Router />
           <Toaster />
         </div>
