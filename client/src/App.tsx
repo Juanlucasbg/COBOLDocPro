@@ -5,11 +5,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Sidebar from "@/components/layout/Sidebar";
 import Overview from "@/pages/Overview";
+import RepositoryDetail from "@/pages/RepositoryDetail";
+import ProgramDetail from "@/pages/ProgramDetail";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Overview} />
+      <Route path="/repository/:id" component={RepositoryDetail} />
+      <Route path="/program/:id" component={ProgramDetail} />
       <Route path="/editor" component={() => <div className="p-8 text-white">Editor - Coming Soon</div>} />
       <Route path="/analytics" component={() => <div className="p-8 text-white">Analytics - Coming Soon</div>} />
       <Route path="/settings" component={() => <div className="p-8 text-white">Settings - Coming Soon</div>} />

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,10 +73,11 @@ export default function Overview() {
     generateMutation.mutate({ url: githubUrl.trim() });
   };
 
-  const getStatusIcon = (status: Repository['status']) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'COMPLETED':
         return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+      case 'FAILED':
       case 'ERROR':
         return <AlertCircle className="w-4 h-4 text-red-500" />;
       default:
@@ -83,11 +85,13 @@ export default function Overview() {
     }
   };
 
-  const getStatusBadge = (status: Repository['status']) => {
-    const styles = {
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, string> = {
       'COMPLETED': 'bg-green-600 text-white',
       'ANALYZING': 'bg-yellow-600 text-white',
+      'SYNCING': 'bg-yellow-600 text-white',
       'CLONING': 'bg-blue-600 text-white',
+      'FAILED': 'bg-red-600 text-white',
       'ERROR': 'bg-red-600 text-white'
     };
     return styles[status] || 'bg-gray-600 text-white';
@@ -144,23 +148,29 @@ export default function Overview() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {repositories.map((repo) => (
-                <Card key={repo.id} className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-all duration-200">
-                  <CardHeader className="pb-4">
+              {repositories.map((repo: any) => (
+                <Link key={repo.id} href={`/repository/${repo.id}`}>
+                  <Card className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-all duration-200 cursor-pointer">
+                    <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <CardTitle className="text-white text-base font-medium truncate mb-1">
                           {repo.name}
                         </CardTitle>
                         <p className="text-sm text-gray-400 mb-2">
-                          Last updated: {formatDate(repo.lastUpdated)}
+                          Last updated: {formatDate(repo.updatedAt || repo.lastUpdated)}
                         </p>
                       </div>
                       <Badge 
-                        className={`ml-2 text-xs ${getStatusBadge(repo.status)}`}
+                        className={`ml-2 text-xs ${getStatusBadge(repo.syncStatus || repo.status)}`}
                         data-testid={`status-${repo.id}`}
                       >
-                        {repo.status === 'COMPLETED' ? 'Live' : repo.status}
+                        {repo.syncStatus === 'COMPLETED' ? 'Live' : 
+                         repo.syncStatus === 'ANALYZING' ? 'Analyzing' :
+                         repo.syncStatus === 'SYNCING' ? 'Syncing' :
+                         repo.syncStatus === 'CLONING' ? 'Cloning' :
+                         repo.syncStatus === 'FAILED' ? 'Failed' :
+                         repo.syncStatus || repo.status}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -193,9 +203,11 @@ export default function Overview() {
                     {/* Action buttons */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        {getStatusIcon(repo.status)}
+                        {getStatusIcon(repo.syncStatus || repo.status)}
                         <span className="text-xs text-gray-400">
-                          {repo.status === 'COMPLETED' ? 'Live' : repo.status}
+                          {repo.syncStatus === 'COMPLETED' ? 'Live' : 
+                           repo.syncStatus === 'ANALYZING' ? 'Analyzing' :
+                           repo.syncStatus || repo.status}
                         </span>
                       </div>
                       
@@ -203,7 +215,7 @@ export default function Overview() {
                         variant="outline"
                         size="sm"
                         className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 text-xs"
-                        disabled={repo.status !== 'COMPLETED'}
+                        disabled={repo.syncStatus !== 'COMPLETED'}
                         data-testid={`visit-docs-${repo.id}`}
                       >
                         <ExternalLink className="w-3 h-3 mr-1" />
@@ -211,7 +223,8 @@ export default function Overview() {
                       </Button>
                     </div>
                   </CardContent>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </div>
           )}
