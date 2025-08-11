@@ -129,7 +129,7 @@ export default function RepositoryDetail() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-white">
-              {analysisResults.summary.totalPrograms}
+              {analysisResults.summary.totalPrograms || 0}
             </p>
           </CardContent>
         </Card>
@@ -151,7 +151,7 @@ export default function RepositoryDetail() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-white">
-              {analysisResults.qualityMetrics.averageComplexity}
+              {analysisResults.qualityMetrics?.averageComplexity || 0}
             </p>
           </CardContent>
         </Card>
@@ -162,7 +162,7 @@ export default function RepositoryDetail() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-white">
-              {analysisResults.qualityMetrics.programsWithAI}/{analysisResults.summary.totalPrograms}
+              {analysisResults.qualityMetrics?.programsWithAI || 0}/{analysisResults.summary.totalPrograms || 0}
             </p>
           </CardContent>
         </Card>
@@ -187,38 +187,57 @@ export default function RepositoryDetail() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {analysisResults.programs.map((program: any) => (
-                  <Link key={program.id} href={`/program/${program.id}`}>
-                    <div className="p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <FileCode className="w-5 h-5 text-green-500" />
-                          <div>
-                            <h3 className="font-semibold text-white">{program.name}</h3>
-                            <p className="text-sm text-gray-400">
-                              {program.filename} • {program.linesOfCode} LOC
-                            </p>
+                {analysisResults.programs && analysisResults.programs.length > 0 ? (
+                  analysisResults.programs.map((program: any) => (
+                    <Link key={program.id} href={`/program/${program.id}`}>
+                      <div className="p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <FileCode className="w-5 h-5 text-green-500" />
+                            <div>
+                              <h3 className="font-semibold text-white">{program.name}</h3>
+                              <p className="text-sm text-gray-400">
+                                {program.filename} • {program.linesOfCode} LOC
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {program.aiSummary && (
+                              <Badge className="bg-green-500/20 text-green-400">
+                                AI Documented
+                              </Badge>
+                            )}
+                            <Badge variant="outline" className="text-gray-400">
+                              Complexity: {program.complexity || 0}
+                            </Badge>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {program.aiSummary && (
-                            <Badge className="bg-green-500/20 text-green-400">
-                              AI Documented
-                            </Badge>
-                          )}
-                          <Badge variant="outline" className="text-gray-400">
-                            Complexity: {program.complexity || 0}
-                          </Badge>
-                        </div>
                       </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <FileCode className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-300 mb-2">No COBOL Programs Found</h3>
+                    <div className="text-gray-400 space-y-2">
+                      {repository.syncStatus === 'ANALYZING' ? (
+                        <>
+                          <p>Analysis is still in progress...</p>
+                          <p className="text-sm">This repository is being processed. Programs will appear here once analysis completes.</p>
+                        </>
+                      ) : repository.syncStatus === 'COMPLETED' ? (
+                        <>
+                          <p>This repository contains no COBOL programs to analyze.</p>
+                          <p className="text-sm">Only repositories with .cbl, .cob, or .cobol files can be processed.</p>
+                        </>
+                      ) : (
+                        <>
+                          <p>Repository analysis failed or is pending.</p>
+                          <p className="text-sm">Try re-adding this repository to restart the analysis process.</p>
+                        </>
+                      )}
                     </div>
-                  </Link>
-                ))}
-                
-                {analysisResults.programs.length === 0 && (
-                  <p className="text-center text-gray-400 py-8">
-                    No programs analyzed yet. Analysis may still be in progress.
-                  </p>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -235,19 +254,19 @@ export default function RepositoryDetail() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-green-500">
-                    {analysisResults.qualityMetrics.complexityDistribution.low}
+                    {analysisResults.qualityMetrics?.complexityDistribution?.low || 0}
                   </p>
                   <p className="text-sm text-gray-400">Low Complexity</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-yellow-500">
-                    {analysisResults.qualityMetrics.complexityDistribution.medium}
+                    {analysisResults.qualityMetrics?.complexityDistribution?.medium || 0}
                   </p>
                   <p className="text-sm text-gray-400">Medium Complexity</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-red-500">
-                    {analysisResults.qualityMetrics.complexityDistribution.high}
+                    {analysisResults.qualityMetrics?.complexityDistribution?.high || 0}
                   </p>
                   <p className="text-sm text-gray-400">High Complexity</p>
                 </div>
@@ -268,11 +287,13 @@ export default function RepositoryDetail() {
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-400">AI Documentation</span>
                     <span className="text-sm text-white">
-                      {Math.round((analysisResults.qualityMetrics.programsWithAI / analysisResults.summary.totalPrograms) * 100)}%
+                      {analysisResults.summary.totalPrograms > 0 ? 
+                        Math.round(((analysisResults.qualityMetrics?.programsWithAI || 0) / analysisResults.summary.totalPrograms) * 100) : 0}%
                     </span>
                   </div>
                   <Progress 
-                    value={(analysisResults.qualityMetrics.programsWithAI / analysisResults.summary.totalPrograms) * 100}
+                    value={analysisResults.summary.totalPrograms > 0 ? 
+                      ((analysisResults.qualityMetrics?.programsWithAI || 0) / analysisResults.summary.totalPrograms) * 100 : 0}
                     className="bg-gray-800"
                   />
                 </div>
@@ -281,11 +302,13 @@ export default function RepositoryDetail() {
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-400">Manual Documentation</span>
                     <span className="text-sm text-white">
-                      {Math.round((analysisResults.qualityMetrics.programsWithDocumentation / analysisResults.summary.totalPrograms) * 100)}%
+                      {analysisResults.summary.totalPrograms > 0 ? 
+                        Math.round(((analysisResults.qualityMetrics?.programsWithDocumentation || 0) / analysisResults.summary.totalPrograms) * 100) : 0}%
                     </span>
                   </div>
                   <Progress 
-                    value={(analysisResults.qualityMetrics.programsWithDocumentation / analysisResults.summary.totalPrograms) * 100}
+                    value={analysisResults.summary.totalPrograms > 0 ? 
+                      ((analysisResults.qualityMetrics?.programsWithDocumentation || 0) / analysisResults.summary.totalPrograms) * 100 : 0}
                     className="bg-gray-800"
                   />
                 </div>
