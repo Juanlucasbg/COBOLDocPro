@@ -61,6 +61,13 @@ A modern web application for analyzing and documenting legacy COBOL systems. The
   - Enhanced documentation data extraction (complexity, author, date, description)
   - Eliminated GitHub token requirements with smart public repository access
   - Successfully processing real COBOL repositories (IBM/zopeneditor-sample)
+- **2025-01-11**: Integrated OpenRouter AI for enhanced COBOL documentation:
+  - OpenRouter API integration with GLM-4.5 model for intelligent code analysis
+  - AI-powered plain English summaries of COBOL programs
+  - Automated business rule extraction with confidence scoring
+  - Code quality assessment with actionable recommendations
+  - Comprehensive documentation generation with risk assessment
+  - Real-time AI enhancement during repository processing
 
 ## User Preferences
 - **Design Style**: Professional dark interface with clean typography and minimal elements

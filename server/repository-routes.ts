@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { storage } from "./storage";
 import { SimpleGitHubClient } from "./simple-github-client";
 import { RobustCOBOLParser, COBOLDialect, SourceFormat } from "./robust-cobol-parser";
+import { OpenRouterClient } from "./openrouter-client";
 import { insertRepositorySchema, insertCodeFileSchema } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -99,6 +100,9 @@ export function registerRepositoryRoutes(app: Express) {
             }
           });
 
+          // Initialize AI client for enhanced documentation
+          const aiClient = new OpenRouterClient();
+
           console.log(`Processing ${gitHubFiles.length} COBOL files for ${owner}/${repo}`);
           
           for (const file of gitHubFiles) {
@@ -120,7 +124,18 @@ export function registerRepositoryRoutes(app: Express) {
               // Parse COBOL with robust parser and extract comprehensive documentation data
               const docData = parser.extractDocumentationData(file.content, file.name);
               
-              // Create program record with enhanced data from robust parser
+              // Generate AI-enhanced documentation for COBOL programs only
+              let aiSummary = null;
+              if (file.name.toLowerCase().endsWith('.cbl') || file.name.toLowerCase().endsWith('.cob')) {
+                try {
+                  console.log(`Generating AI documentation for ${file.name}...`);
+                  aiSummary = await aiClient.generatePlainEnglishSummary(file.content, docData.programName);
+                } catch (error) {
+                  console.error(`AI documentation failed for ${file.name}:`, error);
+                }
+              }
+              
+              // Create program record with enhanced data from robust parser and AI
               const program = await storage.createProgram({
                 name: docData.programName,
                 filename: file.name,
@@ -132,6 +147,7 @@ export function registerRepositoryRoutes(app: Express) {
                 description: docData.description,
                 complexity: docData.complexity.cyclomatic,
                 totalStatements: docData.metrics.totalStatements,
+                aiSummary: aiSummary,
               });
               
               // Link code file to program
