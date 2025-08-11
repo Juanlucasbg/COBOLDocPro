@@ -49,10 +49,15 @@ export const programs = pgTable("programs", {
   sourceCode: text("source_code").notNull(),
   aiSummary: text("ai_summary"),
   linesOfCode: integer("lines_of_code").notNull(),
-  complexity: text("complexity"),
+  complexity: integer("complexity"), // Changed to integer for cyclomatic complexity
   status: text("status").notNull().default("pending"), // pending, processing, completed, failed
   uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
   lastModified: timestamp("last_modified"),
+  // Enhanced fields from RobustCOBOLParser
+  author: text("author"),
+  dateWritten: text("date_written"),
+  description: text("description"),
+  totalStatements: integer("total_statements"),
   businessRules: jsonb("business_rules").$type<Array<{
     rule: string;
     condition: string;
@@ -98,8 +103,9 @@ export const dataElements = pgTable("data_elements", {
 export const programRelationships = pgTable("program_relationships", {
   id: serial("id").primaryKey(),
   fromProgramId: integer("from_program_id").notNull(),
-  toProgramId: integer("to_program_id").notNull(),
-  relationshipType: text("relationship_type").notNull(), // calls, includes, references
+  toProgramId: integer("to_program_id"),
+  relationshipType: text("relationship_type").notNull(), // CALL, PERFORM, INCLUDE, GO_TO
+  details: text("details"), // target program/paragraph name
   location: text("location"), // where in the code this relationship occurs
 });
 

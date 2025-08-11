@@ -1,9 +1,10 @@
 import type { Express } from "express";
 import { storage } from "./storage";
 import { SimpleGitHubClient } from "./simple-github-client";
-import { CobolParser } from "./cobol-parser";
+import { RobustCOBOLParser, COBOLDialect, SourceFormat } from "./robust-cobol-parser";
 import { insertRepositorySchema, insertCodeFileSchema } from "@shared/schema";
 import { z } from "zod";
+import crypto from "crypto";
 
 export function registerRepositoryRoutes(app: Express) {
   // Get all repositories
@@ -83,8 +84,23 @@ export function registerRepositoryRoutes(app: Express) {
           // Fetch all COBOL files without API limits
           const gitHubFiles = await github.fetchAllCobolFiles(owner, repo, actualBranch);
           
-          // Parse and store files
-          const parser = new CobolParser();
+          // Initialize robust COBOL parser with enterprise-grade capabilities
+          const parser = new RobustCOBOLParser({
+            dialect: COBOLDialect.IBM_ENTERPRISE,
+            sourceFormat: SourceFormat.FIXED,
+            enableErrorRecovery: true,
+            semanticValidation: true,
+            preprocessorOptions: {
+              expandCopybooks: true,
+              processReplace: true,
+              processCompilerDirectives: true,
+              conditionalCompilation: false,
+              preserveOriginalText: true
+            }
+          });
+
+          console.log(`Processing ${gitHubFiles.length} COBOL files for ${owner}/${repo}`);
+          
           for (const file of gitHubFiles) {
             try {
               // Create code file record
@@ -96,38 +112,83 @@ export function registerRepositoryRoutes(app: Express) {
                 language: file.name.toLowerCase().endsWith('.jcl') ? 'JCL' : 
                           file.name.toLowerCase().endsWith('.cpy') ? 'COPYBOOK' : 'COBOL',
                 version: actualBranch,
-                hash: require('crypto').createHash('sha256').update(file.content).digest('hex'),
+                hash: crypto.createHash('sha256').update(file.content).digest('hex'),
                 size: file.size,
                 lastModified: new Date(),
               });
               
-              // Parse COBOL and create program record
-              const parsedProgram = parser.parse(file.content || '');
+              // Parse COBOL with robust parser and extract comprehensive documentation data
+              const docData = parser.extractDocumentationData(file.content, file.name);
+              
+              // Create program record with enhanced data from robust parser
               const program = await storage.createProgram({
-                name: parsedProgram.name || file.fileName || '',
-                filename: file.fileName || '',
-                sourceCode: file.content || '',
-                linesOfCode: (file.content || '').split('\n').length,
-                status: 'pending',
+                name: docData.programName,
+                filename: file.name,
+                sourceCode: file.content,
+                linesOfCode: docData.metrics.linesOfCode,
+                status: 'completed',
+                author: docData.author,
+                dateWritten: docData.dateWritten,
+                description: docData.description,
+                complexity: docData.complexity.cyclomatic,
+                totalStatements: docData.metrics.totalStatements,
               });
               
               // Link code file to program
               await storage.updateCodeFile(codeFile.id, { programId: program.id });
               
-              // Extract data elements
-              if (parsedProgram.dataElements) {
-                for (const element of parsedProgram.dataElements) {
-                  await storage.createDataElement({
-                    programId: program.id,
-                    name: element.name,
-                    picture: element.picture || null,
-                    level: element.level || null,
-                    description: null,
-                  });
-                }
+              // Extract and store data elements with enhanced information from robust parser
+              for (const element of docData.dataElements) {
+                await storage.createDataElement({
+                  programId: program.id,
+                  name: element.name,
+                  picture: element.picture,
+                  level: element.level,
+                  usage: element.usage,
+                  description: element.description,
+                  usedInPrograms: null,
+                });
               }
+
+              // Store program relationships discovered by robust parser
+              for (const relationship of docData.relationships) {
+                await storage.createProgramRelationship({
+                  fromProgramId: program.id,
+                  toProgramId: null, // Will be resolved later
+                  relationshipType: relationship.type,
+                  details: relationship.target,
+                });
+              }
+
+              console.log(`✓ Processed ${file.name}: ${docData.programName} (${docData.metrics.linesOfCode} LOC, complexity: ${docData.complexity.cyclomatic})`);
+              
             } catch (parseError) {
-              console.error(`Failed to parse ${file.fileName}:`, parseError);
+              console.error(`Failed to parse ${file.name}:`, parseError);
+              
+              // Create a basic program record even if parsing fails
+              try {
+                const codeFile = await storage.createCodeFile({
+                  repositoryId: repository.id,
+                  filePath: file.path,
+                  fileName: file.name,
+                  content: file.content,
+                  language: 'COBOL',
+                  version: actualBranch,
+                  hash: crypto.createHash('sha256').update(file.content).digest('hex'),
+                  size: file.size,
+                  lastModified: new Date(),
+                });
+
+                await storage.createProgram({
+                  name: file.name.replace(/\.[^/.]+$/, ""),
+                  filename: file.name,
+                  sourceCode: file.content,
+                  linesOfCode: file.content.split('\n').length,
+                  status: 'error',
+                });
+              } catch (fallbackError) {
+                console.error(`Failed to create fallback record for ${file.name}:`, fallbackError);
+              }
             }
           }
           
@@ -158,8 +219,8 @@ export function registerRepositoryRoutes(app: Express) {
 
       const { githubUrl, accessToken, branch } = connectSchema.parse(req.body);
       
-      // Initialize GitHub integration
-      const github = new GitHubIntegration(accessToken);
+      // Initialize simple GitHub client 
+      const github = new SimpleGitHubClient();
       
       // Parse GitHub URL
       const { owner, repo } = github.parseGitHubUrl(githubUrl);

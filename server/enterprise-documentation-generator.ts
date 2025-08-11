@@ -4,8 +4,7 @@ Implements multi-target documentation generation: HTML, PDF, JSON/GraphML export
 Includes business-rule summaries, navigable hyperdocs, and governance-ready outputs
 */
 
-import type { SemanticAnalysisResult, ProgramModel, CallGraph, DataLineage, EnhancedBusinessRule } from './cobol-semantic-analyzer';
-import type { StaticAnalysisResult } from './cobol-analyzer';
+import type { DocumentationData, DataElementInfo, BusinessRule, DivisionInfo, ComplexityMetrics, ProgramMetrics } from './robust-cobol-parser';
 
 export interface EnterpriseDocumentationResult {
   metadata: DocumentationMetadata;
