@@ -3,36 +3,21 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
-import Dashboard from "@/pages/dashboard";
-import EnhancedDashboard from "@/pages/dashboard-enhanced";
-import Upload from "@/pages/upload";
-import Programs from "@/pages/programs";
-import BusinessRules from "@/pages/business-rules";
-import DataDictionary from "@/pages/data-dictionary";
-import Visualizations from "@/pages/visualizations";
-import ProgramDetail from "@/pages/program-detail";
-import AnalysisPage from "@/pages/AnalysisPage";
-import Repositories from "@/pages/repositories";
-import RepositoryAnalysis from "@/pages/repository-analysis";
-import Header from "@/components/layout/header";
-import Sidebar from "@/components/layout/sidebar";
+import Dashboard from "@/pages/Dashboard";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={EnhancedDashboard} />
+      <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
-      <Route path="/repositories" component={Repositories} />
-      <Route path="/repository-analysis" component={RepositoryAnalysis} />
-      <Route path="/programs" component={Programs} />
-      <Route path="/business-rules" component={BusinessRules} />
-      <Route path="/data-dictionary" component={DataDictionary} />
-      <Route path="/visualizations" component={Visualizations} />
-      <Route path="/upload" component={Upload} />
-      <Route path="/program/:id" component={ProgramDetail} />
-      <Route path="/program/:id/analysis" component={AnalysisPage} />
-      <Route component={NotFound} />
+      <Route>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4 text-white">Page Not Found</h1>
+            <p className="text-gray-400">The requested page could not be found.</p>
+          </div>
+        </div>
+      </Route>
     </Switch>
   );
 }
@@ -41,16 +26,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen ultra-minimal dark">
-          <div className="flex h-screen">
-            <Sidebar />
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <Header />
-              <main className="flex-1 overflow-y-auto">
-                <Router />
-              </main>
-            </div>
-          </div>
+        <div className="min-h-screen bg-black">
+          <Router />
           <Toaster />
         </div>
       </TooltipProvider>

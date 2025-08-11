@@ -45,6 +45,12 @@ A modern web application for analyzing and documenting legacy COBOL systems. The
   - Cleaned up example/mock data from server files and AI documentation generators
   - Platform now ready for real COBOL code analysis with empty database state
   - Preserved authentic analysis capabilities while removing test/dummy content
+- **2025-01-11**: Complete frontend rebuild with simplified dashboard:
+  - Replaced complex multi-tab interface with clean, focused dashboard
+  - Added GitHub repository input for direct analysis workflow
+  - Implemented past projects grid with status tracking and progress indicators
+  - Streamlined user experience for repository-based documentation generation
+  - Removed legacy sidebar/header navigation for simpler single-page approach
 
 ## User Preferences
 - **Design Style**: Professional dark interface with clean typography and minimal elements
