@@ -30,6 +30,105 @@ export function registerRepositoryRoutes(app: Express) {
     }
   });
 
+  // Create repository (simple endpoint for frontend)
+  app.post("/api/repositories", async (req, res) => {
+    try {
+      const createSchema = z.object({
+        url: z.string().url(),
+      });
+
+      const { url } = createSchema.parse(req.body);
+      
+      // Initialize GitHub integration
+      const github = new GitHubIntegration();
+      
+      // Parse GitHub URL
+      const { owner, repo } = github.parseGitHubUrl(url);
+      
+      // Validate repository access
+      const repoData = await github.getRepository(owner, repo);
+      
+      // Get latest commit
+      const latestCommit = await github.getLatestCommit(owner, repo, repoData.default_branch);
+      
+      // Create repository record
+      const repository = await storage.createRepository({
+        userId: 1, // TODO: Get from session
+        githubUrl: url,
+        owner,
+        name: repo,
+        branch: repoData.default_branch,
+        lastSyncedCommit: latestCommit,
+        syncStatus: "CLONING",
+        accessToken: null,
+      });
+      
+      // Start background sync process
+      setTimeout(async () => {
+        try {
+          await storage.updateRepository(repository.id, { syncStatus: "ANALYZING" });
+          
+          // Fetch all COBOL files
+          const files = await github.fetchAllCobolFiles(
+            owner,
+            repo,
+            repoData.default_branch,
+            repository.id
+          );
+          
+          // Parse and store files
+          const parser = new CobolParser();
+          for (const file of files) {
+            try {
+              // Create code file record
+              const codeFile = await storage.createCodeFile(file as any);
+              
+              // Parse COBOL and create program record
+              const parsedProgram = parser.parse(file.content || '');
+              const program = await storage.createProgram({
+                name: parsedProgram.name || file.fileName || '',
+                filename: file.fileName || '',
+                sourceCode: file.content || '',
+                linesOfCode: (file.content || '').split('\n').length,
+                status: 'pending',
+              });
+              
+              // Link code file to program
+              await storage.updateCodeFile(codeFile.id, { programId: program.id });
+              
+              // Extract data elements
+              if (parsedProgram.dataElements) {
+                for (const element of parsedProgram.dataElements) {
+                  await storage.createDataElement({
+                    programId: program.id,
+                    name: element.name,
+                    picture: element.picture || null,
+                    level: element.level || null,
+                    description: null,
+                  });
+                }
+              }
+            } catch (parseError) {
+              console.error(`Failed to parse ${file.fileName}:`, parseError);
+            }
+          }
+          
+          await storage.updateRepository(repository.id, { 
+            syncStatus: "COMPLETED"
+          });
+        } catch (error) {
+          console.error("Background sync failed:", error);
+          await storage.updateRepository(repository.id, { syncStatus: "ERROR" });
+        }
+      }, 1000);
+      
+      res.json(repository);
+    } catch (error: any) {
+      console.error("Failed to create repository:", error);
+      res.status(400).json({ message: error?.message || "Failed to create repository" });
+    }
+  });
+
   // Connect to GitHub repository
   app.post("/api/repositories/connect", async (req, res) => {
     try {
@@ -106,7 +205,7 @@ export function registerRepositoryRoutes(app: Express) {
           // Parse COBOL and create program record
           const parsedProgram = parser.parse(file.content || '');
           const program = await storage.createProgram({
-            name: parsedProgram.programName || file.fileName || '',
+            name: parsedProgram.name || file.fileName || '',
             filename: file.fileName || '',
             sourceCode: file.content || '',
             linesOfCode: (file.content || '').split('\n').length,
@@ -125,8 +224,7 @@ export function registerRepositoryRoutes(app: Express) {
                 picture: element.picture || null,
                 level: element.level || null,
                 usage: element.usage || null,
-                description: element.description || null,
-                parentElement: element.parent || null,
+                description: null,
                 usedInPrograms: null,
               });
             }

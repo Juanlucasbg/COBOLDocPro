@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { Github, ExternalLink, Clock, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface Repository {
@@ -23,6 +24,7 @@ export default function Overview() {
   const [githubUrl, setGithubUrl] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Fetch repositories
   const { data: repositories = [], isLoading } = useQuery<Repository[]>({
@@ -45,13 +47,22 @@ export default function Overview() {
       }
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setGithubUrl("");
       setIsGenerating(false);
       queryClient.invalidateQueries({ queryKey: ['/api/repositories'] });
+      toast({
+        title: "Repository Added",
+        description: `Started analyzing ${data.name}. Check the progress below.`,
+      });
     },
-    onError: () => {
+    onError: (error: any) => {
       setIsGenerating(false);
+      toast({
+        variant: "destructive",
+        title: "Failed to Add Repository",
+        description: error?.message || "Please check the GitHub URL and try again.",
+      });
     },
   });
 
