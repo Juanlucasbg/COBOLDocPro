@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "./storage";
-import { GitHubIntegration } from "./github-integration";
+import { SimpleGitHubClient } from "./simple-github-client";
 import { CobolParser } from "./cobol-parser";
 import { insertRepositorySchema, insertCodeFileSchema } from "@shared/schema";
 import { z } from "zod";
@@ -39,26 +39,23 @@ export function registerRepositoryRoutes(app: Express) {
 
       const { url } = createSchema.parse(req.body);
       
-      // Initialize GitHub integration
-      const github = new GitHubIntegration();
-      
       // Parse GitHub URL
-      const { owner, repo } = github.parseGitHubUrl(url);
+      const urlMatch = url.match(/github\.com[/:]([^/]+)\/([^/.]+)/);
+      if (!urlMatch) {
+        throw new Error('Invalid GitHub URL format');
+      }
+      const owner = urlMatch[1];
+      const repo = urlMatch[2].replace('.git', '');
       
-      // Validate repository access
-      const repoData = await github.getRepository(owner, repo);
-      
-      // Get latest commit
-      const latestCommit = await github.getLatestCommit(owner, repo, repoData.default_branch);
-      
-      // Create repository record
+      // Create repository record without GitHub API validation
+      // We'll validate during the sync process instead
       const repository = await storage.createRepository({
         userId: 1, // TODO: Get from session
         githubUrl: url,
         owner,
         name: repo,
-        branch: repoData.default_branch,
-        lastSyncedCommit: latestCommit,
+        branch: "main", // Default branch, will be updated during sync
+        lastSyncedCommit: null,
         syncStatus: "CLONING",
         accessToken: null,
       });
@@ -68,20 +65,41 @@ export function registerRepositoryRoutes(app: Express) {
         try {
           await storage.updateRepository(repository.id, { syncStatus: "ANALYZING" });
           
-          // Fetch all COBOL files
-          const files = await github.fetchAllCobolFiles(
-            owner,
-            repo,
-            repoData.default_branch,
-            repository.id
-          );
+          // Initialize simple GitHub client (no API token required)
+          const github = new SimpleGitHubClient();
+          
+          // Validate repository and get default branch
+          let actualBranch = "main";
+          try {
+            const validation = await github.validateRepository(owner, repo);
+            if (validation.exists && validation.defaultBranch) {
+              actualBranch = validation.defaultBranch;
+              await storage.updateRepository(repository.id, { branch: actualBranch });
+            }
+          } catch (error) {
+            console.log(`Using default branch for ${repo}:`, error);
+          }
+          
+          // Fetch all COBOL files without API limits
+          const gitHubFiles = await github.fetchAllCobolFiles(owner, repo, actualBranch);
           
           // Parse and store files
           const parser = new CobolParser();
-          for (const file of files) {
+          for (const file of gitHubFiles) {
             try {
               // Create code file record
-              const codeFile = await storage.createCodeFile(file as any);
+              const codeFile = await storage.createCodeFile({
+                repositoryId: repository.id,
+                filePath: file.path,
+                fileName: file.name,
+                content: file.content,
+                language: file.name.toLowerCase().endsWith('.jcl') ? 'JCL' : 
+                          file.name.toLowerCase().endsWith('.cpy') ? 'COPYBOOK' : 'COBOL',
+                version: actualBranch,
+                hash: require('crypto').createHash('sha256').update(file.content).digest('hex'),
+                size: file.size,
+                lastModified: new Date(),
+              });
               
               // Parse COBOL and create program record
               const parsedProgram = parser.parse(file.content || '');
