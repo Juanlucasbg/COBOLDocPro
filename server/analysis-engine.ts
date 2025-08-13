@@ -34,7 +34,8 @@ export type AnalysisType =
   | 'impact-analysis'
   | 'cfg'
   | 'dependencies'
-  | 'transformation-readiness';
+  | 'transformation-readiness'
+  | 'hybrid-hllm';
 
 export interface AnalysisResult {
   programId: number;
@@ -187,6 +188,14 @@ export class AnalysisEngine {
     options: AnalysisOptions
   ): Promise<void> {
     switch (analysisType) {
+      case 'hybrid-hllm': {
+        const { runHybridAnalysis } = await import('./analysis/hybrid-pipeline');
+        const hybrid = await runHybridAnalysis(program.id, { deep: options?.deepAnalysis });
+        // Save a summary into recommendations and summary fields
+        result.recommendations.push(...hybrid.report.improvementRecommendations);
+        result.summary = (result.summary ? result.summary + ' ' : '') + 'Hybrid code-only analysis completed.';
+        break;
+      }
       case 'parsing':
         await this.runParsingAnalysis(program, result);
         break;

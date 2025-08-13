@@ -2,7 +2,7 @@
 // Inspired by the Flask application's agent system for intelligent analysis
 
 import { observabilityTracker, agentMonitor } from './observability';
-import { generateClaudeProgramSummary, generateClaudeSystemExplanation, generateClaudeMermaidDiagram } from './anthropic-claude';
+import { generateClaudeProgramSummary, generateClaudeSystemExplanation, generateClaudeMermaidDiagram } from './coco-llm';
 import { CobolParser, type ParsedProgram } from './cobol-parser';
 
 interface AgentMemoryItem {

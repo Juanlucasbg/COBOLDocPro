@@ -3,68 +3,86 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 0%; /* Pure black background */
-  --foreground: 0 0% 100%; /* Pure white text */
-  --muted: 0 0% 0%; /* Black muted background */
-  --muted-foreground: 0 0% 100%; /* White muted text */
-  --popover: 0 0% 0%; /* Black popover background */
-  --popover-foreground: 0 0% 100%; /* White text */
-  --card: 0 0% 0%; /* Black card background */
-  --card-foreground: 0 0% 100%; /* White card text */
-  --border: 0 0% 0%; /* Black border */
-  --input: 0 0% 0%; /* Black input background */
-  --primary: 0 0% 100%; /* White primary */
-  --primary-foreground: 0 0% 0%; /* Black text on white */
-  --secondary: 0 0% 0%; /* Black secondary */
-  --secondary-foreground: 0 0% 100%; /* White secondary text */
-  --accent: 0 0% 0%; /* Black accent */
-  --accent-foreground: 0 0% 100%; /* White accent text */
-  --destructive: 0 0% 100%; /* White destructive */
-  --destructive-foreground: 0 0% 0%; /* Black destructive text */
-  --success: 0 0% 100%; /* White success */
-  --warning: 0 0% 100%; /* White warning */
-  --ring: 0 0% 100%; /* White ring */
+  /* Ultra-minimal: white background, black text */
+  --background: 0 0% 100%; /* White background */
+  --foreground: 0 0% 0%;   /* Black text */
+  --muted: 0 0% 100%;
+  --muted-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --border: 0 0% 100%; /* Effectively invisible borders */
+  --input: 0 0% 100%;
+  --primary: 0 0% 0%;   /* Black as primary for minimal emphasis */
+  --primary-foreground: 0 0% 100%; /* White text on black when needed */
+  --secondary: 0 0% 100%;
+  --secondary-foreground: 0 0% 0%;
+  --accent: 0 0% 100%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 120 100% 35%;
+  --warning: 40 100% 40%;
+  --ring: 0 0% 0%;
   --radius: 0rem;
-  --sidebar-bg: 0 0% 0%; /* Black sidebar */
-  --sidebar-hover: 0 0% 0%; /* Black hover */
-  --sidebar-active: 0 0% 100%; /* White active state */
+  --sidebar-bg: 0 0% 100%;
+  --sidebar-hover: 0 0% 95%;
+  --sidebar-active: 0 0% 0%;
 }
 
 .dark {
-  --background: 0 0% 0%; /* Pure black background */
-  --foreground: 0 0% 100%; /* Pure white text */
-  --muted: 0 0% 0%; /* Black muted background */
-  --muted-foreground: 0 0% 100%; /* White muted text */
-  --popover: 0 0% 0%; /* Black popover background */
-  --popover-foreground: 0 0% 100%; /* White text */
-  --card: 0 0% 0%; /* Black card background */
-  --card-foreground: 0 0% 100%; /* White card text */
-  --border: 0 0% 0%; /* Black border */
-  --input: 0 0% 0%; /* Black input background */
-  --primary: 0 0% 100%; /* White primary */
-  --primary-foreground: 0 0% 0%; /* Black text on white */
-  --secondary: 0 0% 0%; /* Black secondary */
-  --secondary-foreground: 0 0% 100%; /* White secondary text */
-  --accent: 0 0% 0%; /* Black accent */
-  --accent-foreground: 0 0% 100%; /* White accent text */
-  --destructive: 0 0% 100%; /* White destructive */
-  --destructive-foreground: 0 0% 0%; /* Black destructive text */
-  --success: 0 0% 100%; /* White success */
-  --warning: 0 0% 100%; /* White warning */
-  --ring: 0 0% 100%; /* White ring */
-  --sidebar-bg: 0 0% 0%; /* Black sidebar */
-  --sidebar-hover: 0 0% 0%; /* Black hover */
-  --sidebar-active: 0 0% 100%; /* White active state */
+  /* Keep dark mode minimal as well but still white text on black if toggled */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --muted: 0 0% 0%;
+  --muted-foreground: 0 0% 100%;
+  --popover: 0 0% 0%;
+  --popover-foreground: 0 0% 100%;
+  --card: 0 0% 0%;
+  --card-foreground: 0 0% 100%;
+  --border: 0 0% 0%;
+  --input: 0 0% 0%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 0%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 0 0% 0%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 120 100% 35%;
+  --warning: 40 100% 40%;
+  --ring: 0 0% 100%;
+  --sidebar-bg: 0 0% 0%;
+  --sidebar-hover: 0 0% 10%;
+  --sidebar-active: 0 0% 100%;
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
 
+  /* Ultra-minimal global base */
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
+
+  a { color: inherit; text-decoration: underline; }
+
+  /* Inputs and interactive elements without boxes */
+  button, input, select, textarea {
+    background: transparent;
+    color: inherit;
+    border: 1px solid transparent;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .font-mono {
@@ -138,34 +156,77 @@
   }
 }
 
-/* Pure Black/White Override - Remove all UI panels and decorative elements */
+/* Ultra-minimal overrides - white background, black text, no boxes */
 @layer utilities {
   .ultra-minimal {
-    background-color: #000000 !important;
-    color: #FFFFFF !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     background-image: none !important;
     backdrop-filter: none !important;
   }
-  
-  .ultra-minimal * {
+
+  /* Global neutralizers inside ultra-minimal */
+  .ultra-minimal, .ultra-minimal * {
+    color: #000000 !important;
     background-color: transparent !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     background-image: none !important;
   }
-  
+
+  /* Aggressive Tailwind utility neutralizers */
+  .ultra-minimal [class*="bg-"],
+  .ultra-minimal [class*="from-"],
+  .ultra-minimal [class*="to-"],
+  .ultra-minimal [class*="via-"],
+  .ultra-minimal [style*="background"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+
+  .ultra-minimal [class*="border"],
+  .ultra-minimal hr,
+  .ultra-minimal table,
+  .ultra-minimal th,
+  .ultra-minimal td {
+    border: none !important;
+  }
+
+  .ultra-minimal [class*="shadow"],
+  .ultra-minimal [style*="box-shadow"] {
+    box-shadow: none !important;
+  }
+
+  .ultra-minimal [class*="rounded"],
+  .ultra-minimal [style*="border-radius"] {
+    border-radius: 0 !important;
+  }
+
+  /* Typography reset for prose */
+  .ultra-minimal .prose,
+  .ultra-minimal .prose * {
+    color: #000000 !important;
+  }
+
+  /* Keep links visible but minimal */
+  .ultra-minimal a {
+    color: #000000 !important;
+    text-decoration: underline;
+  }
+
   .ultra-minimal-text {
-    color: #FFFFFF !important;
+    color: #000000 !important;
     background-color: transparent !important;
   }
-  
+
   .ultra-minimal-button {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
+    background-color: #000000 !important;
+    color: #ffffff !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;

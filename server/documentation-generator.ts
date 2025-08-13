@@ -1,5 +1,5 @@
 import { storage } from "./storage";
-import { generateClaudeProgramSummary, generateClaudeBusinessRules, generateClaudeSystemExplanation, generateClaudeMermaidDiagram } from "./anthropic-claude";
+import { generateClaudeProgramSummary, generateClaudeBusinessRules, generateClaudeSystemExplanation, generateClaudeMermaidDiagram } from "./coco-llm";
 import type { Program, InsertDocumentation, InsertDiagram, InsertBusinessLogic } from "@shared/schema";
 
 export interface DocumentationOptions {
@@ -123,12 +123,13 @@ export class DocumentationGenerator {
    * Generate overview documentation
    */
   private async generateOverviewDoc(program: Program): Promise<string> {
-    const summary = await generateClaudeProgramSummary(program.sourceCode);
+    const divisions = (program.structure?.divisions || []).map((d: any) => d.name).join(', ');
+    const summaryObj = await generateClaudeProgramSummary(program.name, divisions, program.sourceCode);
     
     const overview = `# ${program.name} - Overview Documentation
 
 ## Summary
-${summary}
+${summaryObj.summary}
 
 ## Program Details
 - **Name**: ${program.name}
@@ -138,7 +139,7 @@ ${summary}
 
 ## Key Responsibilities
 This COBOL program is responsible for:
-${summary}
+${summaryObj.keyProcessingLogic}
 
 ## Dependencies
 ${await this.getDependenciesSection(program.id)}
@@ -161,7 +162,9 @@ ${await this.getProcessingFlowSection(program)}
    * Generate book-style documentation
    */
   private async generateBookDoc(program: Program): Promise<string> {
-    const systemExplanation = await generateClaudeSystemExplanation(program.sourceCode);
+    const divisions = (program.structure?.divisions || []).map((d: any) => d.name).join(', ');
+    const summaryObj = await generateClaudeProgramSummary(program.name, divisions, program.sourceCode);
+    const systemExplanation = await generateClaudeSystemExplanation(program.name, summaryObj.summary);
     
     const book = `# ${program.name} - Comprehensive Documentation
 
@@ -182,7 +185,7 @@ ${await this.getProcessingFlowSection(program)}
 This comprehensive documentation provides an in-depth analysis of the ${program.name} COBOL program.
 
 ### Purpose
-${systemExplanation}
+${systemExplanation.plainEnglishSummary}
 
 ### Scope
 This document covers all aspects of the program including its architecture, data handling, business logic, and integration points.
@@ -279,7 +282,7 @@ ${await this.getGlossary(program)}
    * Generate member documentation with decision trees
    */
   private async generateMemberDoc(program: Program): Promise<string> {
-    const businessRules = await generateClaudeBusinessRules(program.sourceCode);
+    const businessRules = await generateClaudeBusinessRules(program.name, program.sourceCode);
     
     const member = `# ${program.name} - Member Documentation
 
@@ -444,7 +447,7 @@ flowchart LR
    * Generate business logic documentation
    */
   private async generateBusinessLogicDoc(program: Program): Promise<string> {
-    const businessRules = await generateClaudeBusinessRules(program.sourceCode);
+    const businessRules = await generateClaudeBusinessRules(program.name, program.sourceCode);
     
     const businessLogic = `# ${program.name} - Business Logic Documentation
 
@@ -521,7 +524,7 @@ graph TD
   ): Promise<void> {
     try {
       // Generate Mermaid diagram
-      const mermaidCode = await generateClaudeMermaidDiagram(program.sourceCode);
+      const diagram = await generateClaudeMermaidDiagram(program.name, `Generate a flow diagram for ${program.name}`);
       
       // Create main flow diagram
       await storage.createDiagram({
@@ -530,7 +533,7 @@ graph TD
         type: 'mermaid',
         title: `${program.name} - Process Flow`,
         description: `Main processing flow for ${docType} documentation`,
-        code: mermaidCode,
+        code: diagram.mermaidCode,
       });
 
       // Create architecture diagram if applicable
@@ -566,7 +569,7 @@ graph TD
    */
   private async extractBusinessRules(program: Program): Promise<void> {
     try {
-      const businessRules = await generateClaudeBusinessRules(program.sourceCode);
+      const businessRules = await generateClaudeBusinessRules(program.name, program.sourceCode);
       
       // Parse and store individual rules
       const rules = this.parseBusinessRules(businessRules);

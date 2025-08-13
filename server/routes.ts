@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { CobolParser } from "./cobol-parser";
-import { generateClaudeProgramSummary, generateClaudeBusinessRules, generateClaudeSystemExplanation, generateClaudeMermaidDiagram, generateClaudeDataElementDescriptions } from "./anthropic-claude";
+import { generateClaudeProgramSummary, generateClaudeBusinessRules, generateClaudeSystemExplanation, generateClaudeMermaidDiagram, generateClaudeDataElementDescriptions } from "./coco-llm";
 import { errorHandler } from "./error-handler";
 import { COBOLDocumentationAgent } from "./autonomous-agent";
 import { observabilityTracker } from "./observability";

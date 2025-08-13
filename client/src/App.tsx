@@ -14,18 +14,18 @@ function Router() {
       <Route path="/" component={Overview} />
       <Route path="/repository/:id" component={RepositoryDetail} />
       <Route path="/program/:id" component={ProgramDetail} />
-      <Route path="/editor" component={() => <div className="p-8 text-white">Editor - Coming Soon</div>} />
-      <Route path="/analytics" component={() => <div className="p-8 text-white">Analytics - Coming Soon</div>} />
-      <Route path="/settings" component={() => <div className="p-8 text-white">Settings - Coming Soon</div>} />
-      <Route path="/search" component={() => <div className="p-8 text-white">Knowledge Base Search - Coming Soon</div>} />
-      <Route path="/auth" component={() => <div className="p-8 text-white">Authentication - Coming Soon</div>} />
-      <Route path="/mcp" component={() => <div className="p-8 text-white">MCP Server - Coming Soon</div>} />
-      <Route path="/addons" component={() => <div className="p-8 text-white">Add-ons - Coming Soon</div>} />
+      <Route path="/editor" component={() => <div className="p-8">Editor - Coming Soon</div>} />
+      <Route path="/analytics" component={() => <div className="p-8">Analytics - Coming Soon</div>} />
+      <Route path="/settings" component={() => <div className="p-8">Settings - Coming Soon</div>} />
+      <Route path="/search" component={() => <div className="p-8">Knowledge Base Search - Coming Soon</div>} />
+      <Route path="/auth" component={() => <div className="p-8">Authentication - Coming Soon</div>} />
+      <Route path="/mcp" component={() => <div className="p-8">MCP Server - Coming Soon</div>} />
+      <Route path="/addons" component={() => <div className="p-8">Add-ons - Coming Soon</div>} />
       <Route>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4 text-white">Page Not Found</h1>
-            <p className="text-gray-400">The requested page could not be found.</p>
+            <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
+            <p>The requested page could not be found.</p>
           </div>
         </div>
       </Route>
@@ -37,7 +37,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-black flex">
+        <div className="min-h-screen ultra-minimal flex">
           <Sidebar />
           <Router />
           <Toaster />

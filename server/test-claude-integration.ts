@@ -1,5 +1,5 @@
 // Test file to debug Claude integration issues
-import { generateClaudeProgramSummary } from './anthropic-claude';
+import { generateClaudeProgramSummary } from './coco-llm';
 
 async function testClaudeIntegration() {
   try {
